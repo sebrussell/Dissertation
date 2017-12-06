@@ -1,0 +1,170 @@
+Determining if the __linux__ exist failed with the following output:
+Change Dir: C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"C:/Users/sebru_000/Desktop/Compilers/mingw32/bin/mingw32-make.exe" "cmTC_3aaac/fast"
+mingw32-make.exe[1]: Entering directory 'C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp'
+C:/Users/sebru_000/Desktop/Compilers/mingw32/bin/mingw32-make.exe -f CMakeFiles\cmTC_3aaac.dir\build.make CMakeFiles/cmTC_3aaac.dir/build
+mingw32-make.exe[2]: Entering directory 'C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_3aaac.dir/CheckSymbolExists.cxx.obj
+C:\Users\sebru_000\Desktop\Compilers\mingw32\bin\g++.exe    -std=c++11    -o CMakeFiles\cmTC_3aaac.dir\CheckSymbolExists.cxx.obj -c C:\Users\sebru_000\Desktop\Dissertation\build\CMakeFiles\CMakeTmp\CheckSymbolExists.cxx
+C:\Users\sebru_000\Desktop\Dissertation\build\CMakeFiles\CMakeTmp\CheckSymbolExists.cxx: In function 'int main(int, char**)':
+C:\Users\sebru_000\Desktop\Dissertation\build\CMakeFiles\CMakeTmp\CheckSymbolExists.cxx:7:19: error: '__linux__' was not declared in this scope
+   return ((int*)(&__linux__))[argc];
+                   ^
+CMakeFiles\cmTC_3aaac.dir\build.make:64: recipe for target 'CMakeFiles/cmTC_3aaac.dir/CheckSymbolExists.cxx.obj' failed
+mingw32-make.exe[2]: *** [CMakeFiles/cmTC_3aaac.dir/CheckSymbolExists.cxx.obj] Error 1
+mingw32-make.exe[2]: Leaving directory 'C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp'
+makefile:125: recipe for target 'cmTC_3aaac/fast' failed
+mingw32-make.exe[1]: *** [cmTC_3aaac/fast] Error 2
+mingw32-make.exe[1]: Leaving directory 'C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp'
+
+File C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:
+/* */
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef __linux__
+  return ((int*)(&__linux__))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the __APPLE__ exist failed with the following output:
+Change Dir: C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"C:/Users/sebru_000/Desktop/Compilers/mingw32/bin/mingw32-make.exe" "cmTC_2140f/fast"
+mingw32-make.exe[1]: Entering directory 'C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp'
+C:/Users/sebru_000/Desktop/Compilers/mingw32/bin/mingw32-make.exe -f CMakeFiles\cmTC_2140f.dir\build.make CMakeFiles/cmTC_2140f.dir/build
+mingw32-make.exe[2]: Entering directory 'C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_2140f.dir/CheckSymbolExists.cxx.obj
+C:\Users\sebru_000\Desktop\Compilers\mingw32\bin\g++.exe    -std=c++11    -o CMakeFiles\cmTC_2140f.dir\CheckSymbolExists.cxx.obj -c C:\Users\sebru_000\Desktop\Dissertation\build\CMakeFiles\CMakeTmp\CheckSymbolExists.cxx
+C:\Users\sebru_000\Desktop\Dissertation\build\CMakeFiles\CMakeTmp\CheckSymbolExists.cxx: In function 'int main(int, char**)':
+C:\Users\sebru_000\Desktop\Dissertation\build\CMakeFiles\CMakeTmp\CheckSymbolExists.cxx:7:19: error: '__APPLE__' was not declared in this scope
+   return ((int*)(&__APPLE__))[argc];
+                   ^
+CMakeFiles\cmTC_2140f.dir\build.make:64: recipe for target 'CMakeFiles/cmTC_2140f.dir/CheckSymbolExists.cxx.obj' failed
+mingw32-make.exe[2]: *** [CMakeFiles/cmTC_2140f.dir/CheckSymbolExists.cxx.obj] Error 1
+mingw32-make.exe[2]: Leaving directory 'C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp'
+makefile:125: recipe for target 'cmTC_2140f/fast' failed
+mingw32-make.exe[1]: *** [cmTC_2140f/fast] Error 2
+mingw32-make.exe[1]: Leaving directory 'C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp'
+
+File C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:
+/* */
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef __APPLE__
+  return ((int*)(&__APPLE__))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the __ANDROID__ exist failed with the following output:
+Change Dir: C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"C:/Users/sebru_000/Desktop/Compilers/mingw32/bin/mingw32-make.exe" "cmTC_a5ff8/fast"
+mingw32-make.exe[1]: Entering directory 'C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp'
+C:/Users/sebru_000/Desktop/Compilers/mingw32/bin/mingw32-make.exe -f CMakeFiles\cmTC_a5ff8.dir\build.make CMakeFiles/cmTC_a5ff8.dir/build
+mingw32-make.exe[2]: Entering directory 'C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_a5ff8.dir/CheckSymbolExists.cxx.obj
+C:\Users\sebru_000\Desktop\Compilers\mingw32\bin\g++.exe    -std=c++11    -o CMakeFiles\cmTC_a5ff8.dir\CheckSymbolExists.cxx.obj -c C:\Users\sebru_000\Desktop\Dissertation\build\CMakeFiles\CMakeTmp\CheckSymbolExists.cxx
+C:\Users\sebru_000\Desktop\Dissertation\build\CMakeFiles\CMakeTmp\CheckSymbolExists.cxx: In function 'int main(int, char**)':
+C:\Users\sebru_000\Desktop\Dissertation\build\CMakeFiles\CMakeTmp\CheckSymbolExists.cxx:7:19: error: '__ANDROID__' was not declared in this scope
+   return ((int*)(&__ANDROID__))[argc];
+                   ^
+CMakeFiles\cmTC_a5ff8.dir\build.make:64: recipe for target 'CMakeFiles/cmTC_a5ff8.dir/CheckSymbolExists.cxx.obj' failed
+mingw32-make.exe[2]: *** [CMakeFiles/cmTC_a5ff8.dir/CheckSymbolExists.cxx.obj] Error 1
+mingw32-make.exe[2]: Leaving directory 'C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp'
+makefile:125: recipe for target 'cmTC_a5ff8/fast' failed
+mingw32-make.exe[1]: *** [cmTC_a5ff8/fast] Error 2
+mingw32-make.exe[1]: Leaving directory 'C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp'
+
+File C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:
+/* */
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef __ANDROID__
+  return ((int*)(&__ANDROID__))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the __FreeBSD__ exist failed with the following output:
+Change Dir: C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"C:/Users/sebru_000/Desktop/Compilers/mingw32/bin/mingw32-make.exe" "cmTC_2e82d/fast"
+mingw32-make.exe[1]: Entering directory 'C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp'
+C:/Users/sebru_000/Desktop/Compilers/mingw32/bin/mingw32-make.exe -f CMakeFiles\cmTC_2e82d.dir\build.make CMakeFiles/cmTC_2e82d.dir/build
+mingw32-make.exe[2]: Entering directory 'C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_2e82d.dir/CheckSymbolExists.cxx.obj
+C:\Users\sebru_000\Desktop\Compilers\mingw32\bin\g++.exe    -std=c++11    -o CMakeFiles\cmTC_2e82d.dir\CheckSymbolExists.cxx.obj -c C:\Users\sebru_000\Desktop\Dissertation\build\CMakeFiles\CMakeTmp\CheckSymbolExists.cxx
+C:\Users\sebru_000\Desktop\Dissertation\build\CMakeFiles\CMakeTmp\CheckSymbolExists.cxx: In function 'int main(int, char**)':
+C:\Users\sebru_000\Desktop\Dissertation\build\CMakeFiles\CMakeTmp\CheckSymbolExists.cxx:7:19: error: '__FreeBSD__' was not declared in this scope
+   return ((int*)(&__FreeBSD__))[argc];
+                   ^
+CMakeFiles\cmTC_2e82d.dir\build.make:64: recipe for target 'CMakeFiles/cmTC_2e82d.dir/CheckSymbolExists.cxx.obj' failed
+mingw32-make.exe[2]: *** [CMakeFiles/cmTC_2e82d.dir/CheckSymbolExists.cxx.obj] Error 1
+mingw32-make.exe[2]: Leaving directory 'C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp'
+makefile:125: recipe for target 'cmTC_2e82d/fast' failed
+mingw32-make.exe[1]: *** [cmTC_2e82d/fast] Error 2
+mingw32-make.exe[1]: Leaving directory 'C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp'
+
+File C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:
+/* */
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef __FreeBSD__
+  return ((int*)(&__FreeBSD__))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the _M_IX86 exist failed with the following output:
+Change Dir: C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"C:/Users/sebru_000/Desktop/Compilers/mingw32/bin/mingw32-make.exe" "cmTC_7a827/fast"
+mingw32-make.exe[1]: Entering directory 'C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp'
+C:/Users/sebru_000/Desktop/Compilers/mingw32/bin/mingw32-make.exe -f CMakeFiles\cmTC_7a827.dir\build.make CMakeFiles/cmTC_7a827.dir/build
+mingw32-make.exe[2]: Entering directory 'C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_7a827.dir/CheckSymbolExists.cxx.obj
+C:\Users\sebru_000\Desktop\Compilers\mingw32\bin\g++.exe    -std=c++11    -o CMakeFiles\cmTC_7a827.dir\CheckSymbolExists.cxx.obj -c C:\Users\sebru_000\Desktop\Dissertation\build\CMakeFiles\CMakeTmp\CheckSymbolExists.cxx
+C:\Users\sebru_000\Desktop\Dissertation\build\CMakeFiles\CMakeTmp\CheckSymbolExists.cxx: In function 'int main(int, char**)':
+C:\Users\sebru_000\Desktop\Dissertation\build\CMakeFiles\CMakeTmp\CheckSymbolExists.cxx:7:19: error: '_M_IX86' was not declared in this scope
+   return ((int*)(&_M_IX86))[argc];
+                   ^
+CMakeFiles\cmTC_7a827.dir\build.make:64: recipe for target 'CMakeFiles/cmTC_7a827.dir/CheckSymbolExists.cxx.obj' failed
+mingw32-make.exe[2]: *** [CMakeFiles/cmTC_7a827.dir/CheckSymbolExists.cxx.obj] Error 1
+mingw32-make.exe[2]: Leaving directory 'C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp'
+makefile:125: recipe for target 'cmTC_7a827/fast' failed
+mingw32-make.exe[1]: *** [cmTC_7a827/fast] Error 2
+mingw32-make.exe[1]: Leaving directory 'C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp'
+
+File C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:
+/* */
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef _M_IX86
+  return ((int*)(&_M_IX86))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+

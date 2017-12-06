@@ -1,0 +1,2 @@
+C:\Users\sebru_000\Desktop\Compilers\mingw32\bin\ar.exe qc libjsoncpp.a  CMakeFiles/jsoncpp_lib_static.dir/json_reader.cpp.obj CMakeFiles/jsoncpp_lib_static.dir/json_value.cpp.obj CMakeFiles/jsoncpp_lib_static.dir/json_writer.cpp.obj
+C:\Users\sebru_000\Desktop\Compilers\mingw32\bin\ranlib.exe libjsoncpp.a

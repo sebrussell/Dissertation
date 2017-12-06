@@ -1,0 +1,1 @@
+-IC:/Users/sebru_000/Desktop/curl/build/include/curl -IC:/Users/sebru_000/Desktop/curl/include -IC:/Users/sebru_000/Desktop/curl/build/lib/../include -IC:/Users/sebru_000/Desktop/curl/lib/.. -IC:/Users/sebru_000/Desktop/curl/lib/../include -IC:/Users/sebru_000/Desktop/curl/build/lib/.. -IC:/Users/sebru_000/Desktop/curl/lib -IC:/Users/sebru_000/Desktop/curl/build/lib 
