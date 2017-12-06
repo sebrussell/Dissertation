@@ -9,21 +9,6 @@
 #include "MySQL.h"
 
 
-
-struct Test
-{
-	Test(std::string id, std::string name, std::string location)
-	{
-		_id = id;
-		_name = name;
-		_location = location;
-	}
-	std::string _id;
-	std::string _name;
-	std::string _location;
-};
-
-
 int main()
 {
 	SteamApi api;
@@ -43,13 +28,13 @@ int main()
 	
 	std::vector<Test> test;
 	
-	int amount = 1000;
+	int amount = 100;
 	int count = 0;
 	int checkAmount = 100;
 	
 	clock_t start, stop;
 	
-	/*
+	
 	start = clock();
 	
 	for(int i = 0; i < amount;)
@@ -72,7 +57,7 @@ int main()
 			
 			if(!name.empty() && !location.empty() & !id.empty())
 			{
-				test.push_back(Test(id, name, location));
+				test.push_back(Test(i, id, name, location));
 				i++;
 				if(i > amount)
 				{
@@ -94,13 +79,17 @@ int main()
 	std::cout << "Average time per user: " << ((float)(stop - start) / CLOCKS_PER_SEC) / amount << std::endl;
 	std::cout << "Hit Percentage: " << (float)((float)amount / (float)count) << std::endl;
 	std::cout << " " << std::endl;
-	*/
+	
 	// DATABASE STUFF
 	
 	try {
         Proc objMain;
-        bool bRet = objMain.execMain();
-        if (!bRet) std::cout << "ERROR!" << std::endl;
+		for(int i = 0; i < test.size(); i++)
+		{
+			bool bRet = objMain.execMain(test.at(i));
+			if (!bRet) std::cout << "ERROR!" << std::endl;
+		}
+        
     } catch (char *e) {
         std::cout << "[EXCEPTION] " << e << std::endl;
         return 1;

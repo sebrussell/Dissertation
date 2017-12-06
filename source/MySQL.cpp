@@ -19,8 +19,14 @@ Proc::Proc()
 
 }
 
-bool Proc::execMain()
+Proc::~Proc()
 {
+	mysql_library_end();
+}
+
+bool Proc::execMain(Test _test)
+{
+	std::string statement = (std::string("INSERT INTO MainTable (PlayerID, SteamID, Username) VALUES ( '") + std::to_string(_test._number)) + "', '" + _test._id + "', '" + _test._name + "')";
     try {
         // Format a MySQL object
         conn = mysql_init(NULL);
@@ -32,7 +38,7 @@ bool Proc::execMain()
         }
 
         // Execute a sql statement
-        if (mysql_query(conn, "SHOW TABLES")) {
+        if (mysql_query(conn, statement.c_str())) {
             std::cout << mysql_error(conn) << std::endl;
             return false;
         }
@@ -55,4 +61,9 @@ bool Proc::execMain()
         return false;
     }
     return true;
+}
+
+void Proc::PrepareString(std::string& _string)
+{
+
 }

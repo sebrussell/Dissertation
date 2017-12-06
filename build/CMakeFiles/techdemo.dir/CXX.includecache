@@ -193,6 +193,10 @@ mysql/mysql.h
 -
 iostream
 -
+string
+-
+algorithm
+-
 
 C:/Users/sebru_000/Desktop/Dissertation/source/SteamApi.cpp
 SteamApi.h
