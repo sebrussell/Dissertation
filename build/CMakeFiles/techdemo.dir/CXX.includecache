@@ -187,6 +187,8 @@ custom_conf.h
 C:/Users/sebru_000/Desktop/Dissertation/source/MySQL.cpp
 MySQL.h
 C:/Users/sebru_000/Desktop/Dissertation/source/MySQL.h
+Statement.h
+C:/Users/sebru_000/Desktop/Dissertation/source/Statement.h
 
 C:/Users/sebru_000/Desktop/Dissertation/source/MySQL.h
 mysql/mysql.h
@@ -196,6 +198,22 @@ iostream
 string
 -
 algorithm
+-
+
+C:/Users/sebru_000/Desktop/Dissertation/source/Statement.cpp
+Statement.h
+C:/Users/sebru_000/Desktop/Dissertation/source/Statement.h
+Table.h
+C:/Users/sebru_000/Desktop/Dissertation/source/Table.h
+
+C:/Users/sebru_000/Desktop/Dissertation/source/Statement.h
+string
+-
+memory
+-
+vector
+-
+map
 -
 
 C:/Users/sebru_000/Desktop/Dissertation/source/SteamApi.cpp
@@ -218,6 +236,22 @@ stdlib.h
 time.h
 -
 
+C:/Users/sebru_000/Desktop/Dissertation/source/Table.cpp
+Table.h
+C:/Users/sebru_000/Desktop/Dissertation/source/Table.h
+
+C:/Users/sebru_000/Desktop/Dissertation/source/Table.h
+string
+-
+memory
+-
+vector
+-
+map
+-
+iostream
+-
+
 C:/Users/sebru_000/Desktop/Dissertation/source/main.cpp
 cstdint
 -
@@ -233,6 +267,10 @@ vector
 -
 SteamApi.h
 C:/Users/sebru_000/Desktop/Dissertation/source/SteamApi.h
+Statement.h
+C:/Users/sebru_000/Desktop/Dissertation/source/Statement.h
+Table.h
+C:/Users/sebru_000/Desktop/Dissertation/source/Table.h
 MySQL.h
 C:/Users/sebru_000/Desktop/Dissertation/source/MySQL.h
 

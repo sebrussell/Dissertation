@@ -1,6 +1,7 @@
 #include "MySQL.h"
+#include "Statement.h"
 
-Proc::Proc()
+SqlConnector::SqlConnector()
 {
 	/*
     // Initialize constants
@@ -19,43 +20,47 @@ Proc::Proc()
 
 }
 
-Proc::~Proc()
+SqlConnector::~SqlConnector()
 {
 	mysql_library_end();
 }
 
-bool Proc::execMain(Test _test)
+bool SqlConnector::execStatement(std::string statement)
 {
-	std::string statement = (std::string("INSERT INTO MainTable (PlayerID, SteamID, Username) VALUES ( '") + std::to_string(_test._number)) + "', '" + _test._id + "', '" + _test._name + "')";
-    try {
+	//std::string statement = (std::string("INSERT INTO MainTable (PlayerID, SteamID, Username) VALUES ( '") + std::to_string(_test._number)) + "', '" + _test._id + "', '" + _test._name + "')";
+    //std::string statement = "SHOW COLUMNS FROM PlayerTable";
+	
+	try {
         // Format a MySQL object
-        conn = mysql_init(NULL);
+        m_connection = mysql_init(NULL);
 
         // Establish a MySQL connection
-        if (!mysql_real_connect(conn, MY_HOSTNAME, MY_USERNAME, MY_PASSWORD, MY_DATABASE, MY_PORT_NO, MY_SOCKET, MY_OPT)) {
-            std::cout << mysql_error(conn) << std::endl;
+        if (!mysql_real_connect(m_connection, MY_HOSTNAME, MY_USERNAME, MY_PASSWORD, MY_DATABASE, MY_PORT_NO, MY_SOCKET, MY_OPT)) {
+            std::cout << mysql_error(m_connection) << std::endl;
             return false;
         }
 
         // Execute a sql statement
-        if (mysql_query(conn, statement.c_str())) {
-            std::cout << mysql_error(conn) << std::endl;
+        if (mysql_query(m_connection, statement.c_str())) {
+            std::cout << mysql_error(m_connection) << std::endl;
             return false;
         }
 
         // Get a result set
-        res = mysql_use_result(conn);
+        m_result = mysql_use_result(m_connection);
 
         // Fetch a result set
-        std::cout << "* MySQL - SHOW TABLES in `" << MY_DATABASE << "`" << std::endl;
-        while ((row = mysql_fetch_row(res)) != NULL)
-            std::cout << row[0] << std::endl;
+        //std::cout << "* MySQL - SHOW TABLES in `" << MY_DATABASE << "`" << std::endl;
+        while ((row = mysql_fetch_row(m_result)) != NULL)
+		{
+            std::cout << row[1] << std::endl;
+		}
 
         // Release memories
-        mysql_free_result(res);
+        mysql_free_result(m_result);
 
         // Close a MySQL connection
-        mysql_close(conn);
+        mysql_close(m_connection);
     } catch (char *e) {
         std::cout << "[EXCEPTION] " << e << std::endl;
         return false;
@@ -63,7 +68,7 @@ bool Proc::execMain(Test _test)
     return true;
 }
 
-void Proc::PrepareString(std::string& _string)
+void SqlConnector::PrepareString(std::string& _string)
 {
 
 }

@@ -6,11 +6,14 @@
 #include <time.h>
 #include <vector>
 #include "SteamApi.h"
+#include "Statement.h"
+#include "Table.h"
 #include "MySQL.h"
 
 
 int main()
 {
+	
 	SteamApi api;
 	
 	std::string api_key = "256F7C304A4B0557D4E42DEF0AAB053A";
@@ -82,18 +85,37 @@ int main()
 	
 	// DATABASE STUFF
 	
+	
+
+	Statement statement;
+	std::weak_ptr<Table> m_table = statement.CreateTable("MainTable");
+	m_table.lock()->AddColumn("SteamID", STRNG);
+	m_table.lock()->AddColumn("PlayerName", STRNG);	
+	m_table.lock()->AddColumn("Country", STRNG);
+
+
 	try {
-        Proc objMain;
+        SqlConnector objMain;
 		for(int i = 0; i < test.size(); i++)
 		{
-			bool bRet = objMain.execMain(test.at(i));
+			m_table.lock()->SetStringColumn("SteamID", test.at(i)._id);
+			m_table.lock()->SetStringColumn("PlayerName", test.at(i)._name);	
+			m_table.lock()->SetStringColumn("Country", test.at(i)._location);
+			std::string call = statement.Call("MainTable");
+			bool bRet = objMain.execStatement(call);
 			if (!bRet) std::cout << "ERROR!" << std::endl;
+
 		}
         
     } catch (char *e) {
         std::cout << "[EXCEPTION] " << e << std::endl;
         return 1;
     }
+	
+	
+
+	
+	
 	
     return 0;
 }

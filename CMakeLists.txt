@@ -19,6 +19,8 @@ add_executable(techdemo
 	source/main.cpp
 	source/SteamApi.cpp
 	source/MySQL.cpp
+	source/Statement.cpp
+	source/Table.cpp
 )
 
 target_link_libraries(techdemo libcurl_imp jsoncpp mariadb) 

@@ -1,0 +1,23 @@
+#ifndef STATEMENT_H
+#define STATEMENT_H
+
+#include <string>
+#include <memory>
+#include <vector>
+#include <map>
+
+class Table;
+
+class Statement
+{
+	public:
+		Statement() {};
+		~Statement() {};
+		std::string Call(std::string _tableName);
+		std::weak_ptr<Table> CreateTable(std::string tableName);
+	private:
+		std::map<std::string, std::shared_ptr<Table>> m_tables;
+
+};
+
+#endif

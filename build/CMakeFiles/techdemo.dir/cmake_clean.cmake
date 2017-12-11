@@ -2,6 +2,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/techdemo.dir/source/main.cpp.obj"
   "CMakeFiles/techdemo.dir/source/SteamApi.cpp.obj"
   "CMakeFiles/techdemo.dir/source/MySQL.cpp.obj"
+  "CMakeFiles/techdemo.dir/source/Statement.cpp.obj"
+  "CMakeFiles/techdemo.dir/source/Table.cpp.obj"
   "techdemo.pdb"
   "techdemo.exe"
   "techdemo.exe.manifest"

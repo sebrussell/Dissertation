@@ -5,7 +5,9 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
   "C:/Users/sebru_000/Desktop/Dissertation/source/MySQL.cpp" "C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/techdemo.dir/source/MySQL.cpp.obj"
+  "C:/Users/sebru_000/Desktop/Dissertation/source/Statement.cpp" "C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/techdemo.dir/source/Statement.cpp.obj"
   "C:/Users/sebru_000/Desktop/Dissertation/source/SteamApi.cpp" "C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/techdemo.dir/source/SteamApi.cpp.obj"
+  "C:/Users/sebru_000/Desktop/Dissertation/source/Table.cpp" "C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/techdemo.dir/source/Table.cpp.obj"
   "C:/Users/sebru_000/Desktop/Dissertation/source/main.cpp" "C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/techdemo.dir/source/main.cpp.obj"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")

@@ -131,11 +131,63 @@ CMakeFiles/techdemo.dir/source/MySQL.cpp.obj.provides: CMakeFiles/techdemo.dir/s
 CMakeFiles/techdemo.dir/source/MySQL.cpp.obj.provides.build: CMakeFiles/techdemo.dir/source/MySQL.cpp.obj
 
 
+CMakeFiles/techdemo.dir/source/Statement.cpp.obj: CMakeFiles/techdemo.dir/flags.make
+CMakeFiles/techdemo.dir/source/Statement.cpp.obj: CMakeFiles/techdemo.dir/includes_CXX.rsp
+CMakeFiles/techdemo.dir/source/Statement.cpp.obj: ../source/Statement.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\sebru_000\Desktop\Dissertation\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/techdemo.dir/source/Statement.cpp.obj"
+	C:\Users\sebru_000\Desktop\Compilers\mingw32\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\techdemo.dir\source\Statement.cpp.obj -c C:\Users\sebru_000\Desktop\Dissertation\source\Statement.cpp
+
+CMakeFiles/techdemo.dir/source/Statement.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/techdemo.dir/source/Statement.cpp.i"
+	C:\Users\sebru_000\Desktop\Compilers\mingw32\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\sebru_000\Desktop\Dissertation\source\Statement.cpp > CMakeFiles\techdemo.dir\source\Statement.cpp.i
+
+CMakeFiles/techdemo.dir/source/Statement.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/techdemo.dir/source/Statement.cpp.s"
+	C:\Users\sebru_000\Desktop\Compilers\mingw32\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\sebru_000\Desktop\Dissertation\source\Statement.cpp -o CMakeFiles\techdemo.dir\source\Statement.cpp.s
+
+CMakeFiles/techdemo.dir/source/Statement.cpp.obj.requires:
+
+.PHONY : CMakeFiles/techdemo.dir/source/Statement.cpp.obj.requires
+
+CMakeFiles/techdemo.dir/source/Statement.cpp.obj.provides: CMakeFiles/techdemo.dir/source/Statement.cpp.obj.requires
+	$(MAKE) -f CMakeFiles\techdemo.dir\build.make CMakeFiles/techdemo.dir/source/Statement.cpp.obj.provides.build
+.PHONY : CMakeFiles/techdemo.dir/source/Statement.cpp.obj.provides
+
+CMakeFiles/techdemo.dir/source/Statement.cpp.obj.provides.build: CMakeFiles/techdemo.dir/source/Statement.cpp.obj
+
+
+CMakeFiles/techdemo.dir/source/Table.cpp.obj: CMakeFiles/techdemo.dir/flags.make
+CMakeFiles/techdemo.dir/source/Table.cpp.obj: CMakeFiles/techdemo.dir/includes_CXX.rsp
+CMakeFiles/techdemo.dir/source/Table.cpp.obj: ../source/Table.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\sebru_000\Desktop\Dissertation\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/techdemo.dir/source/Table.cpp.obj"
+	C:\Users\sebru_000\Desktop\Compilers\mingw32\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\techdemo.dir\source\Table.cpp.obj -c C:\Users\sebru_000\Desktop\Dissertation\source\Table.cpp
+
+CMakeFiles/techdemo.dir/source/Table.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/techdemo.dir/source/Table.cpp.i"
+	C:\Users\sebru_000\Desktop\Compilers\mingw32\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\sebru_000\Desktop\Dissertation\source\Table.cpp > CMakeFiles\techdemo.dir\source\Table.cpp.i
+
+CMakeFiles/techdemo.dir/source/Table.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/techdemo.dir/source/Table.cpp.s"
+	C:\Users\sebru_000\Desktop\Compilers\mingw32\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\sebru_000\Desktop\Dissertation\source\Table.cpp -o CMakeFiles\techdemo.dir\source\Table.cpp.s
+
+CMakeFiles/techdemo.dir/source/Table.cpp.obj.requires:
+
+.PHONY : CMakeFiles/techdemo.dir/source/Table.cpp.obj.requires
+
+CMakeFiles/techdemo.dir/source/Table.cpp.obj.provides: CMakeFiles/techdemo.dir/source/Table.cpp.obj.requires
+	$(MAKE) -f CMakeFiles\techdemo.dir\build.make CMakeFiles/techdemo.dir/source/Table.cpp.obj.provides.build
+.PHONY : CMakeFiles/techdemo.dir/source/Table.cpp.obj.provides
+
+CMakeFiles/techdemo.dir/source/Table.cpp.obj.provides.build: CMakeFiles/techdemo.dir/source/Table.cpp.obj
+
+
 # Object files for target techdemo
 techdemo_OBJECTS = \
 "CMakeFiles/techdemo.dir/source/main.cpp.obj" \
 "CMakeFiles/techdemo.dir/source/SteamApi.cpp.obj" \
-"CMakeFiles/techdemo.dir/source/MySQL.cpp.obj"
+"CMakeFiles/techdemo.dir/source/MySQL.cpp.obj" \
+"CMakeFiles/techdemo.dir/source/Statement.cpp.obj" \
+"CMakeFiles/techdemo.dir/source/Table.cpp.obj"
 
 # External object files for target techdemo
 techdemo_EXTERNAL_OBJECTS =
@@ -143,11 +195,13 @@ techdemo_EXTERNAL_OBJECTS =
 techdemo.exe: CMakeFiles/techdemo.dir/source/main.cpp.obj
 techdemo.exe: CMakeFiles/techdemo.dir/source/SteamApi.cpp.obj
 techdemo.exe: CMakeFiles/techdemo.dir/source/MySQL.cpp.obj
+techdemo.exe: CMakeFiles/techdemo.dir/source/Statement.cpp.obj
+techdemo.exe: CMakeFiles/techdemo.dir/source/Table.cpp.obj
 techdemo.exe: CMakeFiles/techdemo.dir/build.make
 techdemo.exe: CMakeFiles/techdemo.dir/linklibs.rsp
 techdemo.exe: CMakeFiles/techdemo.dir/objects1.rsp
 techdemo.exe: CMakeFiles/techdemo.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=C:\Users\sebru_000\Desktop\Dissertation\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable techdemo.exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=C:\Users\sebru_000\Desktop\Dissertation\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable techdemo.exe"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles\techdemo.dir\link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -158,6 +212,8 @@ CMakeFiles/techdemo.dir/build: techdemo.exe
 CMakeFiles/techdemo.dir/requires: CMakeFiles/techdemo.dir/source/main.cpp.obj.requires
 CMakeFiles/techdemo.dir/requires: CMakeFiles/techdemo.dir/source/SteamApi.cpp.obj.requires
 CMakeFiles/techdemo.dir/requires: CMakeFiles/techdemo.dir/source/MySQL.cpp.obj.requires
+CMakeFiles/techdemo.dir/requires: CMakeFiles/techdemo.dir/source/Statement.cpp.obj.requires
+CMakeFiles/techdemo.dir/requires: CMakeFiles/techdemo.dir/source/Table.cpp.obj.requires
 
 .PHONY : CMakeFiles/techdemo.dir/requires
 

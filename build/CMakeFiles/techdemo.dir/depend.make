@@ -9,6 +9,11 @@ CMakeFiles/techdemo.dir/source/MySQL.cpp.obj: ../libraries/sql/include/mysql/mys
 CMakeFiles/techdemo.dir/source/MySQL.cpp.obj: ../libraries/sql/include/mysql/mysql_version.h
 CMakeFiles/techdemo.dir/source/MySQL.cpp.obj: ../source/MySQL.cpp
 CMakeFiles/techdemo.dir/source/MySQL.cpp.obj: ../source/MySQL.h
+CMakeFiles/techdemo.dir/source/MySQL.cpp.obj: ../source/Statement.h
+
+CMakeFiles/techdemo.dir/source/Statement.cpp.obj: ../source/Statement.cpp
+CMakeFiles/techdemo.dir/source/Statement.cpp.obj: ../source/Statement.h
+CMakeFiles/techdemo.dir/source/Statement.cpp.obj: ../source/Table.h
 
 CMakeFiles/techdemo.dir/source/SteamApi.cpp.obj: ../libraries/curl/include/curl/curl.h
 CMakeFiles/techdemo.dir/source/SteamApi.cpp.obj: ../libraries/curl/include/curl/curlver.h
@@ -28,6 +33,9 @@ CMakeFiles/techdemo.dir/source/SteamApi.cpp.obj: ../libraries/json/include/json/
 CMakeFiles/techdemo.dir/source/SteamApi.cpp.obj: ../libraries/json/include/json/writer.h
 CMakeFiles/techdemo.dir/source/SteamApi.cpp.obj: ../source/SteamApi.cpp
 CMakeFiles/techdemo.dir/source/SteamApi.cpp.obj: ../source/SteamApi.h
+
+CMakeFiles/techdemo.dir/source/Table.cpp.obj: ../source/Table.cpp
+CMakeFiles/techdemo.dir/source/Table.cpp.obj: ../source/Table.h
 
 CMakeFiles/techdemo.dir/source/main.cpp.obj: ../libraries/curl/include/curl/curl.h
 CMakeFiles/techdemo.dir/source/main.cpp.obj: ../libraries/curl/include/curl/curlver.h
@@ -52,6 +60,8 @@ CMakeFiles/techdemo.dir/source/main.cpp.obj: ../libraries/sql/include/mysql/mysq
 CMakeFiles/techdemo.dir/source/main.cpp.obj: ../libraries/sql/include/mysql/mysql_com.h
 CMakeFiles/techdemo.dir/source/main.cpp.obj: ../libraries/sql/include/mysql/mysql_version.h
 CMakeFiles/techdemo.dir/source/main.cpp.obj: ../source/MySQL.h
+CMakeFiles/techdemo.dir/source/main.cpp.obj: ../source/Statement.h
 CMakeFiles/techdemo.dir/source/main.cpp.obj: ../source/SteamApi.h
+CMakeFiles/techdemo.dir/source/main.cpp.obj: ../source/Table.h
 CMakeFiles/techdemo.dir/source/main.cpp.obj: ../source/main.cpp
 

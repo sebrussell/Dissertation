@@ -10,6 +10,11 @@ CMakeFiles/techdemo.dir/source/MySQL.cpp.obj
  ../libraries/sql/include/mysql/mysql_version.h
  C:/Users/sebru_000/Desktop/Dissertation/source/MySQL.cpp
  C:/Users/sebru_000/Desktop/Dissertation/source/MySQL.h
+ C:/Users/sebru_000/Desktop/Dissertation/source/Statement.h
+CMakeFiles/techdemo.dir/source/Statement.cpp.obj
+ C:/Users/sebru_000/Desktop/Dissertation/source/Statement.cpp
+ C:/Users/sebru_000/Desktop/Dissertation/source/Statement.h
+ C:/Users/sebru_000/Desktop/Dissertation/source/Table.h
 CMakeFiles/techdemo.dir/source/SteamApi.cpp.obj
  ../libraries/curl/include/curl/curl.h
  ../libraries/curl/include/curl/curlver.h
@@ -29,6 +34,9 @@ CMakeFiles/techdemo.dir/source/SteamApi.cpp.obj
  ../libraries/json/include/json/writer.h
  C:/Users/sebru_000/Desktop/Dissertation/source/SteamApi.cpp
  C:/Users/sebru_000/Desktop/Dissertation/source/SteamApi.h
+CMakeFiles/techdemo.dir/source/Table.cpp.obj
+ C:/Users/sebru_000/Desktop/Dissertation/source/Table.cpp
+ C:/Users/sebru_000/Desktop/Dissertation/source/Table.h
 CMakeFiles/techdemo.dir/source/main.cpp.obj
  ../libraries/curl/include/curl/curl.h
  ../libraries/curl/include/curl/curlver.h
@@ -53,5 +61,7 @@ CMakeFiles/techdemo.dir/source/main.cpp.obj
  ../libraries/sql/include/mysql/mysql_com.h
  ../libraries/sql/include/mysql/mysql_version.h
  C:/Users/sebru_000/Desktop/Dissertation/source/MySQL.h
+ C:/Users/sebru_000/Desktop/Dissertation/source/Statement.h
  C:/Users/sebru_000/Desktop/Dissertation/source/SteamApi.h
+ C:/Users/sebru_000/Desktop/Dissertation/source/Table.h
  C:/Users/sebru_000/Desktop/Dissertation/source/main.cpp

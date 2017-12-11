@@ -149,6 +149,33 @@ source/MySQL.cpp.s:
 	$(MAKE) -f CMakeFiles\techdemo.dir\build.make CMakeFiles/techdemo.dir/source/MySQL.cpp.s
 .PHONY : source/MySQL.cpp.s
 
+source/Statement.obj: source/Statement.cpp.obj
+
+.PHONY : source/Statement.obj
+
+# target to build an object file
+source/Statement.cpp.obj:
+	$(MAKE) -f CMakeFiles\techdemo.dir\build.make CMakeFiles/techdemo.dir/source/Statement.cpp.obj
+.PHONY : source/Statement.cpp.obj
+
+source/Statement.i: source/Statement.cpp.i
+
+.PHONY : source/Statement.i
+
+# target to preprocess a source file
+source/Statement.cpp.i:
+	$(MAKE) -f CMakeFiles\techdemo.dir\build.make CMakeFiles/techdemo.dir/source/Statement.cpp.i
+.PHONY : source/Statement.cpp.i
+
+source/Statement.s: source/Statement.cpp.s
+
+.PHONY : source/Statement.s
+
+# target to generate assembly for a file
+source/Statement.cpp.s:
+	$(MAKE) -f CMakeFiles\techdemo.dir\build.make CMakeFiles/techdemo.dir/source/Statement.cpp.s
+.PHONY : source/Statement.cpp.s
+
 source/SteamApi.obj: source/SteamApi.cpp.obj
 
 .PHONY : source/SteamApi.obj
@@ -175,6 +202,33 @@ source/SteamApi.s: source/SteamApi.cpp.s
 source/SteamApi.cpp.s:
 	$(MAKE) -f CMakeFiles\techdemo.dir\build.make CMakeFiles/techdemo.dir/source/SteamApi.cpp.s
 .PHONY : source/SteamApi.cpp.s
+
+source/Table.obj: source/Table.cpp.obj
+
+.PHONY : source/Table.obj
+
+# target to build an object file
+source/Table.cpp.obj:
+	$(MAKE) -f CMakeFiles\techdemo.dir\build.make CMakeFiles/techdemo.dir/source/Table.cpp.obj
+.PHONY : source/Table.cpp.obj
+
+source/Table.i: source/Table.cpp.i
+
+.PHONY : source/Table.i
+
+# target to preprocess a source file
+source/Table.cpp.i:
+	$(MAKE) -f CMakeFiles\techdemo.dir\build.make CMakeFiles/techdemo.dir/source/Table.cpp.i
+.PHONY : source/Table.cpp.i
+
+source/Table.s: source/Table.cpp.s
+
+.PHONY : source/Table.s
+
+# target to generate assembly for a file
+source/Table.cpp.s:
+	$(MAKE) -f CMakeFiles\techdemo.dir\build.make CMakeFiles/techdemo.dir/source/Table.cpp.s
+.PHONY : source/Table.cpp.s
 
 source/main.obj: source/main.cpp.obj
 
@@ -215,9 +269,15 @@ help:
 	@echo ... source/MySQL.obj
 	@echo ... source/MySQL.i
 	@echo ... source/MySQL.s
+	@echo ... source/Statement.obj
+	@echo ... source/Statement.i
+	@echo ... source/Statement.s
 	@echo ... source/SteamApi.obj
 	@echo ... source/SteamApi.i
 	@echo ... source/SteamApi.s
+	@echo ... source/Table.obj
+	@echo ... source/Table.i
+	@echo ... source/Table.s
 	@echo ... source/main.obj
 	@echo ... source/main.i
 	@echo ... source/main.s
