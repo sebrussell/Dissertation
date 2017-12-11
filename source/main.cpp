@@ -70,18 +70,6 @@ int main()
 			count++;
 		}		
 	}
-	stop = clock();	
-	
-	for(int i = 0; i < test.size(); i++)
-	{
-		std::cout << test.at(i)._id << " " << test.at(i)._name << " " << test.at(i)._location << std::endl;
-	}
-	
-	std::cout << "Regular Version 1: " << ((float)(stop - start) / CLOCKS_PER_SEC) << std::endl;
-	std::cout << "Amount Checked: " << count << std::endl;
-	std::cout << "Average time per user: " << ((float)(stop - start) / CLOCKS_PER_SEC) / amount << std::endl;
-	std::cout << "Hit Percentage: " << (float)((float)amount / (float)count) << std::endl;
-	std::cout << " " << std::endl;
 	
 	// DATABASE STUFF
 	
@@ -112,6 +100,15 @@ int main()
         return 1;
     }
 	
+	
+	
+	stop = clock();		
+	std::cout << "Regular Version 1: " << ((float)(stop - start) / CLOCKS_PER_SEC) << std::endl;
+	std::cout << "Amount Checked: " << count << std::endl;
+	std::cout << "Amount Added: " << amount << std::endl;
+	std::cout << "Average time per user: " << ((float)(stop - start) / CLOCKS_PER_SEC) / amount << std::endl;
+	std::cout << "Hit Percentage: " << (float)((float)amount / (float)count) << std::endl;
+	std::cout << " " << std::endl;
 	
 
 	
