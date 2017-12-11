@@ -27,12 +27,18 @@ void Table::AddColumn(std::string _columnName, Type _type)
 
 void Table::SetStringColumn(std::string _columnName, std::string _value)
 {
-	m_strings[_columnName] = _value;
+	m_strings[_columnName] = FormatString(_value);
 }
 
 void Table::SetDoubleColumn(std::string _columnName, double _value)
 {
 	m_doubles[_columnName] = _value;
+}
+
+std::string Table::FormatString(std::string _string)
+{
+	_string.erase(std::remove(_string.begin(), _string.end(), 39), _string.end());
+	return _string;
 }
 
 std::string Table::SetValues()

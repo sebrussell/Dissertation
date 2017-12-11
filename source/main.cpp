@@ -31,7 +31,7 @@ int main()
 	
 	std::vector<Test> test;
 	
-	int amount = 100;
+	int amount = 10000;
 	int count = 0;
 	int checkAmount = 100;
 	
@@ -80,7 +80,6 @@ int main()
 	m_table.lock()->AddColumn("SteamID", STRNG);
 	m_table.lock()->AddColumn("PlayerName", STRNG);	
 	m_table.lock()->AddColumn("Country", STRNG);
-
 
 	try {
         SqlConnector objMain;

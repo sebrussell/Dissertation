@@ -6,6 +6,7 @@
 #include <vector>
 #include <map>
 #include <iostream>
+#include <algorithm>
 
 enum Type
 {
@@ -24,6 +25,7 @@ class Table
 		void SetStringColumn(std::string _columnName, std::string _value);
 		void SetDoubleColumn(std::string _columnName, double _value);
 		std::string SetValues();
+		std::string FormatString(std::string _string);
 	private:
 		std::string m_tableName;
 		std::map<std::string, std::string> m_strings;
