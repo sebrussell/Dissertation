@@ -31,11 +31,12 @@ int main()
 	
 	std::vector<Test> test;
 	
-	int amount = 10000;
+	int amount = 20000;
 	int count = 0;
 	int checkAmount = 100;
+	int apiCalls = 0;
 	
-	clock_t start, stop;
+	clock_t start, stop, startDatabase;
 	
 	
 	start = clock();
@@ -44,6 +45,8 @@ int main()
 	{
 		//steamid = api.GetRandomID();
 		url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + api_key + "&steamids=";
+		
+		apiCalls++;
 		
 		for(int n = 0; n < checkAmount; n++)
 		{
@@ -62,34 +65,81 @@ int main()
 			{
 				test.push_back(Test(i, id, name, location));
 				i++;
+				std::cout << i << std::endl;
 				if(i > amount)
 				{
 					break;
 				}
 			}	
 			count++;
-		}		
+		}	
+		
+		
+		
 	}
 	
 	// DATABASE STUFF
 	
-	
+	std::cout << "ADD TO DATABASE" << std::endl;
 
+	
+	startDatabase = clock();
+	
+	
+	
+	
 	Statement statement;
 	std::weak_ptr<Table> m_table = statement.CreateTable("MainTable");
 	m_table.lock()->AddColumn("SteamID", STRNG);
 	m_table.lock()->AddColumn("PlayerName", STRNG);	
-	m_table.lock()->AddColumn("Country", STRNG);
+	m_table.lock()->AddColumn("Country", GET);
+	
+	std::weak_ptr<Table> m_countryTable = statement.CreateTable("CountryTable");
+	m_countryTable.lock()->AddColumn("CountryName", STRNG);
+	m_countryTable.lock()->AddColumn("Count", DUPLICATE_ADD);
+	
+	
+	
+	GetValue getValue;
+	getValue.m_columnNameToGet = "idCountryTable";
+	getValue.m_tableName = "CountryTable";
+	getValue.m_columnNameToCompare = "CountryName";
+	getValue.m_value = "GB";
+	
+	
+	m_table.lock()->SetStringColumn("SteamID", "7068");
+	m_table.lock()->SetStringColumn("PlayerName", "tes");	
+	m_table.lock()->SetGetValueColumn("Country", getValue);
+
+	
+	
+	std::string call;
+	bool bRet;
 
 	try {
         SqlConnector objMain;
 		for(int i = 0; i < test.size(); i++)
 		{
+			std::cout << i << std::endl;
+			
+			m_countryTable.lock()->SetStringColumn("CountryName", test.at(i)._location);
+			call = statement.Call("CountryTable");	
+			
+			
+			bRet = objMain.execStatement(call);
+			if (!bRet) std::cout << "ERROR!" << std::endl;
+			
+			
+			getValue.m_value =  test.at(i)._location;		
+			
+			
 			m_table.lock()->SetStringColumn("SteamID", test.at(i)._id);
 			m_table.lock()->SetStringColumn("PlayerName", test.at(i)._name);	
-			m_table.lock()->SetStringColumn("Country", test.at(i)._location);
-			std::string call = statement.Call("MainTable");
-			bool bRet = objMain.execStatement(call);
+			m_table.lock()->SetGetValueColumn("Country", getValue);
+			call = statement.Call("MainTable");
+			
+
+			bRet = objMain.execStatement(call);
 			if (!bRet) std::cout << "ERROR!" << std::endl;
 
 		}
@@ -102,14 +152,18 @@ int main()
 	
 	
 	stop = clock();		
-	std::cout << "Regular Version 1: " << ((float)(stop - start) / CLOCKS_PER_SEC) << std::endl;
+	std::cout << "Time Taken Total: " << ((float)(stop - start) / CLOCKS_PER_SEC) << std::endl;
+	std::cout << "Time Taken Steam Query: " << ((float)(startDatabase - start) / CLOCKS_PER_SEC) << std::endl;
+	std::cout << "Time Taken Dtabase Query: " << ((float)(stop - startDatabase) / CLOCKS_PER_SEC) << std::endl;
 	std::cout << "Amount Checked: " << count << std::endl;
 	std::cout << "Amount Added: " << amount << std::endl;
+	std::cout << "API Calls: " << apiCalls << std::endl;
+	std::cout << "Average API Call per User: " << apiCalls / amount << std::endl;
 	std::cout << "Average time per user: " << ((float)(stop - start) / CLOCKS_PER_SEC) / amount << std::endl;
 	std::cout << "Hit Percentage: " << (float)((float)amount / (float)count) << std::endl;
 	std::cout << " " << std::endl;
 	
-
+	
 	
 	
 	
