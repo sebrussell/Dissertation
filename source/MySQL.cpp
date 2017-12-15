@@ -12,10 +12,10 @@ SqlConnector::SqlConnector()
     MY_SOCKET   = NULL;
 	*/
 	
-	MY_HOSTNAME = "sql2.freemysqlhosting.net";
-    MY_DATABASE = "sql2209342";
-    MY_USERNAME = "sql2209342";
-    MY_PASSWORD = "uM2%pI4%";
+	MY_HOSTNAME = "declared-hinges.000webhostapp.com";
+    MY_DATABASE = "id4004992_test";
+    MY_USERNAME = "id4004992_s38russell";
+    MY_PASSWORD = "Test123";
     MY_SOCKET   = NULL;
 	
 	//SETUP MYSQL
