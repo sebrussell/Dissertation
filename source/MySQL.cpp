@@ -12,8 +12,8 @@ SqlConnector::SqlConnector()
     MY_SOCKET   = NULL;
 	*/
 	
-	//MY_HOSTNAME = "213.138.113.137";
-	MY_HOSTNAME = "localhost";
+	MY_HOSTNAME = "213.138.113.137";
+	//MY_HOSTNAME = "localhost";
     MY_DATABASE = "main";
     MY_USERNAME = "seb";
     MY_PASSWORD = "seb";

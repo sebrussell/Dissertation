@@ -34,6 +34,11 @@ std::string Statement::GetSize(std::string _tableName)
 	}
 }
 
+std::string Statement::AddNumberCondition(std::string _columnName, int value)
+{
+	return " WHERE " + _columnName + " = " + std::to_string(value);
+}
+
 std::weak_ptr<Table> Statement::CreateTable(std::string tableName)
 {
 	std::shared_ptr<Table> m_table(new Table);

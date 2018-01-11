@@ -40,6 +40,8 @@ SteamApi::~SteamApi()
 
 Json::Value SteamApi::GetData(std::string _url)
 {	
+	gotData = true;
+
 	curl = curl_easy_init();
 	
 	httpData = std::unique_ptr<std::string>(new std::string);
@@ -67,6 +69,7 @@ Json::Value SteamApi::GetData(std::string _url)
         {
             std::cout << "Could not parse HTTP data as JSON" << std::endl;
             std::cout << "HTTP data was:\n" << *httpData.get() << std::endl;
+			gotData = false;
         }
 		else
 		{

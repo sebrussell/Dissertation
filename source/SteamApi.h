@@ -37,6 +37,7 @@ class SteamApi
 		std::string GetRandomID();
 		std::string ConvertToDate(std::string _date);
 		std::string CleanRequirements(std::string _string);
+		bool gotData = true;
 	private:
 		CURL* curl;
 		std::unique_ptr<std::string> httpData;

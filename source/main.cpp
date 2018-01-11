@@ -48,21 +48,7 @@ int main()
 			//url += api.GetRandomID() + ",";
 		}
 		
-		int gameID;
-		std::string gameIDString;
-		std::string name;
-		std::string date;
-		std::string type;
-		double price;
-		std::string ageRequirement;
-		int metaCritic;
-		
-		int windows, mac, linux;
-		
-		int c = 0;
-		int time = 300;
-		
-		std::string requirements;
+
 
 		
 		
@@ -111,7 +97,7 @@ int main()
 			
 			jsonData = api.GetData(url);
 			
-			std::cout << "Steam Game ID: " <<gameIDString << std::endl;
+			
 		
 			if(jsonData[gameIDString]["success"].asBool() == true)
 			{

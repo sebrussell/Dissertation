@@ -22,6 +22,7 @@ class Application
 		
 		void UpdateGameCheckerTable();
 		void AddGamesToTable();
+		bool UpdateGame(int _id);
 
 	private:
 		SteamApi api;	//calls the steam api
@@ -61,6 +62,22 @@ class Application
 		//getCountryValue.m_columnNameToCompare = "CountryName";
 		
 		
+
+		std::string gameIDString;
+		std::string name;
+		std::string date;
+		std::string type;
+		double price;
+		std::string ageRequirement;
+		int metaCritic;
+		
+		int windows, mac, linux;
+		
+		int c = 0;
+		int maxC = 250;
+		int time = 300;
+		
+		std::string requirements;
 
 };
 
