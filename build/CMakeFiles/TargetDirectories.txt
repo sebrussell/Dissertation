@@ -1,3 +1,0 @@
-C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/techdemo.dir
-C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/edit_cache.dir
-C:/Users/sebru_000/Desktop/Dissertation/build/CMakeFiles/rebuild_cache.dir
