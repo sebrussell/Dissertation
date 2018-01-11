@@ -24,7 +24,14 @@ add_executable(techdemo
 	source/Application.cpp
 )
 
-target_link_libraries(techdemo libcurl_imp jsoncpp mariadb) 
+if(WIN32)
+{
+  target_link_libraries(techdemo libcurl_imp jsoncpp mariadb) 
+}
+ELSE()
+{
+  target_link_libraries(techdemo libcurl jsoncpp mariadb) 
+}
 
 
 
