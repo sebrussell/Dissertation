@@ -21,6 +21,7 @@ add_executable(techdemo
 	source/MySQL.cpp
 	source/Statement.cpp
 	source/Table.cpp
+	source/Application.cpp
 )
 
 target_link_libraries(techdemo libcurl_imp jsoncpp mariadb) 

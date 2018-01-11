@@ -16,6 +16,22 @@ std::string Statement::GetData(std::string _tableName)
 	{
 		return "SELECT * FROM " + _tableName;
 	}
+	else
+	{
+		return "";
+	}
+}
+
+std::string Statement::GetSize(std::string _tableName)
+{
+	if(m_tables[_tableName])
+	{
+		return "SELECT COUNT(*) FROM " + _tableName;
+	}
+	else
+	{
+		return "";
+	}
 }
 
 std::weak_ptr<Table> Statement::CreateTable(std::string tableName)

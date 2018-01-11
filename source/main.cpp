@@ -1,113 +1,31 @@
 // main.cpp
-#include <cstdint>
-#include <iostream>
-#include <memory>
-#include <string>
-#include <time.h>
-#include <vector>
-#include <unistd.h>
-#include "SteamApi.h"
-#include "Statement.h"
-#include "Table.h"
-#include "MySQL.h"
+
+#include "Application.h"
+
 
 
 int main()
 {
 	
-	SteamApi api;	//calls the steam api
-	Json::Value jsonData, jsonSpare; //used to store the returned json data
+	Application app;
+	
+	app.AddGamesToTable();
+
 	
 	
 	//call times
-	int amount = 1;
-	int count = 0;
-	int checkAmount = 1;
-	int apiCalls = 0;
+
 	
-	std::string api_key = "256F7C304A4B0557D4E42DEF0AAB053A";	//needed to call the api
+	
 	
 	
 	//default values
-	std::string steamid = "76561198069645144";	
-    std::string url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + api_key + "&steamids=" + steamid;
+
 
 	
-	//variables to store returned data
-	std::string name, location, id;
-	
-	//variables to time it
-	clock_t start, stop, startDatabase;
-	double deltaTime;
-		
-	//variables for mysql
-	std::string call;
-	bool bRet;
-	SqlConnector objMain;
-	Statement statement;
-	
-	
-	
-	std::weak_ptr<Table> m_mainTable = statement.CreateTable("MainTable");
-	m_mainTable.lock()->AddColumn("SteamID", STRNG);
-	m_mainTable.lock()->AddColumn("PlayerName", STRNG);	
-	m_mainTable.lock()->AddColumn("Country", GET);
-	
-	
-	std::weak_ptr<Table> m_countryTable = statement.CreateTable("CountryTable");
-	m_countryTable.lock()->AddColumn("CountryName", STRNG);
-	m_countryTable.lock()->AddColumn("Count", DUPLICATE_ADD);
-	
-	
-	std::weak_ptr<Table> m_gameTable = statement.CreateTable("Game");
-	m_mainTable.lock()->AddColumn("GameID", INTEGER);
-	m_mainTable.lock()->AddColumn("GameName", STRNG);
-	m_mainTable.lock()->AddColumn("Price", FLT);
-	m_mainTable.lock()->AddColumn("AgeLimit", STRNG);
-	m_mainTable.lock()->AddColumn("MetaCritic", INTEGER);
-	m_mainTable.lock()->AddColumn("Windows", INTEGER);
-	m_mainTable.lock()->AddColumn("Mac", INTEGER);
-	m_mainTable.lock()->AddColumn("Linux", INTEGER);
-	m_mainTable.lock()->AddColumn("ReleaseDate", STRNG);
-	m_mainTable.lock()->AddColumn("Requirements", STRNG);
-	m_mainTable.lock()->AddColumn("Type", STRNG);
 
 	
-	std::weak_ptr<Table> m_genreTable = statement.CreateTable("Genre");
-	m_genreTable.lock()->AddColumn("GenreID", INTEGER);
-	m_genreTable.lock()->AddColumn("GenreName", STRNG);	
-
-	std::weak_ptr<Table> m_genreToGame = statement.CreateTable("GameToGenre");
-	m_genreToGame.lock()->AddColumn("GameID", INTEGER);
-	m_genreToGame.lock()->AddColumn("GenreID", INTEGER);	
-	
-	
-	
-	std::weak_ptr<Table> m_categoryTable = statement.CreateTable("Category");
-	m_categoryTable.lock()->AddColumn("CategoryID", INTEGER);
-	m_categoryTable.lock()->AddColumn("CategoryName", STRNG);	
-
-	std::weak_ptr<Table> m_categoryToGame = statement.CreateTable("GameToCategory");
-	m_categoryToGame.lock()->AddColumn("GameID", INTEGER);
-	m_categoryToGame.lock()->AddColumn("CategoryID", INTEGER);
-	
-	
-	
-	std::weak_ptr<Table> m_gameToCheck = statement.CreateTable("GamesToCheck");
-	m_gameToCheck.lock()->AddColumn("GameID", INTEGER);
-	m_gameToCheck.lock()->AddColumn("Added", INTEGER);
-
-	
-	
-	GetValue getCountryValue;
-	getCountryValue.m_columnNameToGet = "idCountryTable";
-	getCountryValue.m_tableName = "CountryTable";
-	getCountryValue.m_columnNameToCompare = "CountryName";
-
-	
-	std::vector<int> m_gameIDs;
-	
-	
+	/*
 	
 	start = clock();
 	for(int i = 0; i < amount;)
@@ -371,7 +289,7 @@ int main()
 			*/
 			
 			
-		}
+		//}
 		
 		
 		
@@ -424,8 +342,8 @@ int main()
 			count++;
 		}			
 		*/
-		i++;
-	}
+		//i++;
+	//}
 	
 	// DATABASE STUFF
 	
