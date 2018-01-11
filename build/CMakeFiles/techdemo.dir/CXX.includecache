@@ -235,6 +235,10 @@ stdlib.h
 -
 time.h
 -
+algorithm
+-
+string
+-
 
 C:/Users/sebru_000/Desktop/Dissertation/source/Table.cpp
 Table.h
@@ -266,6 +270,8 @@ string
 time.h
 -
 vector
+-
+unistd.h
 -
 SteamApi.h
 C:/Users/sebru_000/Desktop/Dissertation/source/SteamApi.h

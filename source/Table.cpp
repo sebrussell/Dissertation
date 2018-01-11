@@ -20,6 +20,12 @@ void Table::AddColumn(std::string _columnName, Type _type)
 		case DBL:
 			m_doubles[_columnName] = 0;
 			break;
+		case INTEGER:
+			m_ints[_columnName] = 0;
+			break;	
+		case FLT:
+			m_ints[_columnName] = 0;
+			break;
 		case DUPLICATE_ADD:
 			m_duplicateAdds.push_back("ON DUPLICATE KEY UPDATE " + _columnName + " = " + _columnName + " + 1");
 			break;		
@@ -36,6 +42,16 @@ void Table::SetStringColumn(std::string _columnName, std::string _value)
 void Table::SetDoubleColumn(std::string _columnName, double _value)
 {
 	m_doubles[_columnName] = _value;
+}
+
+void Table::SetIntColumn(std::string _columnName, int _value)
+{
+	m_ints[_columnName] = _value;
+}
+
+void Table::SetFloatColumn(std::string _columnName, float _value)
+{
+	m_floats[_columnName] = _value;
 }
 
 void Table::SetGetValueColumn(std::string _columnName, GetValue _value)
@@ -60,6 +76,7 @@ std::string Table::SetValues()
 	//return (std::string("INSERT INTO" MainTable (PlayerID, SteamID, Username) VALUES ( '") + std::to_string(_test._number)) + "', '" + _test._id + "', '" + _test._name + "')";
 	
 	std::string returnString = (std::string("INSERT INTO ") + m_tableName + " (");
+	
 	
 	for (std::map<std::string, std::string>::iterator it=m_strings.begin(); it!=m_strings.end(); ++it)
 	{
@@ -88,7 +105,52 @@ std::string Table::SetValues()
 		{
 			returnString += it->first + ", ";
 		}
+	}	
+	
+	if(m_ints.size() > 0)
+	{
+		if(m_doubles.size() > 0 || m_strings.size() > 0)
+		{
+			returnString += ", ";
+		}		
 	}
+	
+	for (std::map<std::string, int>::iterator it=m_ints.begin(); it!=m_ints.end(); ++it)
+	{
+		if(std::next(it) == m_ints.end())
+		{
+			returnString += it->first;
+		}
+		else
+		{
+			returnString += it->first + ", ";			
+		}
+	}	
+	
+	
+	
+	if(m_floats.size() > 0 )
+	{
+		if((m_doubles.size() > 0 || m_strings.size() > 0 || m_ints.size() > 0))
+		{
+			returnString += ", ";
+		}	
+	}	
+	for (std::map<std::string, float>::iterator it=m_floats.begin(); it!=m_floats.end(); ++it)
+	{
+		if(std::next(it) == m_floats.end())
+		{
+			returnString += it->first;
+		}
+		else
+		{
+			returnString += it->first + ", ";			
+		}
+	}
+	
+	
+		
+	
 	
 	if(m_getValuesDouble.size() > 0)
 	{
@@ -122,6 +184,47 @@ std::string Table::SetValues()
 		else
 		{
 			returnString += it->second + "', '";
+		}
+	}
+	
+	
+	
+	if(m_ints.size() > 0)
+	{
+		if(m_doubles.size() > 0 || m_strings.size() > 0)
+		{
+			returnString += ", '";	
+		}		
+	}
+	for (std::map<std::string, int>::iterator it=m_ints.begin(); it!=m_ints.end(); ++it)
+	{
+		if(std::next(it) == m_ints.end())
+		{
+			returnString += std::to_string(it->second) + "'";
+		}
+		else
+		{
+			returnString += std::to_string(it->second) + "', '";
+		}
+	}	
+	
+	
+	if(m_floats.size() > 0)
+	{
+		if(m_doubles.size() > 0 || m_strings.size() > 0 || m_ints.size() > 0)
+		{
+			returnString += ", '";
+		}		
+	}
+	for (std::map<std::string, float>::iterator it=m_floats.begin(); it!=m_floats.end(); ++it)
+	{
+		if(std::next(it) == m_floats.end())
+		{
+			returnString += std::to_string(it->second) + "'";
+		}
+		else
+		{
+			returnString += std::to_string(it->second) + "', '";
 		}
 	}
 	

@@ -5,6 +5,8 @@
 #include <iostream>
 #include <stdlib.h>
 #include <time.h>   
+#include <algorithm>
+#include <string>
 
 namespace
 {
@@ -20,6 +22,12 @@ namespace
     }
 }
 
+struct Genre
+{
+	int id;
+	std::string name;
+};
+
 class SteamApi
 {
 	public:
@@ -27,10 +35,13 @@ class SteamApi
 		~SteamApi();
 		Json::Value GetData(std::string _url);
 		std::string GetRandomID();
+		std::string ConvertToDate(std::string _date);
+		std::string CleanRequirements(std::string _string);
 	private:
 		CURL* curl;
 		std::unique_ptr<std::string> httpData;
 		int httpCode;
 		std::string api_key;
 		std::string id;
+		int length;
 };

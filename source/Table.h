@@ -13,7 +13,9 @@ enum Type
 	STRNG,
 	DBL,
 	GET,
-	DUPLICATE_ADD
+	DUPLICATE_ADD,
+	FLT,
+	INTEGER
 };
 
 struct GetValue
@@ -34,6 +36,8 @@ class Table
 		
 		void SetStringColumn(std::string _columnName, std::string _value);
 		void SetDoubleColumn(std::string _columnName, double _value);
+		void SetIntColumn(std::string _columnName, int _value);
+		void SetFloatColumn(std::string _columnName, float _value);
 		void SetGetValueColumn(std::string _columnName, GetValue _value);
 		
 		std::string SetValues();
@@ -42,6 +46,8 @@ class Table
 		std::string m_tableName;
 		std::map<std::string, std::string> m_strings;
 		std::map<std::string, double> m_doubles;
+		std::map<std::string, int> m_ints;
+		std::map<std::string, float> m_floats;
 		std::map<std::string, GetValue> m_getValuesDouble;
 		std::vector<std::string> m_duplicateAdds;
 

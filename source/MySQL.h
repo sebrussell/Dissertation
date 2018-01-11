@@ -3,21 +3,6 @@
 #include <string>
 #include <algorithm>
 
-struct Test
-{
-	Test(int number, std::string id, std::string name, std::string location)
-	{
-		_number = number;
-		_id = id;
-		_name = name;
-		_location = location;
-	}
-	int _number;
-	std::string _id;
-	std::string _name;
-	std::string _location;
-};
-
 class Statement;
 
 class SqlConnector

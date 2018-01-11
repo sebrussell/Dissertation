@@ -92,3 +92,183 @@ std::string SteamApi::GetRandomID()
 
 	return id;
 }
+
+std::string SteamApi::ConvertToDate(std::string _date)
+{
+	std::string returnString = "0000-00-00";
+	std::string month = "AAA";
+	
+	length = _date.length();
+	
+	if(length >= 11)
+	{
+		returnString.at(3) = _date.at(length - 1);
+		returnString.at(2) = _date.at(length - 2);
+		returnString.at(1) = _date.at(length - 3);
+		returnString.at(0) = _date.at(length - 4);	
+
+		month.at(2) = _date.at(length - 7);
+		month.at(1) = _date.at(length - 8);
+		month.at(0) = _date.at(length - 9);
+		
+		if(month == "Jan")
+		{
+			returnString.at(6) = '1';
+		}
+		if(month == "Feb")
+		{
+			returnString.at(6) = '2';
+		}
+		if(month == "Mar")
+		{
+			returnString.at(6) = '3';
+		}
+		if(month == "Apr")
+		{
+			returnString.at(6) = '4';
+		}
+		if(month == "May")
+		{
+			returnString.at(6) = '5';
+		}
+		if(month == "Jun")
+		{
+			returnString.at(6) = '6';
+		}
+		if(month == "Jul")
+		{
+			returnString.at(6) = '7';
+		}
+		if(month == "Aug")
+		{
+			returnString.at(6) = '8';
+		}
+		if(month == "Sep")
+		{
+			returnString.at(6) = '9';
+		}
+		if(month == "Oct")
+		{
+			returnString.at(5) = '1';
+			returnString.at(6) = '0';
+		}
+		if(month == "Nov")
+		{
+			returnString.at(5) = '1';
+			returnString.at(6) = '1';
+		}
+		if(month == "Dec")
+		{
+			returnString.at(5) = '1';
+			returnString.at(6) = '2';
+		}	
+
+	}
+	
+	
+	
+	if(length == 11)
+	{
+		returnString.at(9) = _date.at(0);	
+	}
+	else if(length == 12)
+	{
+		returnString.at(8) = _date.at(0);
+		returnString.at(9) = _date.at(1);
+	}
+	
+	return returnString;
+}
+
+std::string SteamApi::CleanRequirements(std::string _string)
+{
+	
+	std::string returnString = "Unknown";
+	
+	
+	
+	std::size_t found = _string.find("Minimum:");
+	if (found!=std::string::npos)
+	{
+		_string.erase(_string.begin(), _string.begin() + found + 8);
+		
+		found = _string.find("Recommended:");
+		if (found!=std::string::npos)
+		{
+			_string.erase(_string.begin() + found, _string.end());
+		}
+		
+		size_t n = std::count(_string.begin(), _string.end(), '<');			
+		
+		//std::cout << n << std::endl;
+		
+		for(size_t z = 0; z < n; z++)
+		{
+			found = _string.find("<");
+			std::size_t found2 = _string.find(">");
+			
+			_string.erase(_string.begin() + found, _string.begin() + found2 + 1);
+		}	
+
+		/*
+		n = std::count(_string.begin(), _string.end(), ',');
+		
+		if(n > 4)
+		{
+			found = _string.find(",");
+			found = _string.find(",", found + 1, 1);
+			found = _string.find(",", found + 1, 1);
+			
+			_string.erase(_string.begin() + found, _string.end());
+		}
+		*/
+		
+		returnString = _string;
+	}	
+	else if(_string.length() > 0)
+	{
+		size_t n = std::count(_string.begin(), _string.end(), '<');			
+		
+		//std::cout << n << std::endl;
+		
+		for(size_t z = 0; z < n; z++)
+		{
+			found = _string.find("<");
+			std::size_t found2 = _string.find(">");
+			
+			_string.erase(_string.begin() + found, _string.begin() + found2 + 1);
+		}	
+
+		/*
+		n = std::count(_string.begin(), _string.end(), ',');
+		
+		if(n > 4)
+		{
+			found = _string.find(",");
+			found = _string.find(",", found + 1, 1);
+			found = _string.find(",", found + 1, 1);
+			
+			_string.erase(_string.begin() + found, _string.end());
+		}
+		*/
+		
+		returnString = _string;
+	}
+	
+	
+	
+	//std::cout << returnString << std::endl;
+	//std::cout << "" << std::endl;
+	
+	return returnString;
+	
+}
+
+
+
+
+
+
+
+
+
