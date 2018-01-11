@@ -13,6 +13,7 @@ link_directories(
 	${PROJECT_SOURCE_DIR}/libraries/curl/lib
 	${PROJECT_SOURCE_DIR}/libraries/json/lib
 	${PROJECT_SOURCE_DIR}/libraries/sql/lib
+	${PROJECT_SOURCE_DIR}/libraries/linux_amd64
 )
 
 add_executable(techdemo
@@ -27,7 +28,7 @@ add_executable(techdemo
 if(WIN32)
   target_link_libraries(techdemo libcurl_imp jsoncpp mariadb) 
 ELSE()
-  target_link_libraries(techdemo libcurl jsoncpp-dev mariadb) 
+  target_link_libraries(techdemo curl libjsoncpp.a mariadb) 
 ENDIF()
 
 
