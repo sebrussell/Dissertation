@@ -28,7 +28,7 @@ if(WIN32)
   target_link_libraries(techdemo libcurl_imp jsoncpp mariadb) 
 ELSE()
   target_link_libraries(techdemo libcurl jsoncpp mariadb) 
-
+ENDIF()
 
 
 
