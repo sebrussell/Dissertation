@@ -39,10 +39,21 @@ bool SqlConnector::execStatement(std::string statement)
         if (mysql_query(m_connection, statement.c_str())) {
             std::cout << mysql_error(m_connection) << std::endl;
             return false;
+        }        
+		return true;
+}
+
+bool SqlConnector::getDataStatement(std::string statement)
+{
+		
+		
+        if (mysql_query(m_connection, statement.c_str())) {
+            std::cout << mysql_error(m_connection) << std::endl;
+            return false;
         }
 
         // Get a result set
-        //m_result = mysql_use_result(m_connection);
+        m_result = mysql_use_result(m_connection);
 
         // Fetch a result set
         //std::cout << "* MySQL - SHOW TABLES in `" << MY_DATABASE << "`" << std::endl;
@@ -52,11 +63,16 @@ bool SqlConnector::execStatement(std::string statement)
 		//}
 
         // Release memories
-        //mysql_free_result(m_result);
+        
 
         // Close a MySQL connection
         
 		return true;
+}
+
+void SqlConnector::ClearData()
+{
+	mysql_free_result(m_result);
 }
 
 void SqlConnector::PrepareString(std::string& _string)

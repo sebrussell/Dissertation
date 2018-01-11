@@ -17,14 +17,17 @@ class SqlConnector
         MY_OPT     = 0
     };
     MYSQL     *m_connection;
-    MYSQL_RES *m_result;
-    MYSQL_ROW row;
+
 
 
 public:
     SqlConnector();           // Constructor
 	~SqlConnector();
     bool execStatement(std::string statement);  // Main Process
+    bool getDataStatement(std::string statement);  // Main Process
+	void ClearData();
 	void PrepareString(std::string& _string);
 
+	MYSQL_RES *m_result;
+    MYSQL_ROW row;
 };

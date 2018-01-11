@@ -10,6 +10,14 @@ std::string Statement::Call(std::string _tableName)
 	}
 }
 
+std::string Statement::GetData(std::string _tableName)
+{
+	if(m_tables[_tableName])
+	{
+		return "SELECT * FROM " + _tableName;
+	}
+}
+
 std::weak_ptr<Table> Statement::CreateTable(std::string tableName)
 {
 	std::shared_ptr<Table> m_table(new Table);

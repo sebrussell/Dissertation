@@ -90,6 +90,12 @@ int main()
 	std::weak_ptr<Table> m_categoryToGame = statement.CreateTable("GameToCategory");
 	m_categoryToGame.lock()->AddColumn("GameID", INTEGER);
 	m_categoryToGame.lock()->AddColumn("CategoryID", INTEGER);
+	
+	
+	
+	std::weak_ptr<Table> m_gameToCheck = statement.CreateTable("GamesToCheck");
+	m_gameToCheck.lock()->AddColumn("GameID", INTEGER);
+	m_gameToCheck.lock()->AddColumn("Added", INTEGER);
 
 	
 	
@@ -100,6 +106,7 @@ int main()
 
 	
 	std::vector<int> m_gameIDs;
+	
 	
 	
 	start = clock();
@@ -150,6 +157,22 @@ int main()
 		//52061
 		for(int h = 0; h < 52061; h++)
 		{		
+				gameID = jsonSpare["applist"]["apps"]["app"][h]["appid"].asInt();
+	
+				m_gameToCheck.lock()->SetIntColumn("GameID", gameID);
+				call = statement.Call("GamesToCheck");	
+				
+				
+				bRet = objMain.execStatement(call);
+				if (!bRet)
+				{					
+					std::cout << "ERROR!" << std::endl;
+				}
+				
+				std::cout << h << std::endl;
+				
+	
+			/*
 			if(c == 0)
 			{
 				start = clock();
@@ -224,6 +247,7 @@ int main()
 					}
 				}
 				
+				//COLLECT CATEGORIES
 				std::vector<Genre> _categories;
 				if(jsonData[gameIDString]["data"]["categories"].size() > 0)
 				{
@@ -300,6 +324,21 @@ int main()
 						std::cout << "ERROR!" << std::endl;
 					}
 				}
+				
+				
+				//HOW TO GET DATA FROM A TABLE - COULD BE IMRPVOED ATM JUST RETURNS EVERYTHING
+				call = statement.GetData("Genre");				
+				bRet = objMain.getDataStatement(call);
+				if (!bRet)
+				{					
+						std::cout << "ERROR!" << std::endl;
+				}
+				
+				while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
+				{
+				    std::cout << objMain.row[0] << " " << objMain.row[1] << std::endl;
+				}
+				objMain.ClearData();
 
 			
 			}
@@ -323,7 +362,10 @@ int main()
 				c = 0;
 				
 				
-			}		
+			}	
+			*/
+			
+			
 		}
 		
 		
