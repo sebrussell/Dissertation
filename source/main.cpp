@@ -153,9 +153,12 @@ int main()
 		jsonSpare = api.GetData(url);
 		
 		
+		//std::cout << jsonSpare["applist"]["apps"]["app"].size() << std::endl;
+		int size = jsonSpare["applist"]["apps"]["app"].size();
+		
 		
 		//52061
-		for(int h = 0; h < 52061; h++)
+		for(int h = 0; h < size; h++)
 		{		
 				gameID = jsonSpare["applist"]["apps"]["app"][h]["appid"].asInt();
 	
@@ -374,7 +377,7 @@ int main()
 		
 		
 		
-		i++;
+		
 
 		/*
 		for(int z = 0; z < checkAmount; z++)
@@ -421,7 +424,7 @@ int main()
 			count++;
 		}			
 		*/
-		
+		i++;
 	}
 	
 	// DATABASE STUFF
