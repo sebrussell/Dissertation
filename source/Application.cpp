@@ -138,6 +138,52 @@ void Application::AddGamesToTable()
 	
 }
 
+bool Application::GetIDTables()
+{
+	//LOAD GENRE INTO PROGRAM
+	call = statement.GetData("Genre");	
+	bRet = objMain.getDataStatement(call);
+	if (!bRet)
+	{					
+		std::cout << "ERROR!" << std::endl;
+		return false;
+	}
+	else
+	{
+		while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
+		{
+			m_genresAdded[std::stoi(objMain.row[0])] = objMain.row[1];
+		}
+		objMain.ClearData();
+	}	
+	/*
+	for (std::map<int, std::string>::iterator it=m_genresAdded.begin(); it!=m_genresAdded.end(); ++it)
+	{
+		std::cout << it->first << it->second << std::endl;
+	}
+	*/
+	
+	//LOAD CATEGORY INTO PROGRAM
+	call = statement.GetData("Category");	
+	bRet = objMain.getDataStatement(call);
+	if (!bRet)
+	{					
+		std::cout << "ERROR!" << std::endl;
+		return false;
+	}
+	else
+	{
+		while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
+		{
+			m_categoriesAdded[std::stoi(objMain.row[0])] = objMain.row[1];
+		}
+		objMain.ClearData();
+	}
+
+	
+	return true;
+}
+
 bool Application::UpdateGame(int _id)
 {
 	gameIDString = std::to_string(_id);

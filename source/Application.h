@@ -22,6 +22,7 @@ class Application
 		
 		void UpdateGameCheckerTable();
 		void AddGamesToTable();
+		bool GetIDTables();
 		bool UpdateGame(int _id);
 
 	private:
@@ -78,6 +79,9 @@ class Application
 		int time = 300;
 		
 		std::string requirements;
+		
+		std::map<int, std::string> m_genresAdded;
+		std::map<int, std::string> m_categoriesAdded;
 
 };
 

@@ -9,7 +9,7 @@ int main()
 	
 	Application app;
 	
-	app.AddGamesToTable();
+	app.GetIDTables();
 
 	
 	
