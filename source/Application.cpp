@@ -286,13 +286,17 @@ bool Application::UpdateGame(int _id)
 		//ADD GENRE INFORMATION
 		for(int g = 0; g < _genres.size(); g++)
 		{
-			m_genreTable.lock()->SetIntColumn("GenreID", _genres[g].id);
-			m_genreTable.lock()->SetStringColumn("GenreName", _genres[g].name);	
-			call = statement.Call("Genre");				
-			bRet = objMain.execStatement(call);
-			if (!bRet)
-			{					
-				std::cout << "ERROR!" << std::endl;
+			if(!m_genresAdded[_genres[g].id])
+			{				
+				m_genreTable.lock()->SetIntColumn("GenreID", _genres[g].id);
+				m_genreTable.lock()->SetStringColumn("GenreName", _genres[g].name);	
+				call = statement.Call("Genre");				
+				bRet = objMain.execStatement(call);
+				if (!bRet)
+				{					
+					std::cout << "ERROR!" << std::endl;
+				}
+				m_genresAdded[_genres[g].id] = _genres[g].name;
 			}
 					
 			m_genreToGame.lock()->SetIntColumn("GenreID", _genres[g].id);
@@ -308,13 +312,17 @@ bool Application::UpdateGame(int _id)
 		//ADD CATEGORY INFORMATION
 		for(int g = 0; g < _categories.size(); g++)
 		{
-			m_categoryTable.lock()->SetIntColumn("CategoryID", _categories[g].id);
-			m_categoryTable.lock()->SetStringColumn("CategoryName", _categories[g].name);	
-			call = statement.Call("Category");				
-			bRet = objMain.execStatement(call);
-			if (!bRet)
-			{					
-				std::cout << "ERROR!" << std::endl;
+			if(!m_categoriesAdded[_categories[g].id])
+			{	
+				m_categoryTable.lock()->SetIntColumn("CategoryID", _categories[g].id);
+				m_categoryTable.lock()->SetStringColumn("CategoryName", _categories[g].name);	
+				call = statement.Call("Category");				
+				bRet = objMain.execStatement(call);
+				if (!bRet)
+				{					
+					std::cout << "ERROR!" << std::endl;
+				}
+				m_genresAdded[_genres[g].id] = _genres[g].name;
 			}
 					
 			m_categoryToGame.lock()->SetIntColumn("CategoryID", _categories[g].id);
