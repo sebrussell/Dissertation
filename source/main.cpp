@@ -10,6 +10,7 @@ int main()
 	Application app;
 	
 	app.GetIDTables();
+	app.UpdateGameCheckerTable();
 	app.AddGamesToTable();
 	
 	
