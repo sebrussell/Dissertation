@@ -153,7 +153,7 @@ void Application::AddGamesToTable()
 			call = statement.GetData("GamesToCheck");	
 			call += statement.AddNumberCondition("Added", 0);
 			call += statement.AddNumberCondition("Evaluating", 0, 1);
-			//call += statement.AddNumberCondition("Count", 10, 1, "<");
+			call += statement.AddNumberCondition("Count", 3, 1, "<");
 			
 			
 			
