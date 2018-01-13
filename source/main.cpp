@@ -10,7 +10,7 @@ int main()
 	Application app;
 	
 	app.GetIDTables();
-
+	app.AddGamesToTable();
 	
 	
 	//call times

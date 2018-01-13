@@ -8,6 +8,7 @@
 #include <time.h>
 #include <vector>
 #include <unistd.h>
+#include <map>
 
 #include "SteamApi.h"
 #include "Statement.h"
@@ -20,9 +21,16 @@ class Application
 		Application();
 		~Application();
 		
+		//adds all the games in STEAM to the COLLECTING TABLE
 		void UpdateGameCheckerTable();
+		
+		//this adds the games from the COLLECTING TABLE to the GAME TABLE
 		void AddGamesToTable();
+		
+		//THIS GETS ALL THE GENRES, CATEGORIES etc AND STORES THEM IN THE C++ PROGRAM
 		bool GetIDTables();
+		
+		//JUST UPDATES 1 PARTICULAR GAME
 		bool UpdateGame(int _id);
 
 	private:
@@ -77,6 +85,7 @@ class Application
 		int c = 0;
 		int maxC = 250;
 		int time = 300;
+		double timeToWait;
 		
 		std::string requirements;
 		

@@ -70,6 +70,41 @@ std::string Table::FormatString(std::string _string)
 	return _string;
 }
 
+std::string Table::UpdateValues(std::string _columnToSet, std::string _columnToChange, Type _type, int _number)
+{
+	std::string returnString;
+	if(_number == 0)
+	{
+		returnString = "UPDATE " + _columnToSet + " SET ";
+	}	
+	else if(_number == 1)
+	{
+		returnString = " WHERE ";
+	}
+	else
+	{
+		returnString = " OR ";
+	}
+
+	if(_number < 2)
+	{
+		returnString += _columnToChange + " = ";
+	}
+
+	switch (_type)
+	{
+			case STRNG:
+				returnString += m_strings.find(_columnToChange)->second;
+				break;
+			case INTEGER:
+				returnString += std::to_string(m_ints.find(_columnToChange)->second);
+				break;	
+	}
+	
+	
+	return returnString;
+}
+
 std::string Table::SetValues()
 {
 	

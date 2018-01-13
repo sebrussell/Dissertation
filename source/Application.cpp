@@ -72,72 +72,6 @@ void Application::UpdateGameCheckerTable()
 			
 }
 
-void Application::AddGamesToTable()
-{
-	int size = 0;
-	bool maxReached = false;
-	std::vector<int> m_gameIDs;
-	
-	call = statement.GetSize("GamesToCheck");	
-	call += statement.AddNumberCondition("Added", 0);
-	bRet = objMain.getDataStatement(call);
-	if (!bRet)
-	{					
-		std::cout << "ERROR!" << std::endl;
-	}
-	else
-	{
-		while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
-		{
-			size = std::atoi(objMain.row[0]);
-		}
-		objMain.ClearData();
-	}
-	
-	
-	if(size > 0)
-	{
-		
-		call = statement.GetData("GamesToCheck");	
-		call += statement.AddNumberCondition("Added", 0);
-		bRet = objMain.getDataStatement(call);
-		if (!bRet)
-		{					
-			std::cout << "ERROR!" << std::endl;
-		}
-		else
-		{
-			while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL && !maxReached)
-			{
-				m_gameIDs.push_back(std::atoi(objMain.row[0]));
-				if(m_gameIDs.size() >= maxC)
-				{
-					maxReached = true;
-				}				
-			}
-			objMain.ClearData();
-		}			
-	}	
-	
-	maxReached = false;
-	
-	//begin timer
-	
-	for(int i = 0; i < m_gameIDs.size(); i++)
-	{
-		if(UpdateGame(m_gameIDs.at(i))) //if true = success
-		{
-			//change to 1
-		}
-		//change back to not in progress
-			
-	}
-	
-	//stop timer
-	//wait for 300 - delta time
-	
-}
-
 bool Application::GetIDTables()
 {
 	//LOAD GENRE INTO PROGRAM
@@ -182,6 +116,123 @@ bool Application::GetIDTables()
 
 	
 	return true;
+}
+
+void Application::AddGamesToTable()
+{
+	int size = 0;
+	bool maxReached = false;
+	std::vector<int> m_gameIDs;
+	
+	//GETTING THE SIZE OF THE TABLE
+	call = statement.GetSize("GamesToCheck");	
+	call += statement.AddNumberCondition("Added", 0);
+	bRet = objMain.getDataStatement(call);
+	if (!bRet)
+	{					
+		std::cout << "ERROR!" << std::endl;
+	}
+	else
+	{
+		while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
+		{
+			size = std::atoi(objMain.row[0]);
+		}
+		objMain.ClearData();
+	}
+	
+	
+	//IF THE SIZE IS GREATER THAN 0
+	if(size > 0)
+	{		
+		//GET THE DATA FROM THE TABLE
+		call = statement.GetData("GamesToCheck");	
+		call += statement.AddNumberCondition("Added", 0);
+		call += statement.AddNumberCondition("Evaluating", 1, 1);
+		bRet = objMain.getDataStatement(call);
+		if (!bRet)
+		{					
+			std::cout << "ERROR!" << std::endl;
+		}
+		else
+		{			
+			while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL && !maxReached)
+			{						
+				m_gameIDs.push_back(std::atoi(objMain.row[0]));
+				if(m_gameIDs.size() >= maxC)
+				{
+					maxReached = true;
+				}					
+			}
+			objMain.ClearData();
+		}			
+	}	
+	else
+	{
+		UpdateGameCheckerTable();
+	}
+	
+	call = "";
+	
+	if(m_gameIDs.size() > 2)
+	{
+		m_gameToCheck.lock()->SetIntColumn("GameID", m_gameIDs.at(0));				
+		m_gameToCheck.lock()->SetIntColumn("Evaluating", 0);				
+		call += m_gameToCheck.lock()->UpdateValues("GamesToCheck", "Evaluating", INTEGER);
+		call += m_gameToCheck.lock()->UpdateValues("GamesToCheck", "GameID", INTEGER, 1);
+		m_gameToCheck.lock()->SetIntColumn("GameID", m_gameIDs.at(1));
+		call += m_gameToCheck.lock()->UpdateValues("GamesToCheck", "GameID", INTEGER, 2);
+	}
+	
+	//SET THE TABLE TO EVALUATING
+	for(int n = 2; n < m_gameIDs.size(); n++)
+	{
+		m_gameToCheck.lock()->SetIntColumn("GameID", m_gameIDs.at(n));
+		call += m_gameToCheck.lock()->UpdateValues("GamesToCheck", "GameID", INTEGER, 3);		
+	}
+	
+	
+	std::cout << call <<std::endl;
+	
+	bRet = objMain.execStatement(call);				
+	if (!bRet)
+	{					
+		std::cout << "ERROR!" << std::endl;
+	}
+	
+
+	
+	
+	/*
+	maxReached = false;
+	
+	start = clock();
+	
+	for(int i = 0; i < m_gameIDs.size(); i++)
+	{
+		if(UpdateGame(m_gameIDs.at(i)))
+		{
+			//change added to 1
+		}
+		//change evaluating	to 0		
+	}
+	
+	m_gameIDs.clear();
+	
+	stop = clock();
+	deltaTime = ((float)(clock() - start) / CLOCKS_PER_SEC);
+	timeToWait = time - deltaTime;
+	if(timeToWait > 0)
+	{
+		for(int t = 0; t < 10; t++)
+		{
+			sleep(timeToWait / 10);
+			std::cout << (t + 1) * 10 << " Percent through wait." << std::endl;
+		}
+	}
+	
+	//loop to top
+	*/
 }
 
 bool Application::UpdateGame(int _id)
@@ -286,7 +337,7 @@ bool Application::UpdateGame(int _id)
 		//ADD GENRE INFORMATION
 		for(int g = 0; g < _genres.size(); g++)
 		{
-			if(!m_genresAdded[_genres[g].id])
+			if(m_genresAdded.find(_genres[g].id) == m_genresAdded.end())
 			{				
 				m_genreTable.lock()->SetIntColumn("GenreID", _genres[g].id);
 				m_genreTable.lock()->SetStringColumn("GenreName", _genres[g].name);	
@@ -312,7 +363,7 @@ bool Application::UpdateGame(int _id)
 		//ADD CATEGORY INFORMATION
 		for(int g = 0; g < _categories.size(); g++)
 		{
-			if(!m_categoriesAdded[_categories[g].id])
+			if(m_categoriesAdded.find(_categories[g].id) == m_categoriesAdded.end())
 			{	
 				m_categoryTable.lock()->SetIntColumn("CategoryID", _categories[g].id);
 				m_categoryTable.lock()->SetStringColumn("CategoryName", _categories[g].name);	
@@ -322,7 +373,7 @@ bool Application::UpdateGame(int _id)
 				{					
 					std::cout << "ERROR!" << std::endl;
 				}
-				m_genresAdded[_genres[g].id] = _genres[g].name;
+				m_categoriesAdded[_categories[g].id] = _categories[g].name;
 			}
 					
 			m_categoryToGame.lock()->SetIntColumn("CategoryID", _categories[g].id);
