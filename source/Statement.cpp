@@ -34,15 +34,15 @@ std::string Statement::GetSize(std::string _tableName)
 	}
 }
 
-std::string Statement::AddNumberCondition(std::string _columnName, int value, int count)
+std::string Statement::AddNumberCondition(std::string _columnName, int value, int count, std::string operation)
 {
 	if(count == 0)
 	{
-		return " WHERE " + _columnName + " = " + std::to_string(value);
+		return " WHERE " + _columnName + operation + std::to_string(value);
 	}
 	else
 	{
-		return " AND " + _columnName + " = " + std::to_string(value);
+		return " AND " + _columnName + operation + std::to_string(value);
 	}
 	
 }

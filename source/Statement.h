@@ -16,7 +16,7 @@ class Statement
 		std::string Call(std::string _tableName);
 		std::string GetData(std::string _tableName);
 		std::string GetSize(std::string _tableName);
-		std::string AddNumberCondition(std::string _columnName, int value, int count = 0);
+		std::string AddNumberCondition(std::string _columnName, int value, int count = 0, std::string operation = "=");
 		std::weak_ptr<Table> CreateTable(std::string tableName);
 	private:
 		std::map<std::string, std::shared_ptr<Table>> m_tables;

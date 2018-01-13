@@ -36,6 +36,7 @@ Application::Application()
 	m_gameToCheck.lock()->AddColumn("GameID", INTEGER);
 	m_gameToCheck.lock()->AddColumn("Added", INTEGER);
 	m_gameToCheck.lock()->AddColumn("Evaluating", INTEGER);
+	m_gameToCheck.lock()->AddColumn("Count", INTEGER);
 }
 
 Application::~Application()
@@ -152,6 +153,10 @@ void Application::AddGamesToTable()
 			call = statement.GetData("GamesToCheck");	
 			call += statement.AddNumberCondition("Added", 0);
 			call += statement.AddNumberCondition("Evaluating", 0, 1);
+			//call += statement.AddNumberCondition("Count", 10, 1, "<");
+			
+			
+			
 			bRet = objMain.getDataStatement(call);
 			if (!bRet)
 			{					
@@ -162,6 +167,7 @@ void Application::AddGamesToTable()
 				while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL && !maxReached)
 				{						
 					m_gameIDs.push_back(std::atoi(objMain.row[0]));
+					std::cout << m_gameIDs.size() << std::endl;
 					if(m_gameIDs.size() >= maxC)
 					{
 						maxReached = true;
@@ -174,6 +180,8 @@ void Application::AddGamesToTable()
 		{
 			UpdateGameCheckerTable();
 		}
+		
+		std::cout << m_gameIDs.size() << std::endl;
 		
 		//CHANGE THE GAMES TO EVALUATING
 		call = "";	
@@ -191,23 +199,22 @@ void Application::AddGamesToTable()
 			m_gameToCheck.lock()->SetIntColumn("GameID", m_gameIDs.at(n));
 			call += m_gameToCheck.lock()->UpdateValues("GamesToCheck", "GameID", INTEGER, 3);		
 		}	
-		std::cout << call << std::endl;
 		bRet = objMain.execStatement(call);				
 		if (!bRet)
 		{					
 			std::cout << "ERROR!" << std::endl;
 		}
-
-
+		
 		maxReached = false;	
-		start = clock();
-		
-		
-		//m_gameIDs.size()
+		start = clock();		
+		//TRY AND ADD ALL THE GAMES IN THE VECTOR TO THE MAIN GAME TABLE
+		//
 		for(int i = 0; i < m_gameIDs.size(); i++)
 		{
+			//if update succeeds 
 			if(UpdateGame(m_gameIDs.at(i)))
 			{
+				//change added to 1
 				m_gameToCheck.lock()->SetIntColumn("GameID", m_gameIDs.at(i));				
 				m_gameToCheck.lock()->SetIntColumn("Added", 1);	
 				call = m_gameToCheck.lock()->UpdateValues("GamesToCheck", "Added", INTEGER);
@@ -218,6 +225,7 @@ void Application::AddGamesToTable()
 					std::cout << "ERROR!" << std::endl;
 				}
 			}
+			//change evaluating to 0
 			m_gameToCheck.lock()->SetIntColumn("GameID", m_gameIDs.at(i));				
 			m_gameToCheck.lock()->SetIntColumn("Evaluating", 0);	
 			call = m_gameToCheck.lock()->UpdateValues("GamesToCheck", "Evaluating", INTEGER);
@@ -226,11 +234,23 @@ void Application::AddGamesToTable()
 			if (!bRet)
 			{					
 				std::cout << "ERROR!" << std::endl;
-			}		
+			}	
+			
+			//increase count
+			m_gameToCheck.lock()->SetIntColumn("GameID", m_gameIDs.at(i));	
+			call = m_gameToCheck.lock()->UpdateValues("GamesToCheck", "Count", INTEGER, 0, true);
+			call += m_gameToCheck.lock()->UpdateValues("GamesToCheck", "GameID", INTEGER, 1);	
+			bRet = objMain.execStatement(call);				
+			if (!bRet)
+			{					
+				std::cout << "ERROR!" << std::endl;
+			}				
 		}
 		
+		//CLEAR THE GAMES TO GET VECTOR
 		m_gameIDs.clear();
 		
+		//PAUSE SO IT DOESNT BREAK STEAM API
 		stop = clock();
 		deltaTime = ((float)(clock() - start) / CLOCKS_PER_SEC);
 		timeToWait = time - deltaTime;
