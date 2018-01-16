@@ -155,7 +155,7 @@ void Application::AddGamesToTable()
 			call += statement.AddNumberCondition("Evaluating", 0, 1);
 			call += statement.AddNumberCondition("Count", 3, 1, "<");
 			
-			
+			std::cout << call << std::endl;
 			
 			bRet = objMain.getDataStatement(call);
 			if (!bRet)

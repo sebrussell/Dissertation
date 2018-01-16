@@ -11,7 +11,7 @@ int main()
 	
 	app.GetIDTables();
 	app.UpdateGameCheckerTable();
-	app.AddGamesToTable();
+	//app.AddGamesToTable();
 	
 	
 	//call times
