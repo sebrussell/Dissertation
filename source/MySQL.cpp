@@ -12,7 +12,7 @@ SqlConnector::SqlConnector()
     MY_SOCKET   = NULL;
 	*/
 	
-	MY_HOSTNAME = "213.138.113.137";
+	MY_HOSTNAME = "54.37.19.153";
 	//MY_HOSTNAME = "localhost";
     MY_DATABASE = "main";
     MY_USERNAME = "seb";
@@ -32,6 +32,12 @@ SqlConnector::~SqlConnector()
 {
 	mysql_close(m_connection);
 	mysql_library_end();
+}
+
+void SqlConnector::GetPassword()
+{
+	std::cout << "Enter MySQL Password:" << std::endl;
+	std::cin >> MY_PASSWORD;
 }
 
 bool SqlConnector::execStatement(std::string statement)

@@ -85,11 +85,8 @@ std::string Table::UpdateValues(std::string _columnToSet, std::string _columnToC
 	{
 		returnString = " OR ";
 	}
-
-	if(_number < 2)
-	{
-		returnString += _columnToChange + " = ";
-	}
+	
+	returnString += _columnToChange + " = ";
 	
 	if(_duplicate == false)
 	{

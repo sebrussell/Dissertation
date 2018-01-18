@@ -9,11 +9,22 @@
 #include <vector>
 #include <unistd.h>
 #include <map>
+#include <stdio.h> 
+#ifdef __linux__ 
+	#include <sys/time.h>   
+	#include <sys/resource.h> 
+#endif
+#include <sstream>
+#include <algorithm>
+#include <iterator>
+#include <locale>
+
 
 #include "SteamApi.h"
 #include "Statement.h"
 #include "Table.h"
 #include "MySQL.h"
+
 
 class Application
 {
@@ -32,8 +43,16 @@ class Application
 		
 		//JUST UPDATES 1 PARTICULAR GAME
 		bool UpdateGame(int _id);
+		
+		//UPDATES PLAYERS
+		void UpdatePlayers();
+		
+		//EVALUATES MOST COMMON WORDS IN PC REQUIREMENTS
+		void EvaluatePCRequirements();
 
 	private:
+		static double TimeSpecToSeconds(struct timespec* ts);
+	
 		SteamApi api;	//calls the steam api
 		Json::Value jsonData, jsonSpare; //used to store the returned json data
 		
@@ -77,7 +96,7 @@ class Application
 		std::string date;
 		std::string type;
 		double price;
-		std::string ageRequirement;
+		std::string ageRequirement, requirements;
 		int metaCritic;
 		
 		int windows, mac, linux;
@@ -87,10 +106,21 @@ class Application
 		int time = 300;
 		double timeToWait;
 		
-		std::string requirements;
+		std::string country, primaryClanID, timeCreated, lastLogOff;
 		
 		std::map<int, std::string> m_genresAdded;
 		std::map<int, std::string> m_categoriesAdded;
+		std::map<int, std::string> m_countries;
+		std::map<int, std::string> m_games;
+		
+		
+		std::vector<std::string> m_playersToAdd;
+		int queryAmount = 0;
+		int playerSteamApiCheckAmount = 100;
+		
+		
+		//linux timing
+		struct timespec startLinux, stopLinux;
 
 };
 

@@ -47,6 +47,19 @@ std::string Statement::AddNumberCondition(std::string _columnName, int value, in
 	
 }
 
+std::string Statement::AddStringCondition(std::string _columnName, std::string value, int count, std::string operation)
+{
+	if(count == 0)
+	{
+		return " WHERE " + _columnName + operation + "'" + value + "'";
+	}
+	else
+	{
+		return " AND " + _columnName + operation + value;
+	}
+	
+}
+
 std::weak_ptr<Table> Statement::CreateTable(std::string tableName)
 {
 	std::shared_ptr<Table> m_table(new Table);

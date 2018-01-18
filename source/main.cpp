@@ -6,12 +6,37 @@
 
 int main()
 {
-	
 	Application app;
 	
-	app.GetIDTables();
-	app.UpdateGameCheckerTable();
-	//app.AddGamesToTable();
+	std::string input;
+	
+	std::cout << "Choose which application to run" << std::endl;
+	std::cout << "Update Game Tables = 1" << std::endl;
+	std::cout << "Update Player Tables = 2" << std::endl;
+	std::cout << "Evaluate PC requirements = 3" << std::endl;
+	std::cin >> input;
+	
+	//app.GetIDTables();
+	
+	if(input == "1")
+	{
+		app.AddGamesToTable();
+	}
+	else if(input == "2")
+	{
+		app.UpdatePlayers();
+	}
+	else if(input == "3")
+	{
+		app.EvaluatePCRequirements();
+	}
+	
+	
+	
+	
+	
+	//app.UpdateGameCheckerTable();
+	
 	
 	
 	//call times

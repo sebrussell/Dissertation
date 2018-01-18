@@ -10,7 +10,7 @@ class SqlConnector
     const char* MY_HOSTNAME;
     const char* MY_DATABASE;
     const char* MY_USERNAME;
-    const char* MY_PASSWORD;
+    char* MY_PASSWORD;
     const char* MY_SOCKET;
     enum {
         MY_PORT_NO = 3306,
@@ -28,6 +28,7 @@ public:
 	void ClearData();
 	void PrepareString(std::string& _string);
 
+	void GetPassword();
 	MYSQL_RES *m_result;
     MYSQL_ROW row;
 };

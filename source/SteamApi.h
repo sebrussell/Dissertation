@@ -36,6 +36,7 @@ class SteamApi
 		Json::Value GetData(std::string _url);
 		std::string GetRandomID();
 		std::string ConvertToDate(std::string _date);
+		std::string UnixToDate(long int _date);
 		std::string CleanRequirements(std::string _string);
 		bool gotData = true;
 	private:

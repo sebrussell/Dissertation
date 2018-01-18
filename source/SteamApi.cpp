@@ -183,6 +183,15 @@ std::string SteamApi::ConvertToDate(std::string _date)
 	return returnString;
 }
 
+std::string SteamApi::UnixToDate(long int _date)
+{
+	time_t t = time(NULL);
+	struct tm *tm = localtime(&_date);
+	char date[20];
+	strftime(date, sizeof(date), "%Y-%m-%d", tm);
+	std::cout << date << std::endl;
+}
+
 std::string SteamApi::CleanRequirements(std::string _string)
 {
 	
