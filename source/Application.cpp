@@ -20,7 +20,7 @@ Application::Application()
 	m_mainTable.lock()->AddColumn("Linux", INTEGER);
 	m_mainTable.lock()->AddColumn("ReleaseDate", STRNG);
 	m_mainTable.lock()->AddColumn("Requirements", STRNG);
-	m_mainTable.lock()->AddColumn("Type", STRNG);
+	m_mainTable.lock()->AddColumn("GameType", STRNG);
 	
 	m_genreTable.lock()->AddColumn("GenreID", INTEGER);
 	m_genreTable.lock()->AddColumn("GenreName", STRNG);	
@@ -41,6 +41,36 @@ Application::Application()
 	
 	//DEFAULT CHECK PLAYERS
 	m_playersToAdd.push_back("76561198050068679");
+	
+	m_alphabet.push_back("Q");
+	m_alphabet.push_back("W");
+	m_alphabet.push_back("E");
+	m_alphabet.push_back("R");
+	m_alphabet.push_back("T");
+	m_alphabet.push_back("Y");
+	m_alphabet.push_back("U");
+	m_alphabet.push_back("I");
+	m_alphabet.push_back("O");
+	m_alphabet.push_back("P");
+	m_alphabet.push_back("A");
+	m_alphabet.push_back("S");
+	m_alphabet.push_back("D");
+	m_alphabet.push_back("F");
+	m_alphabet.push_back("G");
+	m_alphabet.push_back("H");
+	m_alphabet.push_back("J");
+	m_alphabet.push_back("K");
+	m_alphabet.push_back("L");
+	m_alphabet.push_back("Z");
+	m_alphabet.push_back("X");
+	m_alphabet.push_back("C");
+	m_alphabet.push_back("V");
+	m_alphabet.push_back("B");
+	m_alphabet.push_back("N");
+	m_alphabet.push_back("M");
+	m_alphabet.push_back("M");
+	
+	m_otherRemoves.push_back("+");
 }
 
 Application::~Application()
@@ -438,7 +468,7 @@ bool Application::UpdateGame(int _id)
 		m_gameTable.lock()->SetIntColumn("Linux", linux);
 		m_gameTable.lock()->SetStringColumn("ReleaseDate", date);
 		m_gameTable.lock()->SetStringColumn("Requirements", requirements);
-		m_gameTable.lock()->SetStringColumn("Type", type);				
+		m_gameTable.lock()->SetStringColumn("GameType", type);				
 		call = statement.Call("Game");	
 		bRet = objMain.execStatement(call);
 		if (!bRet)
@@ -510,9 +540,30 @@ bool Application::UpdateGame(int _id)
 
 void Application::EvaluatePCRequirements()
 {
+	std::locale loc;
+	std::size_t found;
+	
+	std::vector<std::string> m_stringsFound;
+	m_stringsToFind.push_back("GB");
+	m_stringsToFind.push_back("GHZ");
+	m_stringsToFind.push_back("MB");
+	//m_stringsToFind.push_back("QUAD");
+	m_stringsToFind.push_back("RAM");
+	//m_stringsToFind.push_back("VRAM");
+	m_stringsToFind.push_back("MHZ");
+	
+	m_ramToFind.push_back("RAM");
+	m_processorToFind.push_back("GHZ");
+	m_processorToFind.push_back("MHZ");
+	m_sizeToFind.push_back("GB");
+	m_sizeToFind.push_back("MB");
+	m_sizeToFind.push_back("GHZ");
+	m_sizeToFind.push_back("MHZ");
+	
 	std::cout << "Adding Games String" << std::endl;
 	std::vector<std::string> games;
-	std::vector<std::string> words;
+	std::vector<std::string> gamesID;
+	std::vector<std::string> sentences;
 	call = statement.GetData("Game");	
 	call += statement.AddStringCondition("GameType", "game");	
 	bRet = objMain.getDataStatement(call);
@@ -525,67 +576,396 @@ void Application::EvaluatePCRequirements()
 		while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
 		{
 			games.push_back(objMain.row[9]);
+			gamesID.push_back(objMain.row[0]);
 		}
 		objMain.ClearData();
 	}
 	
-	std::cout << "Converting to Upper and Adding Individual Word to Vector" << std::endl;
-	std::locale loc;
-	for(int i = 0; i < games.size(); i++)
+	StringValues type;
+	if(gamesID.size() == games.size())
 	{
-		for (int n = 0; n < games.at(i).length(); n++)
+		//BREAK UP INTO : 	
+		std::string token;
+		char delimiter = ':';
+		for(int i = 0; i < games.size(); i++)
 		{
-			games.at(i)[n] = std::toupper(games.at(i)[n],loc);
-		}
-		
-		std::istringstream iss(games.at(i));
-		copy(std::istream_iterator<std::string>(iss), std::istream_iterator<std::string>(), std::back_inserter(words));
+			//make capital
+			for (int n = 0; n < games.at(i).length(); n++)
+			{
+				games.at(i)[n] = std::toupper(games.at(i)[n],loc);
+			}
+			//break up into :
+			std::istringstream tokenStream(games.at(i));
+			while (std::getline(tokenStream, token, delimiter))
+			{
+				sentences.push_back(token);
+			}
+			
+			std::cout << "GAME ID: " << gamesID.at(i) << std::endl;
+			
+			for(int s = 0; s < sentences.size(); s++)
+			{
+				m_stringsFound = SplitWordIntoKeyString(sentences.at(s));
+				//for(int i = 0; i < m_stringsFound.size(); i++)
+				//{
+				//	std::cout << m_stringsFound.at(i) << " ";
+				//}
+				type = CalculateScore(m_stringsFound);
+				if(type.value > -1 && type.type != -1)
+				{
+					std::cout << type.value;
+					
+					if(type.size == 0 && type.type != -1)
+					{
+						std::cout << " GB";
+					}
+					if(type.size == 1 && type.type != -1)
+					{
+						std::cout << " MB";
+					}
+					if(type.size == 2 && type.type != -1)
+					{
+						std::cout << " GHZ";
+					}
+					if(type.size == 3 && type.type != -1)
+					{
+						std::cout << " MHZ";
+					}
+					if(type.type == 0)
+					{
+						std::cout << " RAM";
+					}
+					if(type.type == 1)
+					{
+						std::cout << " Processor";
+					}
+					std::cout << std::endl;
+				}
+
+				
+				
+			}		
+			
+
+			sentences.clear();
+			
+			//analyse the words
+			//give score for game
+			//reset words vector
+		} 
+	}
+	else
+	{
+		std::cout << "Games ID is not equal to Game Sentence Size" << std::endl;
+	}		
+}
+
+std::vector<std::string> Application::SplitWordIntoKeyString(std::string _string)
+{
+	std::vector<std::string> returnVector;
+	std::vector<int> marked;
+	std::size_t found;
+	bool deleteIt = true;
+
+	
+	//split into individual words
+	std::locale loc;
+	std::istringstream iss(_string);
+	copy(std::istream_iterator<std::string>(iss), std::istream_iterator<std::string>(), std::back_inserter(returnVector));
+	
+	for(int i = 0; i < returnVector.size(); i++)
+	{
+		marked.push_back(0);
+	}
+
+	//for every word
+	for(int i = 0; i < returnVector.size(); i++)
+	{		
+		for(int n = 0; n < m_stringsToFind.size(); n++)
+		{
+			//if it is a word we want to look at
+			found = returnVector.at(i).find(m_stringsToFind.at(n));
+			if (found!=std::string::npos)
+			{
+				//mark the word
+				marked.at(i) = 1;
+				n = m_stringsToFind.size();
+			}				
+		}	
 	}
 	
-	std::cout << "Counting Amount of Words" << std::endl;
-	std::map<std::string, int> counter;
-	for(int i = 0; i < words.size(); i++)
+	
+
+	//for all the words
+	for(int i = 0; i < returnVector.size(); i++)
 	{
-		std::map<std::string, int>::iterator it = counter.find(words[i]); 
-		if (it != counter.end())
+		//and not equal to the first one to stop errors
+		if(i > 0)
 		{
-			it->second += 1;
+			//check if the one in front of it is marked
+			if(marked.at(i - 1) == 1)
+			{
+				if(IsUseful(returnVector.at(i)))
+				{
+					//make it equal to 2 so it wont carry on down the string e.g. 01111111 it would be 021200000	
+					marked.at(i) = 2;
+				}							
+			}
+		}
+		//check if not last item
+		if(i < returnVector.size() - 1)
+		{
+			//otherwise, check if item behind it is marked
+			if(marked.at(i + 1) == 1)
+			{
+				if(IsUseful(returnVector.at(i)))
+				{
+					//make it equal to 2 so it wont carry on down the string e.g. 01111111 it would be 021200000	
+					marked.at(i) = 2;
+				}
+			}
+		}
+	}
+
+	for(int i = 0; i < returnVector.size(); i++)
+	{			//if nothing either side is marked then delete
+		
+		if(marked.at(i) == 0)
+		{
+			returnVector.erase (returnVector.begin()+i);
+			marked.erase (marked.begin()+i);
+			i--;
+		}	
+	}	
+	
+	return returnVector;
+}
+
+StringValues Application::CalculateScore(std::vector<std::string> _strings)
+{
+	StringValues returnType;
+	float score = 0;	
+	int markerType = -1;
+	int markerNumber = -1;
+	int markerSize = -1;
+	
+	if(_strings.size() > 0)
+	{		
+		//for every string
+		for(int i = 0; i < _strings.size(); i++)
+		{
+			//for every possible ram word
+			for(int n = 0; n < m_ramToFind.size(); n++)
+			{
+				//if the string == the ram word then is is a ram sentence
+				if (_strings.at(i).find(m_ramToFind.at(n)) != std::string::npos)
+				{
+					score = 1;
+					markerType = 0;
+				}					
+			}
+			//for every possible processor word
+			for(int n = 0; n < m_processorToFind.size(); n++)
+			{
+				//if the string == the processor word then is is a processor sentence
+				if (_strings.at(i).find(m_processorToFind.at(n)) != std::string::npos)
+				{
+					score = 1;
+					markerType = 1;
+				}
+			}
+			for(int n = 0; n < m_sizeToFind.size(); n++)
+			{
+				//if the string == the size word then is is a size word
+				if (_strings.at(i).find(m_sizeToFind.at(n)) != std::string::npos)
+				{
+					score = 1;
+					markerSize = n;
+				}
+			}
+			if(markerNumber == -1)
+			{
+				if(IsUseful(_strings.at(i)))
+				{
+					markerNumber = i;
+				}
+			}			
+		}
+	}
+	
+	if(markerNumber != -1)
+	{
+		returnType.value = ConvertToNumber(_strings.at(markerNumber));
+	}
+	else
+	{
+		returnType.value = -1;
+	}
+	
+
+	returnType.type = markerType;
+	returnType.size = markerSize;
+	
+
+	return returnType;
+}
+
+float Application::ConvertToNumber(std::string _number)
+{
+	float returnFloat = 0;
+	int marker = -1;
+	std::size_t found;
+  
+	for(int i = 0; i < m_alphabet.size(); i++)
+	{
+		found = _number.find(m_alphabet.at(i));
+		if (found!=std::string::npos)
+		{			
+			_number.erase(_number.begin() + found);			
+		}
+	}
+	for(int i = 0; i < m_otherRemoves.size(); i++)
+	{
+		found = _number.find(m_otherRemoves.at(i));
+		if (found!=std::string::npos)
+		{			
+			_number.erase(_number.begin() + found);			
+		}
+	}
+	
+	for(int i = 0; i < _number.size(); i++)
+	{
+		if(_number.at(i) == '.' || _number.at(i) == ',')
+		{
+			marker = i;
+		}
+	}
+	
+	int digit = 0;
+	int number = 0;
+	//if it has a decimal point
+
+	for(int i = 0; i < _number.size(); i++)
+	{
+		if(i != marker)
+		{
+			if(marker != -1)
+			{
+				if(i < marker)
+				{
+					digit = marker - i;
+				}
+				else
+				{
+					digit = marker - i + 1;
+				}
+			}
+			else
+			{
+				digit = _number.size() - i;	
+			}
+					
+			number = GetNumber(_number, i);			
+			if(number > -1)
+			{
+				returnFloat += pow(10, digit - 1) * number;
+			}
+		}			
+	}	
+	
+	return returnFloat;
+	
+	//erase any letters
+	
+}
+
+int Application::GetNumber(std::string _number, int location)
+{
+	if(_number.at(location) == '0')
+	{
+		return 0;
+	}
+	if(_number.at(location) == '1')
+	{
+		return 1;
+	}
+	if(_number.at(location) == '2')
+	{
+		return 2;
+	}
+	if(_number.at(location) == '3')
+	{
+		return 3;
+	}
+	if(_number.at(location) == '4')
+	{
+		return 4;
+	}
+	if(_number.at(location) == '5')
+	{
+		return 5;
+	}
+	if(_number.at(location) == '6')
+	{
+		return 6;
+	}
+	if(_number.at(location) == '7')
+	{
+		return 7;
+	}
+	if(_number.at(location) == '8')
+	{
+		return 8;
+	}
+	if(_number.at(location) == '9')
+	{
+		return 9;
+	}
+	return -1;
+}
+
+bool Application::IsUseful(std::string _string)
+{
+	bool containsLetter = false;
+	//checks if the value contains a number - this is to remove words like OPENGL or CARD which dont help 
+	if (_string.find('0') != std::string::npos ||
+        _string.find('1') != std::string::npos ||
+        _string.find('2') != std::string::npos ||
+        _string.find('3') != std::string::npos ||
+        _string.find('4') != std::string::npos ||
+        _string.find('5') != std::string::npos ||
+        _string.find('6') != std::string::npos ||
+        _string.find('7') != std::string::npos ||
+        _string.find('8') != std::string::npos ||
+        _string.find('.') != std::string::npos ||
+        _string.find('9') != std::string::npos)
+    {        
+		for(int i = 0; i < m_alphabet.size(); i++)
+		{
+			if (_string.find(m_alphabet.at(i)) != std::string::npos)
+			{
+				containsLetter = true;
+			}
+		}
+		//if it contains a letter it means its not a pure number
+		if(containsLetter)
+		{
+			//check if it contains a key word
+			for(int i = 0; i < m_stringsToFind.size(); i++)
+			{
+				if (_string.find(m_stringsToFind.at(i)) != std::string::npos)
+				{
+					return true;
+				}
+			}
 		}
 		else
 		{
-			counter.insert(std::make_pair(words[i], 1));
+			return true;
 		}
-	}
+    }
 	
-	
-	std::map<std::string, int> topWords;
-	bool breakIt = false;
-	for(int i = 0; i < 100; i++)
-	{
-		topWords.insert(std::make_pair(std::to_string(i), 0));
-	}
-	
-	for (std::map<std::string, int>::iterator it=counter.begin(); it!=counter.end(); ++it)
-	{
-		for (std::map<std::string, int>::iterator topIt=topWords.begin(); topIt!=topWords.end() && !breakIt; ++topIt)
-		{
-			if(topIt->second < it->second)
-			{
-				topWords.erase(topIt);
-				topWords.insert(std::make_pair(it->first, it->second));
-				topIt = topWords.end();
-				breakIt = true;
-			}
-		}
-		breakIt = false;
-	}
-	
-	std::cout << topWords.size() << std::endl;
-	
-	for (std::map<std::string, int>::iterator topIt=topWords.begin(); topIt!=topWords.end(); ++topIt)
-	{
-		std::cout << topIt->first << " " << topIt->second << std::endl;
-	}
+	return false;
 }
 
 void Application::UpdatePlayers()

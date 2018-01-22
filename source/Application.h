@@ -25,6 +25,30 @@
 #include "Table.h"
 #include "MySQL.h"
 
+struct Replace
+{
+	Replace(std::string _find, std::string _replace)
+	{
+		stringToFind = _find;
+		stringToReplace = _replace;
+	}
+	std::string stringToFind, stringToReplace;
+};
+
+struct StringValues
+{
+	StringValues(){};
+	StringValues(int _type, int _size, float _value)
+	{
+		type = _type;
+		size = _size;
+		value = _value;
+	}
+	int type, size; //type 0 = ram, 1 = processor
+					//size 0 = MB, 1 = GB
+	float value;
+	
+};
 
 class Application
 {
@@ -49,8 +73,16 @@ class Application
 		
 		//EVALUATES MOST COMMON WORDS IN PC REQUIREMENTS
 		void EvaluatePCRequirements();
+		std::vector<std::string> SplitWordIntoKeyString(std::string _string);
+		bool IsUseful(std::string _string);
+		float ConvertToNumber(std::string _number);
+		StringValues CalculateScore(std::vector<std::string> _strings);
+		
 
+	
 	private:
+		int GetNumber(std::string _number, int location);
+		
 		static double TimeSpecToSeconds(struct timespec* ts);
 	
 		SteamApi api;	//calls the steam api
@@ -121,6 +153,15 @@ class Application
 		
 		//linux timing
 		struct timespec startLinux, stopLinux;
+		
+		
+		std::vector<std::string> m_stringsToFind;
+		std::vector<std::string> m_ramToFind;
+		std::vector<std::string> m_processorToFind;
+		std::vector<std::string> m_sizeToFind;
+		std::vector<Replace> m_stringsToReplace;
+		std::vector<std::string> m_alphabet;
+		std::vector<std::string> m_otherRemoves;
 
 };
 

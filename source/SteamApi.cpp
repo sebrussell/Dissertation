@@ -211,15 +211,22 @@ std::string SteamApi::CleanRequirements(std::string _string)
 		}
 		
 		size_t n = std::count(_string.begin(), _string.end(), '<');			
+		size_t k = std::count(_string.begin(), _string.end(), '>');			
 		
 		//std::cout << n << std::endl;
+		
+		if(k < n)
+		{
+			n = k;
+			std::cout << "HTML Bracked not ended for this entry" << std::endl;
+		}
 		
 		for(size_t z = 0; z < n; z++)
 		{
 			found = _string.find("<");
 			std::size_t found2 = _string.find(">");
 			
-			_string.erase(_string.begin() + found, _string.begin() + found2 + 1);
+			_string.replace(_string.begin() + found, _string.begin() + found2 + 1, " ");
 		}	
 
 		/*

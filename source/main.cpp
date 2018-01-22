@@ -16,7 +16,7 @@ int main()
 	std::cout << "Evaluate PC requirements = 3" << std::endl;
 	std::cin >> input;
 	
-	//app.GetIDTables();
+	app.GetIDTables();
 	
 	if(input == "1")
 	{
