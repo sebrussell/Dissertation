@@ -3,10 +3,6 @@
 Application::Application()
 {
 	//TABLES
-	m_mainTable.lock()->AddColumn("SteamID", STRNG);
-	m_mainTable.lock()->AddColumn("PlayerName", STRNG);	
-	m_mainTable.lock()->AddColumn("Country", GET);
-	
 	m_countryTable.lock()->AddColumn("CountryName", STRNG);
 	m_countryTable.lock()->AddColumn("Count", DUPLICATE_ADD);
 	
@@ -21,6 +17,10 @@ Application::Application()
 	m_mainTable.lock()->AddColumn("ReleaseDate", STRNG);
 	m_mainTable.lock()->AddColumn("Requirements", STRNG);
 	m_mainTable.lock()->AddColumn("GameType", STRNG);
+	m_mainTable.lock()->AddColumn("ProcessorRequirements", FLT);
+	m_mainTable.lock()->AddColumn("GPURequirements", FLT);
+	m_mainTable.lock()->AddColumn("RamRequirements", FLT);
+	m_mainTable.lock()->AddColumn("GPURamRequirements", FLT);
 	
 	m_genreTable.lock()->AddColumn("GenreID", INTEGER);
 	m_genreTable.lock()->AddColumn("GenreName", STRNG);	
@@ -564,6 +564,7 @@ void Application::EvaluatePCRequirements()
 	std::vector<std::string> games;
 	std::vector<std::string> gamesID;
 	std::vector<std::string> sentences;
+	
 	call = statement.GetData("Game");	
 	call += statement.AddStringCondition("GameType", "game");	
 	bRet = objMain.getDataStatement(call);
@@ -580,6 +581,9 @@ void Application::EvaluatePCRequirements()
 		}
 		objMain.ClearData();
 	}
+	
+	
+
 	
 	StringValues type;
 	if(gamesID.size() == games.size())
@@ -602,7 +606,9 @@ void Application::EvaluatePCRequirements()
 			}
 			
 			std::cout << "GAME ID: " << gamesID.at(i) << std::endl;
-			
+			int processorCount = 0;
+			int ramCount = 0;	
+			std::vector<StringValues> values;
 			for(int s = 0; s < sentences.size(); s++)
 			{
 				m_stringsFound = SplitWordIntoKeyString(sentences.at(s));
@@ -613,40 +619,123 @@ void Application::EvaluatePCRequirements()
 				type = CalculateScore(m_stringsFound);
 				if(type.value > -1 && type.type != -1)
 				{
-					std::cout << type.value;
-					
-					if(type.size == 0 && type.type != -1)
-					{
-						std::cout << " GB";
-					}
-					if(type.size == 1 && type.type != -1)
-					{
-						std::cout << " MB";
-					}
-					if(type.size == 2 && type.type != -1)
-					{
-						std::cout << " GHZ";
-					}
-					if(type.size == 3 && type.type != -1)
-					{
-						std::cout << " MHZ";
-					}
+					values.push_back(type);
+
 					if(type.type == 0)
 					{
-						std::cout << " RAM";
+						ramCount++;
 					}
 					if(type.type == 1)
 					{
-						std::cout << " Processor";
+						processorCount++;
 					}
-					std::cout << std::endl;
-				}
+				}				
+			}	
+			
+			float RAM = 0;
+			float GraphicsRAM = 0;
+			float Processor = 0;
+			float GraphicsProcessor = 0;
 
-				
-				
-			}		
+			
+			for(int v = 0; v < values.size(); v++)
+			{
+				//RAM
+				if(values.at(v).type == 0)
+				{
+					if(RAM == 0)
+					{
+						//if in GB
+						if(values.at(v).size == 0)
+						{
+							RAM = values.at(v).value * 1024;
+						}
+						else
+						{
+							RAM = values.at(v).value;
+						}
+					}
+					else
+					{
+						if(values.at(v).size == 0)
+						{
+							GraphicsRAM = values.at(v).value * 1024;
+						}
+						else
+						{
+							GraphicsRAM = values.at(v).value;
+						}
+					}
+				}
+				//PROCESSOR
+				if(values.at(v).type == 1)
+				{
+					if(Processor == 0)
+					{
+						if(values.at(v).size == 2)
+						{
+							Processor = values.at(v).value * 1000;
+						}
+						else
+						{
+							Processor = values.at(v).value;
+						}
+					}
+					else
+					{
+						if(values.at(v).size == 2)
+						{
+							GraphicsProcessor = values.at(v).value * 1000;
+						}
+						else
+						{
+							GraphicsProcessor = values.at(v).value;
+						}
+					}
+				}
+			}
+			
+			m_mainTable.lock()->SetIntColumn("GameID", std::stoi(gamesID.at(i)));
+			m_mainTable.lock()->SetFloatColumn("ProcessorRequirements", Processor);
+			call = m_mainTable.lock()->UpdateValues("Game", "ProcessorRequirements", FLT);
+			call += m_mainTable.lock()->UpdateValues("Game", "GameID", INTEGER, 1);			
+			bRet = objMain.execStatement(call);				
+			if (!bRet)
+			{					
+				std::cout << "ERROR!" << std::endl;
+			}
 			
 
+			m_mainTable.lock()->SetFloatColumn("GPURequirements", GraphicsProcessor);
+			call = m_mainTable.lock()->UpdateValues("Game", "GPURequirements", FLT);
+			call += m_mainTable.lock()->UpdateValues("Game", "GameID", INTEGER, 1);			
+			bRet = objMain.execStatement(call);				
+			if (!bRet)
+			{					
+				std::cout << "ERROR!" << std::endl;
+			}
+			
+			m_mainTable.lock()->SetFloatColumn("RamRequirements", RAM);
+			call = m_mainTable.lock()->UpdateValues("Game", "RamRequirements", FLT);
+			call += m_mainTable.lock()->UpdateValues("Game", "GameID", INTEGER, 1);			
+			bRet = objMain.execStatement(call);				
+			if (!bRet)
+			{					
+				std::cout << "ERROR!" << std::endl;
+			}
+			
+			
+			m_mainTable.lock()->SetFloatColumn("GPURamRequirements", GraphicsRAM);
+			call = m_mainTable.lock()->UpdateValues("Game", "GPURamRequirements", FLT);
+			call += m_mainTable.lock()->UpdateValues("Game", "GameID", INTEGER, 1);			
+			bRet = objMain.execStatement(call);				
+			if (!bRet)
+			{					
+				std::cout << "ERROR!" << std::endl;
+			}
+			
+			
+			values.clear();
 			sentences.clear();
 			
 			//analyse the words
@@ -657,7 +746,8 @@ void Application::EvaluatePCRequirements()
 	else
 	{
 		std::cout << "Games ID is not equal to Game Sentence Size" << std::endl;
-	}		
+	}	
+
 }
 
 std::vector<std::string> Application::SplitWordIntoKeyString(std::string _string)

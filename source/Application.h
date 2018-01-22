@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <iterator>
 #include <locale>
+#include <math.h>
 
 
 #include "SteamApi.h"

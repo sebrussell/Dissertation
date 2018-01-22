@@ -98,6 +98,9 @@ std::string Table::UpdateValues(std::string _columnToSet, std::string _columnToC
 				case INTEGER:
 					returnString += std::to_string(m_ints.find(_columnToChange)->second);
 					break;	
+				case FLT:
+					returnString += std::to_string(m_floats.find(_columnToChange)->second);
+					break;	
 		}
 	}
 	else
