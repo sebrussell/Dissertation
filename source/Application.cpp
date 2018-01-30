@@ -21,6 +21,7 @@ Application::Application()
 	m_mainTable.lock()->AddColumn("GPURequirements", FLT);
 	m_mainTable.lock()->AddColumn("RamRequirements", FLT);
 	m_mainTable.lock()->AddColumn("GPURamRequirements", FLT);
+	m_mainTable.lock()->AddColumn("FinalRequirements", FLT);
 	
 	m_genreTable.lock()->AddColumn("GenreID", INTEGER);
 	m_genreTable.lock()->AddColumn("GenreName", STRNG);	
@@ -71,6 +72,19 @@ Application::Application()
 	m_alphabet.push_back("M");
 	
 	m_otherRemoves.push_back("+");
+	
+	m_numbers.push_back('0');
+	m_numbers.push_back('1');
+	m_numbers.push_back('2');
+	m_numbers.push_back('3');
+	m_numbers.push_back('4');
+	m_numbers.push_back('5');
+	m_numbers.push_back('6');
+	m_numbers.push_back('7');
+	m_numbers.push_back('8');
+	m_numbers.push_back('9');
+	m_numbers.push_back('.');
+	m_numbers.push_back(',');
 }
 
 Application::~Application()
@@ -538,6 +552,122 @@ bool Application::UpdateGame(int _id)
 	return true;
 }
 
+void Application::SetPCRequirements()
+{
+	struct gameValues
+	{
+		std::string gameID;
+		double processor, ram, gpuProc, gpuRam;
+	};
+	std::vector<gameValues> m_gameValues;
+	//12,12,13,14 columns
+	call = statement.GetData("Game");	
+	bRet = objMain.getDataStatement(call);
+	if (!bRet)
+	{					
+		std::cout << "ERROR!" << std::endl;
+	}
+	else
+	{
+		while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
+		{
+			gameValues temp;
+			temp.gameID = objMain.row[0];
+			temp.processor = std::stod(objMain.row[11]);
+			temp.gpuProc = std::stod(objMain.row[12]);
+			temp.ram = std::stod(objMain.row[13]);
+			temp.gpuRam = std::stod(objMain.row[14]);
+			m_gameValues.push_back(temp);
+		}
+		objMain.ClearData();
+	}	
+	
+	
+	
+	for(int i = 0; i < m_gameValues.size(); i++)
+	{
+
+		float count = 0;
+		float score = 0;
+		
+		if(m_gameValues.at(i).processor != 0)
+		{
+			count++;
+			score += GetScore(m_gameValues.at(i).processor, 500, 9);
+		}
+		
+		if(m_gameValues.at(i).ram != 0)
+		{
+			count++;
+			score += GetScore(m_gameValues.at(i).ram, 1000, 9);
+		}
+		
+		if(m_gameValues.at(i).gpuProc != 0)
+		{
+			count++;
+			score += GetScore(m_gameValues.at(i).gpuProc, 500, 7);
+		}
+		
+		if(m_gameValues.at(i).gpuRam != 0)
+		{
+			count++;
+			score += GetScore(m_gameValues.at(i).gpuRam, 1000, 7);
+		}
+		
+		if(count > 0)
+		{
+			score = score / count;
+			
+			
+			m_mainTable.lock()->SetIntColumn("GameID", std::stoi(m_gameValues.at(i).gameID));
+			m_mainTable.lock()->SetFloatColumn("FinalRequirements", score);
+			call = m_mainTable.lock()->UpdateValues("Game", "FinalRequirements", FLT);
+			call += m_mainTable.lock()->UpdateValues("Game", "GameID", INTEGER, 1);	
+
+			std::cout << m_gameValues.at(i).processor << " " << m_gameValues.at(i).ram << " " << m_gameValues.at(i).gpuProc << " " << m_gameValues.at(i).gpuRam << " " << count << std::endl;
+			
+			std::cout << call << std::endl;
+			
+			if(m_gameValues.at(i).gameID == "6400")
+			{
+				std::cout << GetScore(m_gameValues.at(i).ram, 1000, 9) << std::endl;
+				system("PAUSE");
+				
+			}
+			
+			
+			bRet = objMain.execStatement(call);				
+			if (!bRet)
+			{					
+				std::cout << "ERROR!" << std::endl;
+			}
+			
+			
+		}
+		else
+		{
+			score = 0;
+		}
+		
+		
+		
+		
+		
+	}
+}
+
+float Application::GetScore(double value, int step, int amount)
+{
+	float returnValue = (value / step) * (100 / amount);
+	
+	if(returnValue > 100)
+	{
+		returnValue = 100;
+	}
+	
+	return returnValue;
+}
+
 void Application::EvaluatePCRequirements()
 {
 	std::locale loc;
@@ -566,7 +696,7 @@ void Application::EvaluatePCRequirements()
 	std::vector<std::string> sentences;
 	
 	call = statement.GetData("Game");	
-	call += statement.AddStringCondition("GameType", "game");	
+	//call += statement.AddStringCondition("GameType", "game");	
 	bRet = objMain.getDataStatement(call);
 	if (!bRet)
 	{					
@@ -590,7 +720,7 @@ void Application::EvaluatePCRequirements()
 	{
 		//BREAK UP INTO : 	
 		std::string token;
-		char delimiter = ':';
+		char delimiter = ',';
 		for(int i = 0; i < games.size(); i++)
 		{
 			//make capital
@@ -599,6 +729,15 @@ void Application::EvaluatePCRequirements()
 				games.at(i)[n] = std::toupper(games.at(i)[n],loc);
 			}
 			//break up into :
+			 std::size_t found = games.at(i).find(":");
+			if(found!=std::string::npos)
+			{
+				delimiter = ':';
+			}
+			else
+			{
+				delimiter = ',';
+			}
 			std::istringstream tokenStream(games.at(i));
 			while (std::getline(tokenStream, token, delimiter))
 			{
@@ -695,6 +834,7 @@ void Application::EvaluatePCRequirements()
 				}
 			}
 			
+			/*
 			m_mainTable.lock()->SetIntColumn("GameID", std::stoi(gamesID.at(i)));
 			m_mainTable.lock()->SetFloatColumn("ProcessorRequirements", Processor);
 			call = m_mainTable.lock()->UpdateValues("Game", "ProcessorRequirements", FLT);
@@ -732,6 +872,12 @@ void Application::EvaluatePCRequirements()
 			if (!bRet)
 			{					
 				std::cout << "ERROR!" << std::endl;
+			}
+			*/
+			
+			if(gamesID.at(i) == "416130")
+			{
+				system("PAUSE");
 			}
 			
 			
@@ -789,6 +935,7 @@ std::vector<std::string> Application::SplitWordIntoKeyString(std::string _string
 	//for all the words
 	for(int i = 0; i < returnVector.size(); i++)
 	{
+		/*
 		//and not equal to the first one to stop errors
 		if(i > 0)
 		{
@@ -802,6 +949,7 @@ std::vector<std::string> Application::SplitWordIntoKeyString(std::string _string
 				}							
 			}
 		}
+		*/
 		//check if not last item
 		if(i < returnVector.size() - 1)
 		{
@@ -815,6 +963,7 @@ std::vector<std::string> Application::SplitWordIntoKeyString(std::string _string
 				}
 			}
 		}
+		
 	}
 
 	for(int i = 0; i < returnVector.size(); i++)
@@ -864,28 +1013,33 @@ StringValues Application::CalculateScore(std::vector<std::string> _strings)
 					markerType = 1;
 				}
 			}
+			//for every size word
 			for(int n = 0; n < m_sizeToFind.size(); n++)
 			{
-				//if the string == the size word then is is a size word
+				//if the string == the size word then is is a size word i.e. GB, MB
 				if (_strings.at(i).find(m_sizeToFind.at(n)) != std::string::npos)
 				{
 					score = 1;
 					markerSize = n;
 				}
 			}
-			if(markerNumber == -1)
+			if(IsUseful(_strings.at(i)))
 			{
-				if(IsUseful(_strings.at(i)))
-				{
-					markerNumber = i;
-				}
-			}			
+				markerNumber = i;
+			}
+			
+			//std::cout << _strings.at(i) << std::endl;
+			
 		}
 	}
 	
+	//std::cout << "new setnecne" << std::endl;
+	
 	if(markerNumber != -1)
 	{
+		std::cout << _strings.at(markerNumber) << std::endl;
 		returnType.value = ConvertToNumber(_strings.at(markerNumber));
+		std::cout << returnType.value << std::endl;
 	}
 	else
 	{
@@ -905,31 +1059,27 @@ float Application::ConvertToNumber(std::string _number)
 	float returnFloat = 0;
 	int marker = -1;
 	std::size_t found;
-  
-	for(int i = 0; i < m_alphabet.size(); i++)
-	{
-		found = _number.find(m_alphabet.at(i));
-		if (found!=std::string::npos)
-		{			
-			_number.erase(_number.begin() + found);			
-		}
-	}
-	for(int i = 0; i < m_otherRemoves.size(); i++)
-	{
-		found = _number.find(m_otherRemoves.at(i));
-		if (found!=std::string::npos)
-		{			
-			_number.erase(_number.begin() + found);			
-		}
-	}
 	
+	bool erase = true;
 	for(int i = 0; i < _number.size(); i++)
-	{
+	{	
+		erase = true;
 		if(_number.at(i) == '.' || _number.at(i) == ',')
 		{
 			marker = i;
 		}
+		for(int n = 0; n < m_numbers.size(); n++)
+		{
+			if(_number.at(i) == m_numbers.at(n))
+			{
+				erase = false;
+			}
+		}
+		_number.erase(_number.begin() + i);
+
+		
 	}
+	
 	
 	int digit = 0;
 	int number = 0;

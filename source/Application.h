@@ -74,6 +74,8 @@ class Application
 		
 		//EVALUATES MOST COMMON WORDS IN PC REQUIREMENTS
 		void EvaluatePCRequirements();
+		void SetPCRequirements();
+		float GetScore(double value, int step, int amount);
 		std::vector<std::string> SplitWordIntoKeyString(std::string _string);
 		bool IsUseful(std::string _string);
 		float ConvertToNumber(std::string _number);
@@ -163,6 +165,7 @@ class Application
 		std::vector<Replace> m_stringsToReplace;
 		std::vector<std::string> m_alphabet;
 		std::vector<std::string> m_otherRemoves;
+		std::vector<char> m_numbers;
 
 };
 
