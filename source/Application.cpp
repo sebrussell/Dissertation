@@ -42,6 +42,7 @@ Application::Application()
 	
 	//DEFAULT CHECK PLAYERS
 	m_playersToAdd.push_back("76561198050068679");
+	m_playersToAdd.push_back("76561198050068679");
 	
 	m_alphabet.push_back("Q");
 	m_alphabet.push_back("W");
@@ -1240,21 +1241,40 @@ void Application::UpdatePlayers()
 		{
 			url += m_playersToAdd.at(i) + ",";
 		}		
+		
+		//std::cout << url << std::endl;
+		
 		jsonSpare = api.GetData(url);
 		queryAmount++;
+		
+		//std::cout << jsonSpare << std::endl;
 		
 		
 		for(int i = 0; i < amount; i++)
 		{
 			
-			steamid = jsonData["response"]["players"][i]["steamid"].asString();
-			country = jsonData["response"]["players"][i]["loccountrycode"].asString();
-			primaryClanID = jsonData["response"]["players"][i]["primaryclanid"].asString();
+			steamid = jsonSpare["response"]["players"][i]["steamid"].asString();
+			country = jsonSpare["response"]["players"][i]["loccountrycode"].asString();
+			primaryClanID = jsonSpare["response"]["players"][i]["primaryclanid"].asString();			
+			timeCreated = api.UnixToDate(jsonSpare["response"]["players"][i]["timecreated"].asInt());
+			locCountryCode = jsonSpare["response"]["players"][i]["loccountrycode"].asString();
+			locStateCode = jsonSpare["response"]["players"][i]["locstatecode"].asString();			
+			if(locStateCode == "")
+			{
+				locStateCode = "Unknown";
+			}
+			if(locCountryCode == "")
+			{
+				locCountryCode = "Unknown";
+			}
+
+			std::cout << locStateCode << std::endl;
 			
-			timeCreated = api.UnixToDate(jsonData["response"]["players"][i]["timecreated"].asInt());
 			//lastLogOff
 			
 		}
+		
+		system("PAUSE");
 
 		//have a vector of players to look at
 		//add 10 random players from different countries into the table

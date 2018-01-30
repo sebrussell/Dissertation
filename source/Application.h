@@ -141,7 +141,8 @@ class Application
 		int time = 300;
 		double timeToWait;
 		
-		std::string country, primaryClanID, timeCreated, lastLogOff;
+		std::string country, primaryClanID, timeCreated, lastLogOff, locCountryCode, locStateCode;
+		
 		
 		std::map<int, std::string> m_genresAdded;
 		std::map<int, std::string> m_categoriesAdded;
