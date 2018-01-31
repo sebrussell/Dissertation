@@ -24,7 +24,7 @@ void Table::AddColumn(std::string _columnName, Type _type)
 			m_ints[_columnName] = 0;
 			break;	
 		case FLT:
-			m_ints[_columnName] = 0;
+			m_floats[_columnName] = 0;
 			break;
 		case DUPLICATE_ADD:
 			m_duplicateAdds.push_back("ON DUPLICATE KEY UPDATE " + _columnName + " = " + _columnName + " + 1");

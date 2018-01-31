@@ -51,6 +51,13 @@ struct StringValues
 	
 };
 
+struct GamesDownload
+{
+	float price, finalRequirements;
+	int metaCritic;
+	std::string releaseDate;
+};
+
 class Application
 {
 	public:
@@ -69,7 +76,7 @@ class Application
 		//JUST UPDATES 1 PARTICULAR GAME
 		bool UpdateGame(int _id);
 		
-		//UPDATES PLAYERS
+		//UPDATES PLAYERS		
 		void UpdatePlayers();
 		
 		//EVALUATES MOST COMMON WORDS IN PC REQUIREMENTS
@@ -116,6 +123,10 @@ class Application
 		std::weak_ptr<Table> m_categoryToGame = statement.CreateTable("GameToCategory");		
 		std::weak_ptr<Table> m_gameToCheck = statement.CreateTable("GamesToCheck");
 		
+		
+		std::weak_ptr<Table> m_playersMain = statement.CreateTable("Players");
+		std::weak_ptr<Table> m_playersFriends = statement.CreateTable("FriendsList");		
+		std::weak_ptr<Table> m_gamesOwned = statement.CreateTable("GamesOwned");		
 
 		
 		
@@ -147,7 +158,7 @@ class Application
 		std::map<int, std::string> m_genresAdded;
 		std::map<int, std::string> m_categoriesAdded;
 		std::map<int, std::string> m_countries;
-		std::map<int, std::string> m_games;
+		std::map<int, GamesDownload> m_games;
 		
 		
 		std::vector<std::string> m_playersToAdd;
