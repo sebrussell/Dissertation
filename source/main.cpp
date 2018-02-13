@@ -15,6 +15,7 @@ int main()
 	std::cout << "Update Player Tables = 2" << std::endl;
 	std::cout << "Evaluate PC requirements = 3" << std::endl;
 	std::cout << "Set PC requirements = 4" << std::endl;
+	std::cout << "Association Rule = 5" << std::endl;
 	std::cin >> input;
 	
 	app.GetIDTables();
@@ -34,6 +35,10 @@ int main()
 	else if(input == "4")
 	{
 		app.SetPCRequirements();
+	}
+	else if(input == "5")
+	{
+		app.AssociationRule();
 	}
 	
 	

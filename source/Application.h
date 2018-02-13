@@ -79,6 +79,9 @@ class Application
 		//UPDATES PLAYERS		
 		void UpdatePlayers();
 		
+		//ASSOCIATION RULE
+		void AssociationRule();
+		
 		//EVALUATES MOST COMMON WORDS IN PC REQUIREMENTS
 		void EvaluatePCRequirements();
 		void SetPCRequirements();

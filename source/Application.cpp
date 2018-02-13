@@ -52,8 +52,17 @@ Application::Application()
 	
 	
 	
-	m_playersFriends.lock()->AddColumn("GameID", INTEGER);	
-	m_gamesOwned.lock()->AddColumn("GameID", INTEGER);	
+	m_playersFriends.lock()->AddColumn("SteamID1", STRNG);
+	m_playersFriends.lock()->AddColumn("SteamID2", STRNG);
+	m_playersFriends.lock()->AddColumn("FriendSince", STRNG);
+	m_playersFriends.lock()->AddColumn("FriendRating", FLT);
+
+	
+	m_gamesOwned.lock()->AddColumn("GameID", STRNG);	
+	m_gamesOwned.lock()->AddColumn("PlayerID", STRNG);
+	m_gamesOwned.lock()->AddColumn("MinutesPlayedTotal", INTEGER);	
+	m_gamesOwned.lock()->AddColumn("MinutesPlayed2Weeks", INTEGER);	
+	
 	
 	//DEFAULT CHECK PLAYERS
 	m_playersToAdd.push_back("76561198050068679");
@@ -1427,6 +1436,9 @@ void Application::UpdatePlayers()
 			{										
 				if ( m_games.find(std::stoi(m_playerGames.at(n).appID)) == m_games.end() ) {
 				  std::cout << "Game " << m_playerGames.at(n).appID << " not found!" << std::endl;
+				  
+				  
+				  
 				} else {
 				  tempGame = m_games.at(std::stoi(m_playerGames.at(n).appID));
 				  
@@ -1494,11 +1506,46 @@ void Application::UpdatePlayers()
 			
 			call = m_playersMain.lock()->SetValues();		
 			
+			
 			bRet = objMain.execStatement(call);				
 			if (!bRet)
 			{					
 				std::cout << "ERROR!" << std::endl;
 			}
+			
+			
+			
+			for(int n = 0; n < m_playerGames.size(); n++)
+			{
+				m_gamesOwned.lock()->SetStringColumn("GameID", m_playerGames.at(n).appID);	
+				m_gamesOwned.lock()->SetStringColumn("PlayerID", steamid);
+				m_gamesOwned.lock()->SetIntColumn("MinutesPlayedTotal", m_playerGames.at(n).playtimeForever);	
+				m_gamesOwned.lock()->SetIntColumn("MinutesPlayed2Weeks", m_playerGames.at(n).playtime2Weeks);
+				
+				call = m_gamesOwned.lock()->SetValues();
+				
+				bRet = objMain.execStatement(call);				
+				if (!bRet)
+				{					
+					std::cout << "ERROR!" << std::endl;
+				}
+			}
+			
+			for(int n = 0; n < m_friends.size(); n++)
+			{
+				m_playersFriends.lock()->SetStringColumn("SteamID1", steamid);
+				m_playersFriends.lock()->SetStringColumn("SteamID2", m_friends.at(n).steamID);
+				m_playersFriends.lock()->SetStringColumn("FriendSince", m_friends.at(n).friendSince);
+				
+				call = m_playersFriends.lock()->SetValues();
+				
+				bRet = objMain.execStatement(call);				
+				if (!bRet)
+				{					
+					std::cout << "ERROR!" << std::endl;
+				}
+			}
+			
 			
 			
 			
@@ -1536,11 +1583,125 @@ void Application::UpdatePlayers()
 		#endif
 		
 		std::cout << "Query Amount: " << queryAmount << " Time Left: " << 86400 - deltaTime << std::endl;
-		//system("PAUSE");
+		system("PAUSE");
 		
 	}
 	
 
+	
+	
+	
+	
+}
+
+void Application::AssociationRule()
+{
+	
+	std::map<std::string, std::vector<int>> playerData;
+	std::map<int, int> supportValue;
+	
+	call = statement.GetData("GamesOwned");	
+	bRet = objMain.getDataStatement(call);
+	if (!bRet)
+	{					
+		std::cout << "ERROR!" << std::endl;
+	}
+	else
+	{
+		while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
+		{
+			playerData[objMain.row[0]].push_back(std::stoi(objMain.row[1]));
+		}
+		objMain.ClearData();
+	}
+	
+	std::cout << playerData.size() << std::endl;
+	
+	std::map<int,int>::iterator supportIT;
+	for (std::map<std::string, std::vector<int>>::iterator it = playerData.begin(); it != playerData.end(); it++ )
+	{			
+		for(int i = 0; i < it->second.size(); i++)
+		{
+			supportIT = supportValue.find(it->second.at(i));
+			if (supportIT != supportValue.end())
+			{
+				supportIT->second++;
+			}	
+			else
+			{
+				supportValue[it->second.at(i)] = 1;
+			}
+			
+		}
+	}
+	
+	std::vector<int> gamesAboveMinimumSupport;
+	
+	for (std::map<int, int>::iterator it = supportValue.begin(); it != supportValue.end(); it++ )
+	{
+		if(it->second > 50)
+		{
+			gamesAboveMinimumSupport.push_back(it->first);
+		}		
+	}
+	
+	struct MinimumSupport
+	{
+		int gameID1, gameID2, count;
+		float confidence;
+	};
+	
+	std::vector<MinimumSupport> support;
+	
+	for(int i = 0; i < gamesAboveMinimumSupport.size(); i++)
+	{
+		MinimumSupport temp;
+		temp.count = 0;
+		temp.confidence = 0;
+		temp.gameID1 = gamesAboveMinimumSupport.at(i);
+		for(int n = 0; n < gamesAboveMinimumSupport.size(); n++)
+		{
+			temp.gameID2 = gamesAboveMinimumSupport.at(n);
+			if(temp.gameID1 != temp.gameID2)
+			{
+				support.push_back(temp);
+			}
+		}
+	}
+	
+	for(int i = 0; i < support.size(); i++)
+	{
+		for (std::map<std::string, std::vector<int>>::iterator it = playerData.begin(); it != playerData.end(); it++ )
+		{
+			if ( std::find(it->second.begin(), it->second.end(), support.at(i).gameID1) != it->second.end() )
+			{
+				
+				if ( std::find(it->second.begin(), it->second.end(), support.at(i).gameID2) != it->second.end() )
+				{
+					support.at(i).count += 1;				
+				}
+			}
+		}
+	}
+	
+	
+	for(int i = 0; i < support.size(); i++)
+	{
+		
+
+		
+		if(support.at(i).count > 50)
+		{
+			std::map<int,int>::iterator confidenceIT;
+			confidenceIT = supportValue.find(support.at(i).gameID1);
+			if (confidenceIT != supportValue.end())
+			{
+				support.at(i).confidence = (float)((float)support.at(i).count / (float)confidenceIT->second);
+			}
+
+			std::cout << support.at(i).gameID1 << " " << support.at(i).gameID2 << " " << support.at(i).count << " " << support.at(i).confidence << std::endl;
+		}		
+	}
 	
 	
 	
