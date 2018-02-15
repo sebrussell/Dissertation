@@ -60,6 +60,19 @@ std::string Statement::AddStringCondition(std::string _columnName, std::string v
 	
 }
 
+std::string Statement::OrderDataDesc(std::string _columnName, int limit)
+{
+	if(limit > 0)
+	{
+		return " ORDER BY " + _columnName + " DESC LIMIT " + std::to_string(limit);
+	}
+	else
+	{
+		return " ORDER BY " + _columnName + " DESC ";
+	}
+	
+}
+
 std::weak_ptr<Table> Statement::CreateTable(std::string tableName)
 {
 	std::shared_ptr<Table> m_table(new Table);

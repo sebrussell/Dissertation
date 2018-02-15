@@ -80,7 +80,7 @@ class Application
 		void UpdatePlayers();
 		
 		//ASSOCIATION RULE
-		void AssociationRule();
+		void AssociationRule(int appID = -1, float confidenceThreshold = 0.5);
 		
 		//EVALUATES MOST COMMON WORDS IN PC REQUIREMENTS
 		void EvaluatePCRequirements();
@@ -125,6 +125,7 @@ class Application
 		std::weak_ptr<Table> m_categoryTable = statement.CreateTable("Category");
 		std::weak_ptr<Table> m_categoryToGame = statement.CreateTable("GameToCategory");		
 		std::weak_ptr<Table> m_gameToCheck = statement.CreateTable("GamesToCheck");
+		std::weak_ptr<Table> m_countriesTable = statement.CreateTable("Countries");
 		
 		
 		std::weak_ptr<Table> m_playersMain = statement.CreateTable("Players");
@@ -156,11 +157,12 @@ class Application
 		double timeToWait;
 		
 		std::string country, primaryClanID, timeCreated, lastLogOff, locCountryCode, locStateCode;
+		int countryID;
 		
 		
 		std::map<int, std::string> m_genresAdded;
 		std::map<int, std::string> m_categoriesAdded;
-		std::map<int, std::string> m_countries;
+		std::map<std::string, int> m_countries;
 		std::map<int, GamesDownload> m_games;
 		
 		
