@@ -127,6 +127,12 @@ class Application
 		std::weak_ptr<Table> m_gameToCheck = statement.CreateTable("GamesToCheck");
 		std::weak_ptr<Table> m_countriesTable = statement.CreateTable("Countries");
 		
+		std::weak_ptr<Table> m_publishersTable = statement.CreateTable("Publishers");
+		std::weak_ptr<Table> m_developersTable = statement.CreateTable("Developers");
+		
+		std::weak_ptr<Table> m_gameToPublisherTable = statement.CreateTable("GameToPublisher");
+		std::weak_ptr<Table> m_gameToDeveloperTable = statement.CreateTable("GameToDeveloper");
+		
 		
 		std::weak_ptr<Table> m_playersMain = statement.CreateTable("Players");
 		std::weak_ptr<Table> m_playersFriends = statement.CreateTable("FriendsList");		
@@ -148,7 +154,8 @@ class Application
 		double price;
 		std::string ageRequirement, requirements;
 		int metaCritic;
-		
+		std::string websiteAddress;
+		std::string headerImageAddress;
 		int windows, mac, linux;
 		
 		int c = 0;
@@ -163,6 +170,8 @@ class Application
 		std::map<int, std::string> m_genresAdded;
 		std::map<int, std::string> m_categoriesAdded;
 		std::map<std::string, int> m_countries;
+		std::map<std::string, int> m_publishers;
+		std::map<std::string, int> m_developers;
 		std::map<int, GamesDownload> m_games;
 		
 		

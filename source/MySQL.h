@@ -4,13 +4,14 @@
 #include <algorithm>
 
 class Statement;
+class TextReader;
 
 class SqlConnector
 {
     const char* MY_HOSTNAME;
     const char* MY_DATABASE;
     const char* MY_USERNAME;
-    char* MY_PASSWORD;
+    const char* MY_PASSWORD;
     const char* MY_SOCKET;
     enum {
         MY_PORT_NO = 3306,

@@ -8,6 +8,9 @@
 #include <algorithm>
 #include <string>
 
+
+class TextReader;
+
 namespace
 {
     std::size_t callback(

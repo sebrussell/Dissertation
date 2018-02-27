@@ -10,16 +10,23 @@ std::string Statement::Call(std::string _tableName)
 	}
 }
 
-std::string Statement::GetData(std::string _tableName)
+std::string Statement::GetData(std::string _tableName, bool decrypt, std::string _columnToDecrypt)
 {
 	if(m_tables[_tableName])
 	{
-		return "SELECT * FROM " + _tableName;
+		if(decrypt)
+		{
+			return "SELECT AES_DECRYPT(" + _columnToDecrypt + ",'" + m_tables[_tableName]->GetKey() + "') FROM " + _tableName;
+		}
+		else
+		{
+			return "SELECT * FROM " + _tableName;
+		}		
 	}
 	else
 	{
 		return "";
-	}
+	}	
 }
 
 std::string Statement::GetSize(std::string _tableName)
@@ -47,11 +54,24 @@ std::string Statement::AddNumberCondition(std::string _columnName, int value, in
 	
 }
 
-std::string Statement::AddStringCondition(std::string _columnName, std::string value, int count, std::string operation)
+std::string Statement::AddStringCondition(std::string _columnName, std::string value, int count, std::string operation, bool decrypt, std::string _tableName, bool encrypt)
 {
+	if(decrypt)
+	{
+		value = "AES_DECRYPT(" + value + ",'" + m_tables[_tableName]->GetKey() + "')";
+	}
+	if(encrypt)
+	{
+		value = "AES_ENCRYPT(" + value + ",'" + m_tables[_tableName]->GetKey() + "')";
+	}
+	else
+	{
+		value = "'" + value + "'";
+	}
 	if(count == 0)
 	{
-		return " WHERE " + _columnName + operation + "'" + value + "'";
+		
+		return " WHERE " + _columnName + operation + value;
 	}
 	else
 	{

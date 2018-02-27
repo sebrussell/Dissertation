@@ -23,6 +23,7 @@ add_executable(techdemo
 	source/Statement.cpp
 	source/Table.cpp
 	source/Application.cpp
+	source/TextReader.cpp
 )
 
 if(WIN32)

@@ -22,6 +22,9 @@ Application::Application()
 	m_mainTable.lock()->AddColumn("RamRequirements", FLT);
 	m_mainTable.lock()->AddColumn("GPURamRequirements", FLT);
 	m_mainTable.lock()->AddColumn("FinalRequirements", FLT);
+	m_mainTable.lock()->AddColumn("AvailableOnStore", INTEGER);
+	m_mainTable.lock()->AddColumn("Website", STRNG);
+	m_mainTable.lock()->AddColumn("HeaderImage", STRNG);
 	
 	m_genreTable.lock()->AddColumn("GenreID", INTEGER);
 	m_genreTable.lock()->AddColumn("GenreName", STRNG);	
@@ -41,7 +44,7 @@ Application::Application()
 	m_gameToCheck.lock()->AddColumn("Count", INTEGER);
 	
 	
-	m_playersMain.lock()->AddColumn("SteamID", STRNG);
+	m_playersMain.lock()->AddColumn("SteamID", ENCRYPT);
 	m_playersMain.lock()->AddColumn("PrimaryClan", STRNG);
 	m_playersMain.lock()->AddColumn("DateCreated", STRNG);
 	m_playersMain.lock()->AddColumn("AveragePCRequirements", FLT);
@@ -58,17 +61,28 @@ Application::Application()
 	m_countriesTable.lock()->AddColumn("Name", STRNG);
 	
 	
-	m_playersFriends.lock()->AddColumn("SteamID1", STRNG);
-	m_playersFriends.lock()->AddColumn("SteamID2", STRNG);
+	m_playersFriends.lock()->AddColumn("SteamID1", ENCRYPT);
+	m_playersFriends.lock()->AddColumn("SteamID2", ENCRYPT);
 	m_playersFriends.lock()->AddColumn("FriendSince", STRNG);
 	m_playersFriends.lock()->AddColumn("FriendRating", FLT);
 
 	
 	m_gamesOwned.lock()->AddColumn("GameID", STRNG);	
-	m_gamesOwned.lock()->AddColumn("PlayerID", STRNG);
+	m_gamesOwned.lock()->AddColumn("PlayerID", ENCRYPT);
 	m_gamesOwned.lock()->AddColumn("MinutesPlayedTotal", INTEGER);	
 	m_gamesOwned.lock()->AddColumn("MinutesPlayed2Weeks", INTEGER);	
 	
+	m_publishersTable.lock()->AddColumn("PublisherID", INTEGER);
+	m_publishersTable.lock()->AddColumn("PublisherName", STRNG);
+	
+	m_developersTable.lock()->AddColumn("DeveloperID", INTEGER);
+	m_developersTable.lock()->AddColumn("DeveloperName", STRNG);
+	
+	m_gameToDeveloperTable.lock()->AddColumn("DeveloperID", INTEGER);
+	m_gameToDeveloperTable.lock()->AddColumn("GameID", INTEGER);
+	
+	m_gameToPublisherTable.lock()->AddColumn("PublisherID", INTEGER);
+	m_gameToPublisherTable.lock()->AddColumn("GameID", INTEGER);
 		
 	m_alphabet.push_back("Q");
 	m_alphabet.push_back("W");
@@ -198,6 +212,40 @@ bool Application::GetIDTables()
 		while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
 		{
 			m_countries[objMain.row[1]] = std::stoi(objMain.row[0]);
+		}
+		objMain.ClearData();
+	}
+	
+	//LOAD PUBLISHERS INTO PROGRAM
+	call = statement.GetData("Publishers");	
+	bRet = objMain.getDataStatement(call);
+	if (!bRet)
+	{					
+		std::cout << "ERROR!" << std::endl;
+		return false;
+	}
+	else
+	{
+		while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
+		{
+			m_publishers[objMain.row[1]] = std::stoi(objMain.row[0]);
+		}
+		objMain.ClearData();
+	}
+	
+	//LOAD DEVELOPERS INTO PROGRAM
+	call = statement.GetData("Developers");	
+	bRet = objMain.getDataStatement(call);
+	if (!bRet)
+	{					
+		std::cout << "ERROR!" << std::endl;
+		return false;
+	}
+	else
+	{
+		while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
+		{
+			m_developers[objMain.row[1]] = std::stoi(objMain.row[0]);
 		}
 		objMain.ClearData();
 	}
@@ -420,7 +468,7 @@ double Application::TimeSpecToSeconds(struct timespec* ts)
 bool Application::UpdateGame(int _id)
 {
 	gameIDString = std::to_string(_id);
-	url =  "http://store.steampowered.com/api/appdetails?appids=" + gameIDString;			
+	url =  "http://store.steampowered.com/api/appdetails?appids=" + gameIDString + "&cc=gb";			
 	jsonData = api.GetData(url);
 	std::cout << "Steam Game ID: " << gameIDString << std::endl;
 	
@@ -436,7 +484,8 @@ bool Application::UpdateGame(int _id)
 		ageRequirement = jsonData[gameIDString]["data"]["required_age"].asString();
 		metaCritic = jsonData[gameIDString]["data"]["metacritic"]["score"].asInt();
 
-				
+		
+		bool availableOnStore = true;	
 		//GET THE PRICE - EVERYTHING IS IN GBP
 		if(jsonData[gameIDString]["data"]["is_free"].asInt())
 		{
@@ -444,10 +493,22 @@ bool Application::UpdateGame(int _id)
 		}
 		else
 		{
-			price = jsonData[gameIDString]["data"]["price_overview"]["final"].asDouble() / 100;
+			//need to check if it exists otherwise app is no longer on the store
+			if(jsonData[gameIDString]["data"].isMember("price_overview"))
+			{
+				price = jsonData[gameIDString]["data"]["price_overview"]["final"].asDouble() / 100;
+			}
+			else
+			{
+				availableOnStore = false;	
+			}			
 		}
 				
-
+		//ADD WEBSITE INFORMATION
+		websiteAddress = jsonData[gameIDString]["data"]["website"].asString();
+		//ADD HEADER INFORMATION
+		headerImageAddress = jsonData[gameIDString]["data"]["header_image"].asString();
+		
 		//GET INFORMATION ON WHAT THE GAME IS COMPATIBLE WITH
 		windows = jsonData[gameIDString]["data"]["platforms"]["windows"].asInt();
 		mac = jsonData[gameIDString]["data"]["platforms"]["mac"].asInt();
@@ -495,11 +556,110 @@ bool Application::UpdateGame(int _id)
 				_categories.push_back(temp);
 			}
 		}
+		
+		//COLLECT DEVELOPERS
+		if(jsonData[gameIDString]["data"]["developers"].size() > 0)
+		{
+			std::string developer;
+			for(int g = 0; g < jsonData[gameIDString]["data"]["developers"].size(); g++)
+			{
+				developer = jsonData[gameIDString]["data"]["developers"][g].asString();
+					
+				if(developer.size() > 0)
+				{
+					std::locale loc;
+					if(developer.at(developer.size() - 1) == ' ')
+					{
+						developer.erase (developer.begin() + developer.size() - 1);
+					}
+					for (std::string::size_type n = 0; n < developer.length(); n++)
+					{
+						developer[n] = std::toupper(developer[n],loc);
+					}
+				}
 				
+				if ( m_developers.find(developer) == m_developers.end() ) 
+				{					
+					m_developers[developer] = m_developers.size();
+
+					m_developersTable.lock()->SetIntColumn("DeveloperID", m_developers[developer]);
+					m_developersTable.lock()->SetStringColumn("DeveloperName", developer);	
+					call = statement.Call("Developers");
+					bRet = objMain.execStatement(call);
+					if (!bRet)
+					{					
+						std::cout << "ERROR!" << std::endl;
+					}
+				} 
+			
+				//add game to developers table
+				m_gameToDeveloperTable.lock()->SetIntColumn("GameID", _id);
+				m_gameToDeveloperTable.lock()->SetIntColumn("DeveloperID", m_developers[developer]);	
+				call = statement.Call("GameToDeveloper");				
+				bRet = objMain.execStatement(call);
+				if (!bRet)
+				{					
+					std::cout << "ERROR!" << std::endl;
+				}
+			}
+		}
+		
+		
+
+		//COLLECT PUBLISHERS
+		if(jsonData[gameIDString]["data"]["publishers"].size() > 0)
+		{
+			std::string publisher;
+			for(int g = 0; g < jsonData[gameIDString]["data"]["publishers"].size(); g++)
+			{				
+				publisher = jsonData[gameIDString]["data"]["publishers"][g].asString();
+				
+				if(publisher.size() > 0)
+				{
+					std::locale loc;
+					
+					if(publisher.at(publisher.size() - 1) == ' ')
+					{
+						publisher.erase (publisher.begin() + publisher.size() - 1);
+					}
+					
+					for (std::string::size_type n = 0; n < publisher.length(); n++)
+					{
+						publisher[n] = std::toupper(publisher[n],loc);
+					}
+
+				}
+				
+				if ( m_publishers.find(publisher) == m_publishers.end() ) 
+				{			
+					m_publishers[publisher] = m_publishers.size();
+
+					m_publishersTable.lock()->SetIntColumn("PublisherID", m_publishers[publisher]);
+					m_publishersTable.lock()->SetStringColumn("PublisherName", publisher);	
+					call = statement.Call("Publishers");	
+					bRet = objMain.execStatement(call);
+					if (!bRet)
+					{					
+						std::cout << "ERROR!" << std::endl;
+					}
+				} 
+				
+				//add game to publisher table
+				m_gameToPublisherTable.lock()->SetIntColumn("GameID", _id);
+				m_gameToPublisherTable.lock()->SetIntColumn("PublisherID", m_publishers[publisher]);	
+				call = statement.Call("GameToPublisher");				
+				bRet = objMain.execStatement(call);
+				if (!bRet)
+				{					
+					std::cout << "ERROR!" << std::endl;
+				}
+			}
+		}
+		/*
 		//ADD GAME INFORMATION
 		m_gameTable.lock()->SetIntColumn("GameID", _id);
 		m_gameTable.lock()->SetStringColumn("GameName", name);				
-		m_gameTable.lock()->SetFloatColumn("Price", price);
+		
 		m_gameTable.lock()->SetStringColumn("AgeLimit", ageRequirement);
 		m_gameTable.lock()->SetIntColumn("MetaCritic", metaCritic);
 		m_gameTable.lock()->SetIntColumn("Windows", windows);
@@ -507,14 +667,35 @@ bool Application::UpdateGame(int _id)
 		m_gameTable.lock()->SetIntColumn("Linux", linux);
 		m_gameTable.lock()->SetStringColumn("ReleaseDate", date);
 		m_gameTable.lock()->SetStringColumn("Requirements", requirements);
-		m_gameTable.lock()->SetStringColumn("GameType", type);				
+		m_gameTable.lock()->SetStringColumn("GameType", type);	
+		
+		m_gameTable.lock()->SetStringColumn("Website", websiteAddress);		
+		m_gameTable.lock()->SetStringColumn("HeaderImage", headerImageAddress);
+		
+		
+		if(availableOnStore)
+		{
+			m_gameTable.lock()->SetIntColumn("AvailableOnStore", 1);
+			m_gameTable.lock()->SetFloatColumn("Price", price);
+		}
+		else
+		{
+			m_gameTable.lock()->SetIntColumn("AvailableOnStore", 0);
+			m_gameTable.lock()->SetFloatColumn("Price", -1);
+		}
+		
+		
+		
 		call = statement.Call("Game");	
+		
+		//std::cout << call << std::endl;
+		
 		bRet = objMain.execStatement(call);
 		if (!bRet)
 		{					
 			std::cout << "ERROR!" << std::endl;
 		}
-				
+		
 		//ADD GENRE INFORMATION
 		for(int g = 0; g < _genres.size(); g++)
 		{
@@ -565,8 +746,8 @@ bool Application::UpdateGame(int _id)
 			{					
 				std::cout << "ERROR!" << std::endl;
 			}
-		}		
-		
+		}
+		*/
 	}
 	else
 	{
@@ -731,7 +912,7 @@ void Application::EvaluatePCRequirements()
 	{
 		while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
 		{
-			games.push_back(objMain.row[9]);
+			games.push_back(objMain.row[10]);
 			gamesID.push_back(objMain.row[0]);
 		}
 		objMain.ClearData();
@@ -753,8 +934,9 @@ void Application::EvaluatePCRequirements()
 			{
 				games.at(i)[n] = std::toupper(games.at(i)[n],loc);
 			}
+			
 			//break up into :
-			 std::size_t found = games.at(i).find(":");
+			std::size_t found = games.at(i).find(":");
 			if(found!=std::string::npos)
 			{
 				delimiter = ':';
@@ -800,7 +982,6 @@ void Application::EvaluatePCRequirements()
 			float GraphicsRAM = 0;
 			float Processor = 0;
 			float GraphicsProcessor = 0;
-
 			
 			for(int v = 0; v < values.size(); v++)
 			{
@@ -859,11 +1040,11 @@ void Application::EvaluatePCRequirements()
 				}
 			}
 			
-			/*
+			
 			m_mainTable.lock()->SetIntColumn("GameID", std::stoi(gamesID.at(i)));
 			m_mainTable.lock()->SetFloatColumn("ProcessorRequirements", Processor);
 			call = m_mainTable.lock()->UpdateValues("Game", "ProcessorRequirements", FLT);
-			call += m_mainTable.lock()->UpdateValues("Game", "GameID", INTEGER, 1);			
+			call += m_mainTable.lock()->UpdateValues("Game", "GameID", INTEGER, 1);				
 			bRet = objMain.execStatement(call);				
 			if (!bRet)
 			{					
@@ -898,13 +1079,13 @@ void Application::EvaluatePCRequirements()
 			{					
 				std::cout << "ERROR!" << std::endl;
 			}
-			*/
 			
+			/*
 			if(gamesID.at(i) == "416130")
 			{
 				system("PAUSE");
 			}
-			
+			*/
 			
 			values.clear();
 			sentences.clear();
@@ -1062,9 +1243,9 @@ StringValues Application::CalculateScore(std::vector<std::string> _strings)
 	
 	if(markerNumber != -1)
 	{
-		std::cout << _strings.at(markerNumber) << std::endl;
+		//std::cout << _strings.at(markerNumber) << std::endl;
 		returnType.value = ConvertToNumber(_strings.at(markerNumber));
-		std::cout << returnType.value << std::endl;
+		//std::cout << returnType.value << std::endl;
 	}
 	else
 	{
@@ -1086,7 +1267,7 @@ float Application::ConvertToNumber(std::string _number)
 	std::size_t found;
 	
 	bool erase = true;
-	for(int i = 0; i < _number.size(); i++)
+	for(int i = 0; i < _number.size();)
 	{	
 		erase = true;
 		if(_number.at(i) == '.' || _number.at(i) == ',')
@@ -1098,10 +1279,17 @@ float Application::ConvertToNumber(std::string _number)
 			if(_number.at(i) == m_numbers.at(n))
 			{
 				erase = false;
+				n = m_numbers.size();
 			}
 		}
-		_number.erase(_number.begin() + i);
-
+		if(erase)
+		{
+			_number.erase(_number.begin() + i);
+		}	
+		else
+		{
+			i++;
+		}
 		
 	}
 	
@@ -1247,7 +1435,8 @@ void Application::UpdatePlayers()
 	};
 	
 	m_playersToAdd.push_back("76561198050068679");
-	m_playersToAdd.push_back("76561198050067879");
+	m_playersToAdd.push_back("76561197995632612");
+	m_playersToAdd.push_back("76561198012413598");
 	
 		//if there are no specified players to add
 	if(m_playersToAdd.size() == 0)
@@ -1256,8 +1445,9 @@ void Application::UpdatePlayers()
 		//get the last player added
 		std::string lastSteamIDAdded = "";
 		//DEFAULT CHECK PLAYERS
-		call = statement.GetData("Players");
+		call = statement.GetData("Players", true, "SteamID");
 		call += statement.OrderDataDesc("SteamID", 1);
+		
 		bRet = objMain.getDataStatement(call);
 		if (!bRet)
 		{					
@@ -1271,10 +1461,14 @@ void Application::UpdatePlayers()
 			}	
 			objMain.ClearData();
 		}
+		
+		//std::cout << lastSteamIDAdded << std::endl;
+		
 		//m_playersToAdd.push_back(lastSteamIDAdded);		
 		//add all of their friends to the people to check
-		call = statement.GetData("FriendsList");
-		call += statement.AddStringCondition("SteamID1", lastSteamIDAdded);
+		call = statement.GetData("FriendsList", true, "SteamID2");
+		call += statement.AddStringCondition("SteamID1", lastSteamIDAdded, 0, "=", false, "FriendsList", true);
+		
 		bRet = objMain.getDataStatement(call);
 		if (!bRet)
 		{					
@@ -1284,14 +1478,12 @@ void Application::UpdatePlayers()
 		{
 			while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
 			{
-				m_playersToAdd.push_back(objMain.row[1]);
+				m_playersToAdd.push_back(objMain.row[0]);
 			}	
 			objMain.ClearData();
 		}
 		
 	}
-	
-	
 	
 
 	#ifdef __linux__ 
@@ -1305,8 +1497,6 @@ void Application::UpdatePlayers()
 	
 	deltaTime = 0;	
 	int amount = 0;
-	
-	std::cout << "HELLOE"<<std::endl;
 
 	//check time hasn't reached 1 day and query = >= 100,000k
 	while(queryAmount < 100000)
@@ -1315,11 +1505,15 @@ void Application::UpdatePlayers()
 		//check if they haven't already been added
 		//if they have then remove them
 		
+		std::cout << "Player Amount Before Check: " << m_playersToAdd.size() << std::endl;
+		
+		
 		for(int i = 0; i < m_playersToAdd.size(); i++)
 		{
 			//see if the count of that player is > 0
 			call = statement.GetSize("Players");	
-			call += statement.AddStringCondition("SteamID", m_playersToAdd.at(i));
+			call += statement.AddStringCondition("SteamID", m_playersToAdd.at(i), 0, "=", false, "Players", true);
+
 			bRet = objMain.getDataStatement(call);
 			if (!bRet)
 			{					
@@ -1332,15 +1526,25 @@ void Application::UpdatePlayers()
 				{
 					count = std::stoi(objMain.row[0]);
 				}
+				
+				//std::cout << "Count: " << count << " " << i << std::endl;
+				
 				//if the count of the player in the database is > 0 
 				if(count > 0)
 				{
 					//then erase (this stop checking players that have already been added)
-					m_playersToAdd.erase(m_playersToAdd.begin());
-				}				
+					
+					m_playersToAdd.erase (m_playersToAdd.begin()+i);
+					i--;
+					
+				}	
+
 				objMain.ClearData();
 			}
+			//std::cout << i << std::endl;
 		}
+		
+		std::cout << "Player Amount After Check: " << m_playersToAdd.size() << std::endl;
 		
 		//GET PLAYERS SUMMARY
 		url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + api_key + "&steamids=";
@@ -1352,11 +1556,29 @@ void Application::UpdatePlayers()
 		{
 			amount = playerSteamApiCheckAmount;
 		}
+		int countNegative = 0;
 		//add all the steam users to check
 		for(int i = 0; i < amount; i++)
 		{
-			url += m_playersToAdd.at(i) + ",";
-		}		
+			if(m_playersToAdd.at(i) != "-1")
+			{
+				url += m_playersToAdd.at(i) + ",";
+			}		
+			else
+			{
+				countNegative--;
+			}
+		}
+	
+		amount -= countNegative;
+		
+		std::cout << "Amount Querying: " << amount << std::endl;
+		
+		if(amount <= 0)
+		{
+			queryAmount = 10000000;
+		}
+		
 		//get their data
 		jsonSpare = api.GetData(url);
 		queryAmount++;
@@ -1382,6 +1604,7 @@ void Application::UpdatePlayers()
 					locCountryCode = "Unknown";
 				}	
 
+				std::cout << "SteamID: " << steamid << std::endl;
 
 				std::map<std::string, int>::iterator it = m_countries.find(locCountryCode);
 				if(it != m_countries.end())
@@ -1587,7 +1810,7 @@ void Application::UpdatePlayers()
 				}
 				
 				//add the basic information the database
-				m_playersMain.lock()->SetStringColumn("SteamID", steamid);
+				m_playersMain.lock()->SetEncryptColumn("SteamID", steamid);
 				m_playersMain.lock()->SetStringColumn("PrimaryClan", primaryClanID);
 				m_playersMain.lock()->SetStringColumn("DateCreated", timeCreated);
 				m_playersMain.lock()->SetFloatColumn("AveragePCRequirements", averagePCRequirements);
@@ -1600,22 +1823,26 @@ void Application::UpdatePlayers()
 				m_playersMain.lock()->SetIntColumn("Country", countryID);
 
 				call = m_playersMain.lock()->SetValues();
+				
+				//std::cout << "Adding Player Info" << std::endl;
+				
 				bRet = objMain.execStatement(call);				
 				if (!bRet)
 				{					
 					std::cout << "ERROR!" << std::endl;
 				}
 				
+				//std::cout << "Adding Games" << std::endl;
 				//add games to the database
 				for(int n = 0; n < m_playerGames.size(); n++)
 				{
 					m_gamesOwned.lock()->SetStringColumn("GameID", m_playerGames.at(n).appID);	
-					m_gamesOwned.lock()->SetStringColumn("PlayerID", steamid);
+					m_gamesOwned.lock()->SetEncryptColumn("PlayerID", steamid);
 					m_gamesOwned.lock()->SetIntColumn("MinutesPlayedTotal", m_playerGames.at(n).playtimeForever);	
 					m_gamesOwned.lock()->SetIntColumn("MinutesPlayed2Weeks", m_playerGames.at(n).playtime2Weeks);
 					
 					call = m_gamesOwned.lock()->SetValues();
-					
+					//std::cout << call << std::endl;
 					bRet = objMain.execStatement(call);				
 					if (!bRet)
 					{					
@@ -1623,15 +1850,16 @@ void Application::UpdatePlayers()
 					}
 				}
 				
+				//std::cout << "Adding Friends" << std::endl;
 				//add friends to the database
 				for(int n = 0; n < m_friends.size(); n++)
 				{
-					m_playersFriends.lock()->SetStringColumn("SteamID1", steamid);
-					m_playersFriends.lock()->SetStringColumn("SteamID2", m_friends.at(n).steamID);
+					m_playersFriends.lock()->SetEncryptColumn("SteamID1", steamid);
+					m_playersFriends.lock()->SetEncryptColumn("SteamID2", m_friends.at(n).steamID);
 					m_playersFriends.lock()->SetStringColumn("FriendSince", m_friends.at(n).friendSince);
 					
 					call = m_playersFriends.lock()->SetValues();
-					
+					//std::cout << call << std::endl;
 					bRet = objMain.execStatement(call);				
 					if (!bRet)
 					{					
@@ -1639,17 +1867,13 @@ void Application::UpdatePlayers()
 					}
 				}
 			}	
-			
-			
-			
-			
-			
-			
 		}
 		
 		//remove the players already checked
-		m_playersToAdd.erase(m_playersToAdd.begin() + amount);
-	
+		if(amount > 0)
+		{
+			m_playersToAdd.erase(m_playersToAdd.begin() + amount);
+		}		
 		
 		#ifdef __linux__ 
 		if(clock_gettime(CLOCK_MONOTONIC, &stopLinux))
@@ -1664,8 +1888,7 @@ void Application::UpdatePlayers()
 		#endif
 		
 		std::cout << "Query Amount: " << queryAmount << " Time Left: " << 86400 - deltaTime << std::endl;
-		system("PAUSE");
-		
+	
 	}
 	
 

@@ -1,4 +1,5 @@
 #include "SteamApi.h"
+#include "TextReader.h"
 
 SteamApi::SteamApi()
 {
@@ -23,8 +24,10 @@ SteamApi::SteamApi()
     // callback handling function).  Can be any pointer type, since it will
     // internally be passed as a void pointer.
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, httpData.get());
+
+	api_key = TextReader::ReadPassword("..//passwords/API.txt");
+	//std::cout << "API Key Loaded" << std::endl;
 	
-	api_key = "256F7C304A4B0557D4E42DEF0AAB053A";
 	
 	id = "76561198069645144";
 	

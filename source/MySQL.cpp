@@ -1,23 +1,19 @@
 #include "MySQL.h"
 #include "Statement.h"
+#include "TextReader.h"
 
 SqlConnector::SqlConnector()
-{
-	/*
-    // Initialize constants
-    MY_HOSTNAME = "db712559206.db.1and1.com";
-    MY_DATABASE = "db712559206";
-    MY_USERNAME = "dbo712559206";
-    MY_PASSWORD = "";
-    MY_SOCKET   = NULL;
-	*/
-	
+{	
 	MY_HOSTNAME = "54.37.19.153";
 	//MY_HOSTNAME = "localhost";
     MY_DATABASE = "main";
     MY_USERNAME = "seb";
-    MY_PASSWORD = "seb";
     MY_SOCKET   = NULL;
+	
+	
+	std::string mySqlPassword = TextReader::ReadPassword("..//passwords/MySQL.txt");
+	MY_PASSWORD = mySqlPassword.c_str();
+	//std::cout << "MySQL Password Loaded" << std::endl;
 	
 	//SETUP MYSQL
 	
@@ -32,12 +28,6 @@ SqlConnector::~SqlConnector()
 {
 	mysql_close(m_connection);
 	mysql_library_end();
-}
-
-void SqlConnector::GetPassword()
-{
-	std::cout << "Enter MySQL Password:" << std::endl;
-	std::cin >> MY_PASSWORD;
 }
 
 bool SqlConnector::execStatement(std::string statement)

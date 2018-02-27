@@ -40,7 +40,10 @@ int main()
 	{
 		app.AssociationRule();
 	}
-	
+	else if(input == "6")
+	{
+		app.UpdateGame(5793);
+	}
 	
 	
 	

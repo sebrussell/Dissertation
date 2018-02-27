@@ -8,6 +8,8 @@
 #include <iostream>
 #include <algorithm>
 
+class TextReader;
+
 enum Type
 {
 	STRNG,
@@ -15,7 +17,8 @@ enum Type
 	GET,
 	DUPLICATE_ADD,
 	FLT,
-	INTEGER
+	INTEGER,
+	ENCRYPT
 };
 
 struct GetValue
@@ -33,8 +36,10 @@ class Table
 		
 		void AddColumn(std::string _columnName, Type _type);
 		
+		std::string GetKey() { return m_secretKey; }
 		
 		void SetStringColumn(std::string _columnName, std::string _value);
+		void SetEncryptColumn(std::string _columnName, std::string _value);
 		void SetDoubleColumn(std::string _columnName, double _value);
 		void SetIntColumn(std::string _columnName, int _value);
 		void SetFloatColumn(std::string _columnName, float _value);
@@ -46,11 +51,14 @@ class Table
 	private:
 		std::string m_tableName;
 		std::map<std::string, std::string> m_strings;
+		std::map<std::string, std::string> m_encrypts;
 		std::map<std::string, double> m_doubles;
 		std::map<std::string, int> m_ints;
 		std::map<std::string, float> m_floats;
 		std::map<std::string, GetValue> m_getValuesDouble;
 		std::vector<std::string> m_duplicateAdds;
+		
+		std::string m_secretKey;
 
 };
 

@@ -1,8 +1,10 @@
 #include "Table.h"
+#include "TextReader.h"
 
 Table::Table()
 {
-	
+	m_secretKey = TextReader::ReadPassword("..//passwords/EncryptKey.txt");
+	//std::cout << "Encrypt Key Loaded" << std::endl;
 }
 
 Table::~Table()
@@ -28,7 +30,10 @@ void Table::AddColumn(std::string _columnName, Type _type)
 			break;
 		case DUPLICATE_ADD:
 			m_duplicateAdds.push_back("ON DUPLICATE KEY UPDATE " + _columnName + " = " + _columnName + " + 1");
-			break;		
+			break;	
+		case ENCRYPT:
+			m_encrypts[_columnName] = "";
+			break;			
 		default:
 			break;
 	}
@@ -37,6 +42,11 @@ void Table::AddColumn(std::string _columnName, Type _type)
 void Table::SetStringColumn(std::string _columnName, std::string _value)
 {
 	m_strings[_columnName] = FormatString(_value);
+}
+
+void Table::SetEncryptColumn(std::string _columnName, std::string _value)
+{
+	m_encrypts[_columnName] = "(AES_ENCRYPT('" + _value + "', '" + m_secretKey + "'))";
 }
 
 void Table::SetDoubleColumn(std::string _columnName, double _value)
@@ -133,9 +143,30 @@ std::string Table::SetValues()
 		}
 	}
 	
-	if(m_doubles.size() > 0)
+	
+	if(m_encrypts.size() > 0)
 	{
 		returnString += ", ";
+	}
+	
+	for (std::map<std::string, std::string>::iterator it=m_encrypts.begin(); it!=m_encrypts.end(); ++it)
+	{
+		if(std::next(it) == m_encrypts.end())
+		{
+			returnString += it->first;
+		}
+		else
+		{
+			returnString += it->first + ", ";
+		}
+	}
+	
+	if(m_doubles.size() > 0)
+	{
+		if(m_encrypts.size() > 0 || m_strings.size() > 0)
+		{
+			returnString += ", ";
+		}
 	}
 	
 	for (std::map<std::string, double>::iterator it=m_doubles.begin(); it!=m_doubles.end(); ++it)
@@ -230,11 +261,31 @@ std::string Table::SetValues()
 		}
 	}
 	
+	if(m_encrypts.size() > 0)
+	{
+		if(m_strings.size() > 0)
+		{
+			returnString += ", ";	
+		}		
+	}
+	
+	for (std::map<std::string, std::string>::iterator it=m_encrypts.begin(); it!=m_encrypts.end(); ++it)
+	{
+		if(std::next(it) == m_encrypts.end())
+		{
+			returnString += it->second + "";
+		}
+		else
+		{
+			returnString += it->second + ", ";
+		}
+	}
+	
 	
 	
 	if(m_ints.size() > 0)
 	{
-		if(m_doubles.size() > 0 || m_strings.size() > 0)
+		if(m_encrypts.size() > 0 || m_strings.size() > 0)
 		{
 			returnString += ", '";	
 		}		
