@@ -29,6 +29,11 @@ std::string Statement::GetData(std::string _tableName, bool decrypt, std::string
 	}	
 }
 
+std::string Statement::AddLimit(std::string _limitAmount)
+{
+	return " LIMIT " + _limitAmount;
+}
+
 std::string Statement::GetSize(std::string _tableName)
 {
 	if(m_tables[_tableName])

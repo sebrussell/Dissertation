@@ -18,6 +18,7 @@ class Statement
 		std::string GetSize(std::string _tableName);
 		std::string AddNumberCondition(std::string _columnName, int value, int count = 0, std::string operation = "=");
 		std::string AddStringCondition(std::string _columnName, std::string value, int count = 0, std::string operation = "=", bool decrypt = false, std::string _tableName = "", bool encrypt = false);
+		std::string AddLimit(std::string _limitAmount);
 		std::string OrderDataDesc(std::string _columnName, int limit = 0);
 		std::weak_ptr<Table> CreateTable(std::string tableName);
 	private:

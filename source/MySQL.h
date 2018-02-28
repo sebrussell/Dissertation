@@ -24,7 +24,7 @@ class SqlConnector
 public:
     SqlConnector();           // Constructor
 	~SqlConnector();
-    bool execStatement(std::string statement);  // Main Process
+    bool execStatement(std::string statement, bool outputError = true);  // Main Process
     bool getDataStatement(std::string statement);  // Main Process
 	void ClearData();
 	void PrepareString(std::string& _string);

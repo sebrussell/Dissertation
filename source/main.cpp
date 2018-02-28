@@ -11,10 +11,10 @@ int main()
 	std::string input;
 	
 	std::cout << "Choose which application to run" << std::endl;
-	std::cout << "Update Game Tables = 1" << std::endl;
+	//std::cout << "Update Game Tables = 1" << std::endl;
 	std::cout << "Update Player Tables = 2" << std::endl;
-	std::cout << "Evaluate PC requirements = 3" << std::endl;
-	std::cout << "Set PC requirements = 4" << std::endl;
+	//std::cout << "Evaluate PC requirements = 3" << std::endl;
+	//std::cout << "Set PC requirements = 4" << std::endl;
 	std::cout << "Association Rule = 5" << std::endl;
 	std::cin >> input;
 	
@@ -22,7 +22,7 @@ int main()
 	
 	if(input == "1")
 	{
-		app.AddGamesToTable();
+		//app.AddGamesToTable();
 	}
 	else if(input == "2")
 	{
@@ -30,11 +30,11 @@ int main()
 	}
 	else if(input == "3")
 	{
-		app.EvaluatePCRequirements();
+		//app.EvaluatePCRequirements();
 	}
 	else if(input == "4")
 	{
-		app.SetPCRequirements();
+		//app.SetPCRequirements();
 	}
 	else if(input == "5")
 	{
@@ -42,7 +42,7 @@ int main()
 	}
 	else if(input == "6")
 	{
-		app.UpdateGame(5793);
+		//app.UpdateGame(5793);
 	}
 	
 	

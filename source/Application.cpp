@@ -83,6 +83,12 @@ Application::Application()
 	
 	m_gameToPublisherTable.lock()->AddColumn("PublisherID", INTEGER);
 	m_gameToPublisherTable.lock()->AddColumn("GameID", INTEGER);
+	
+	m_playersToCheck.lock()->AddColumn("SteamID", ENCRYPT);
+	m_playersToCheck.lock()->AddColumn("Added", INTEGER);
+	m_playersToCheck.lock()->AddColumn("Evaluating", INTEGER);
+	m_playersToCheck.lock()->AddColumn("Count", INTEGER);
+	
 		
 	m_alphabet.push_back("Q");
 	m_alphabet.push_back("W");
@@ -265,9 +271,9 @@ bool Application::GetIDTables()
 		{
 			GamesDownload temp;
 			temp.price = std::stof(objMain.row[2]);
-			temp.finalRequirements = std::stof(objMain.row[15]);
-			temp.metaCritic = std::stoi(objMain.row[4]);
-			temp.releaseDate = objMain.row[8];
+			temp.finalRequirements = std::stof(objMain.row[16]);
+			temp.metaCritic = std::stoi(objMain.row[5]);
+			temp.releaseDate = objMain.row[9];
 			m_games[std::stoi(objMain.row[0])] = temp;
 		}
 		objMain.ClearData();
@@ -779,16 +785,16 @@ void Application::SetPCRequirements()
 		{
 			gameValues temp;
 			temp.gameID = objMain.row[0];
-			temp.processor = std::stod(objMain.row[11]);
-			temp.gpuProc = std::stod(objMain.row[12]);
-			temp.ram = std::stod(objMain.row[13]);
-			temp.gpuRam = std::stod(objMain.row[14]);
+			temp.processor = std::stod(objMain.row[12]);
+			temp.gpuProc = std::stod(objMain.row[13]);
+			temp.ram = std::stod(objMain.row[14]);
+			temp.gpuRam = std::stod(objMain.row[15]);
 			m_gameValues.push_back(temp);
 		}
 		objMain.ClearData();
 	}	
 	
-	
+	std::cout << m_gameValues.size() << std::endl;
 	
 	for(int i = 0; i < m_gameValues.size(); i++)
 	{
@@ -830,9 +836,9 @@ void Application::SetPCRequirements()
 			call = m_mainTable.lock()->UpdateValues("Game", "FinalRequirements", FLT);
 			call += m_mainTable.lock()->UpdateValues("Game", "GameID", INTEGER, 1);	
 
-			std::cout << m_gameValues.at(i).processor << " " << m_gameValues.at(i).ram << " " << m_gameValues.at(i).gpuProc << " " << m_gameValues.at(i).gpuRam << " " << count << std::endl;
+			//std::cout << m_gameValues.at(i).processor << " " << m_gameValues.at(i).ram << " " << m_gameValues.at(i).gpuProc << " " << m_gameValues.at(i).gpuRam << " " << count << std::endl;
 			
-			std::cout << call << std::endl;
+			//std::cout << call << std::endl;
 			
 			if(m_gameValues.at(i).gameID == "6400")
 			{
@@ -1434,58 +1440,6 @@ void Application::UpdatePlayers()
 		int playtimeForever, playtime2Weeks;
 	};
 	
-	m_playersToAdd.push_back("76561198050068679");
-	m_playersToAdd.push_back("76561197995632612");
-	m_playersToAdd.push_back("76561198012413598");
-	
-		//if there are no specified players to add
-	if(m_playersToAdd.size() == 0)
-	{
-		
-		//get the last player added
-		std::string lastSteamIDAdded = "";
-		//DEFAULT CHECK PLAYERS
-		call = statement.GetData("Players", true, "SteamID");
-		call += statement.OrderDataDesc("SteamID", 1);
-		
-		bRet = objMain.getDataStatement(call);
-		if (!bRet)
-		{					
-			std::cout << "ERROR!" << std::endl;
-		}
-		else
-		{			
-			while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
-			{
-				lastSteamIDAdded = objMain.row[0];
-			}	
-			objMain.ClearData();
-		}
-		
-		//std::cout << lastSteamIDAdded << std::endl;
-		
-		//m_playersToAdd.push_back(lastSteamIDAdded);		
-		//add all of their friends to the people to check
-		call = statement.GetData("FriendsList", true, "SteamID2");
-		call += statement.AddStringCondition("SteamID1", lastSteamIDAdded, 0, "=", false, "FriendsList", true);
-		
-		bRet = objMain.getDataStatement(call);
-		if (!bRet)
-		{					
-			std::cout << "ERROR!" << std::endl;
-		}
-		else
-		{
-			while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
-			{
-				m_playersToAdd.push_back(objMain.row[0]);
-			}	
-			objMain.ClearData();
-		}
-		
-	}
-	
-
 	#ifdef __linux__ 
 		if(clock_gettime(CLOCK_MONOTONIC, &startLinux))
 		{ /* handle error */ }
@@ -1505,86 +1459,75 @@ void Application::UpdatePlayers()
 		//check if they haven't already been added
 		//if they have then remove them
 		
-		std::cout << "Player Amount Before Check: " << m_playersToAdd.size() << std::endl;
+		int count = 0;
+		call = statement.GetData("PlayersToCheck", true, "SteamID");
+		call += statement.AddNumberCondition("Added", 0);	
+		call += statement.AddNumberCondition("Evaluating", 0, 1);	
+		call += statement.AddNumberCondition("Count", 3, 2, "<");	
+		call += statement.AddLimit("100");	
+		bRet = objMain.getDataStatement(call);
+		if (!bRet)
+		{					
+			std::cout << "ERROR!" << std::endl;
+		}
+		else
+		{
+			while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL && count <= playerSteamApiCheckAmount)
+			{
+				count++;
+				m_playersToAdd.push_back(objMain.row[0]);
+			}	
+			objMain.ClearData();
+		}
 		
-		
+		//GET PLAYERS SUMMARY
+		url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + api_key + "&steamids=";
+		//add all the steam users to check
 		for(int i = 0; i < m_playersToAdd.size(); i++)
 		{
-			//see if the count of that player is > 0
-			call = statement.GetSize("Players");	
-			call += statement.AddStringCondition("SteamID", m_playersToAdd.at(i), 0, "=", false, "Players", true);
+			url += m_playersToAdd.at(i) + ",";
+		}
+		
+		//SET THE PLAYERS YOU ARE CHECKING TO EVALUATING
+		call = "";	
+		if(m_playersToAdd.size() > 2)
+		{
+			m_playersToCheck.lock()->SetEncryptColumn("SteamID", m_playersToAdd.at(0));				
+			m_playersToCheck.lock()->SetIntColumn("Evaluating", 1);		
+			
+			call += m_playersToCheck.lock()->UpdateValues("PlayersToCheck", "Evaluating", INTEGER);
 
-			bRet = objMain.getDataStatement(call);
+			call += m_playersToCheck.lock()->UpdateValues("PlayersToCheck", "SteamID", ENCRYPT, 1);
+
+			
+			m_playersToCheck.lock()->SetEncryptColumn("SteamID", m_playersToAdd.at(1));
+			call += m_playersToCheck.lock()->UpdateValues("PlayersToCheck", "SteamID", ENCRYPT, 2);
+			
+			
+			for(int n = 2; n < m_playersToAdd.size(); n++)
+			{
+				m_playersToCheck.lock()->SetEncryptColumn("SteamID", m_playersToAdd.at(n));
+				call += m_playersToCheck.lock()->UpdateValues("PlayersToCheck", "SteamID", ENCRYPT, 3);		
+			}
+			
+			//std::cout << call << std::endl;
+			
+			bRet = objMain.execStatement(call);				
 			if (!bRet)
 			{					
 				std::cout << "ERROR!" << std::endl;
 			}
-			else
-			{
-				int count = 0;
-				while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
-				{
-					count = std::stoi(objMain.row[0]);
-				}
-				
-				//std::cout << "Count: " << count << " " << i << std::endl;
-				
-				//if the count of the player in the database is > 0 
-				if(count > 0)
-				{
-					//then erase (this stop checking players that have already been added)
-					
-					m_playersToAdd.erase (m_playersToAdd.begin()+i);
-					i--;
-					
-				}	
+		}	
 
-				objMain.ClearData();
-			}
-			//std::cout << i << std::endl;
-		}
 		
-		std::cout << "Player Amount After Check: " << m_playersToAdd.size() << std::endl;
 		
-		//GET PLAYERS SUMMARY
-		url = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + api_key + "&steamids=";
-		if(m_playersToAdd.size() < playerSteamApiCheckAmount)
-		{
-			amount = m_playersToAdd.size();
-		}
-		else
-		{
-			amount = playerSteamApiCheckAmount;
-		}
-		int countNegative = 0;
-		//add all the steam users to check
-		for(int i = 0; i < amount; i++)
-		{
-			if(m_playersToAdd.at(i) != "-1")
-			{
-				url += m_playersToAdd.at(i) + ",";
-			}		
-			else
-			{
-				countNegative--;
-			}
-		}
-	
-		amount -= countNegative;
-		
-		std::cout << "Amount Querying: " << amount << std::endl;
-		
-		if(amount <= 0)
-		{
-			queryAmount = 10000000;
-		}
 		
 		//get their data
 		jsonSpare = api.GetData(url);
 		queryAmount++;
 		
 		//for every steam user
-		for(int i = 0; i < amount; i++)
+		for(int i = 0; i < m_playersToAdd.size(); i++)
 		{
 			//if the player has a public profile
 			if(jsonSpare["response"]["players"][i]["communityvisibilitystate"].asInt() == 3)
@@ -1647,8 +1590,6 @@ void Application::UpdatePlayers()
 					temp.steamID = jsonData["friendslist"]["friends"][f]["steamid"].asString();
 					temp.friendSince = api.UnixToDate(jsonData["friendslist"]["friends"][f]["friend_since"].asInt());
 					m_friends.push_back(temp);
-					//add friends to list to check
-					m_playersToAdd.push_back(temp.steamID);
 				}
 							
 				//get all their games			
@@ -1728,26 +1669,47 @@ void Application::UpdatePlayers()
 						tempGame = m_games.at(std::stoi(m_playerGames.at(n).appID));
 					  
 						//calculate the avaerage price they will pay
-						priceCount += totalTimePlaying;
-						priceCount += twoWeekPlaytime;
-						averagePrice += tempGame.price * totalTimePlaying;
-						averagePrice += tempGame.price * twoWeekPlaytime;
+						
+						if(totalTimePlaying > 0)
+						{
+							priceCount += totalTimePlaying;
+							averagePrice += tempGame.price * totalTimePlaying;
+						}
+						
+						if(twoWeekPlaytime > 0)
+						{
+							priceCount += twoWeekPlaytime;
+							averagePrice += tempGame.price * twoWeekPlaytime;
+						}
+						
 					  
 						//calculate the metacritic
 						if(tempGame.metaCritic > 0)
 						{
-						  criticCount += totalTimePlaying;
-						  criticCount += twoWeekPlaytime;
-						  averageMetaCritic += tempGame.metaCritic * totalTimePlaying;
-						  averageMetaCritic += tempGame.metaCritic * twoWeekPlaytime;
+							if(totalTimePlaying > 0)
+							{
+								criticCount += totalTimePlaying;
+								averageMetaCritic += tempGame.metaCritic * totalTimePlaying;
+							}
+							if(twoWeekPlaytime > 0)
+							{
+								criticCount += twoWeekPlaytime;
+								averageMetaCritic += tempGame.metaCritic * twoWeekPlaytime;
+							}
 						}
 						//calculate the final requirements
 						if(tempGame.finalRequirements > 0)
 						{
-						  requirementsCount += totalTimePlaying;
-						  requirementsCount += twoWeekPlaytime;
-						  averagePCRequirements += tempGame.finalRequirements * totalTimePlaying;
-						  averagePCRequirements += tempGame.finalRequirements * twoWeekPlaytime;
+							if(totalTimePlaying > 0)
+							{
+								requirementsCount += totalTimePlaying;
+								averagePCRequirements += tempGame.finalRequirements * totalTimePlaying;
+							}
+							if(twoWeekPlaytime > 0)
+							{
+								requirementsCount += twoWeekPlaytime;
+								averagePCRequirements += tempGame.finalRequirements * twoWeekPlaytime;
+							}						  
 						}
 					  
 						call = statement.GetData("GameToGenre");
@@ -1865,15 +1827,54 @@ void Application::UpdatePlayers()
 					{					
 						std::cout << "ERROR!" << std::endl;
 					}
+					
+					m_playersToCheck.lock()->SetEncryptColumn("SteamID", m_friends.at(n).steamID);
+					m_playersToCheck.lock()->SetIntColumn("Evaluating", 0);
+					m_playersToCheck.lock()->SetIntColumn("Count", 0);
+					m_playersToCheck.lock()->SetIntColumn("Added", 0);
+					call = m_playersToCheck.lock()->SetValues();
+					//std::cout << call << std::endl;
+					objMain.execStatement(call, false);	
 				}
+				
+				
+				//change added to 1
+				m_playersToCheck.lock()->SetEncryptColumn("SteamID", steamid);				
+				m_playersToCheck.lock()->SetIntColumn("Added", 1);	
+				call = m_playersToCheck.lock()->UpdateValues("PlayersToCheck", "Added", INTEGER);
+				call += m_playersToCheck.lock()->UpdateValues("PlayersToCheck", "SteamID", ENCRYPT, 1);
+				bRet = objMain.execStatement(call);				
+				if (!bRet)
+				{					
+					std::cout << "ERROR!" << std::endl;
+				}			
+				
 			}	
+			//change evaluating to 0
+			m_playersToCheck.lock()->SetEncryptColumn("SteamID", m_playersToAdd.at(i));				
+			m_playersToCheck.lock()->SetIntColumn("Evaluating", 0);	
+			call = m_playersToCheck.lock()->UpdateValues("PlayersToCheck", "Evaluating", INTEGER);
+			call += m_playersToCheck.lock()->UpdateValues("PlayersToCheck", "SteamID", ENCRYPT, 1);
+			
+			bRet = objMain.execStatement(call);				
+			if (!bRet)
+			{					
+				std::cout << "ERROR!" << std::endl;
+			}	
+			
+			//increase count
+			m_playersToCheck.lock()->SetEncryptColumn("SteamID", m_playersToAdd.at(i));	
+			call = m_playersToCheck.lock()->UpdateValues("PlayersToCheck", "Count", INTEGER, 0, true);
+			call += m_playersToCheck.lock()->UpdateValues("PlayersToCheck", "SteamID", ENCRYPT, 1);	
+			bRet = objMain.execStatement(call);				
+			if (!bRet)
+			{					
+				std::cout << "ERROR!" << std::endl;
+			}
 		}
 		
-		//remove the players already checked
-		if(amount > 0)
-		{
-			m_playersToAdd.erase(m_playersToAdd.begin() + amount);
-		}		
+		//remove the players already checked		
+		m_playersToAdd.clear();
 		
 		#ifdef __linux__ 
 		if(clock_gettime(CLOCK_MONOTONIC, &stopLinux))

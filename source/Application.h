@@ -135,6 +135,7 @@ class Application
 		
 		
 		std::weak_ptr<Table> m_playersMain = statement.CreateTable("Players");
+		std::weak_ptr<Table> m_playersToCheck = statement.CreateTable("PlayersToCheck");
 		std::weak_ptr<Table> m_playersFriends = statement.CreateTable("FriendsList");		
 		std::weak_ptr<Table> m_gamesOwned = statement.CreateTable("GamesOwned");		
 

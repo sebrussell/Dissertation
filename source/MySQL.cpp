@@ -30,11 +30,14 @@ SqlConnector::~SqlConnector()
 	mysql_library_end();
 }
 
-bool SqlConnector::execStatement(std::string statement)
+bool SqlConnector::execStatement(std::string statement, bool outputError)
 {
 
         if (mysql_query(m_connection, statement.c_str())) {
-            std::cout << mysql_error(m_connection) << std::endl;
+			if(outputError)
+			{
+				std::cout << mysql_error(m_connection) << std::endl;
+			}            
             return false;
         }        
 		return true;

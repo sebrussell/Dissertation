@@ -111,6 +111,9 @@ std::string Table::UpdateValues(std::string _columnToSet, std::string _columnToC
 				case FLT:
 					returnString += std::to_string(m_floats.find(_columnToChange)->second);
 					break;	
+				case ENCRYPT:
+					returnString += m_encrypts.find(_columnToChange)->second;
+					break;
 		}
 	}
 	else
@@ -146,7 +149,10 @@ std::string Table::SetValues()
 	
 	if(m_encrypts.size() > 0)
 	{
-		returnString += ", ";
+		if(m_strings.size() > 0)
+		{
+			returnString += ", ";
+		}		
 	}
 	
 	for (std::map<std::string, std::string>::iterator it=m_encrypts.begin(); it!=m_encrypts.end(); ++it)
@@ -183,7 +189,7 @@ std::string Table::SetValues()
 	
 	if(m_ints.size() > 0)
 	{
-		if(m_doubles.size() > 0 || m_strings.size() > 0)
+		if(m_doubles.size() > 0 || m_strings.size() > 0 || m_encrypts.size() > 0)
 		{
 			returnString += ", ";
 		}		
@@ -205,7 +211,7 @@ std::string Table::SetValues()
 	
 	if(m_floats.size() > 0 )
 	{
-		if((m_doubles.size() > 0 || m_strings.size() > 0 || m_ints.size() > 0))
+		if((m_doubles.size() > 0 || m_strings.size() > 0 || m_ints.size() > 0 || m_encrypts.size() > 0))
 		{
 			returnString += ", ";
 		}	
@@ -245,10 +251,12 @@ std::string Table::SetValues()
 	
 	
 	
-	returnString += ") VALUES ('";
+	returnString += ") VALUES (";
 	
-	
-	
+	if(m_strings.size() > 0)
+	{
+		returnString += "'";
+	}	
 	for (std::map<std::string, std::string>::iterator it=m_strings.begin(); it!=m_strings.end(); ++it)
 	{
 		if(std::next(it) == m_strings.end())
@@ -289,6 +297,10 @@ std::string Table::SetValues()
 		{
 			returnString += ", '";	
 		}		
+		else
+		{
+			returnString += "'";
+		}
 	}
 	for (std::map<std::string, int>::iterator it=m_ints.begin(); it!=m_ints.end(); ++it)
 	{
