@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "TextReader.h"
 
 Application::Application()
 {
@@ -1664,7 +1665,7 @@ void Application::UpdatePlayers()
 					}					
 				}
 				
-				std::cout << "Calculating GameTime" << std::endl;
+				//std::cout << "Calculating GameTime" << std::endl;
 			
 				GamesDownload tempGame;
 				std::map<int, int> popularCategories;
@@ -1772,9 +1773,9 @@ void Application::UpdatePlayers()
 				}			
 				//work out the average of each value
 				
-				std::cout << averagePCRequirements << " " << requirementsCount << std::endl;
-				std::cout << averageMetaCritic << " " << criticCount << std::endl;
-				std::cout << averagePrice << " " << priceCount << std::endl;
+				//std::cout << averagePCRequirements << " " << requirementsCount << std::endl;
+				//std::cout << averageMetaCritic << " " << criticCount << std::endl;
+				//std::cout << averagePrice << " " << priceCount << std::endl;
 				
 				averagePCRequirements = averagePCRequirements / requirementsCount;
 				averageMetaCritic = averageMetaCritic / criticCount;
@@ -1816,7 +1817,7 @@ void Application::UpdatePlayers()
 
 				call = m_playersMain.lock()->SetValues();
 				
-				std::cout << "Adding Player Info" << std::endl;
+				//std::cout << "Adding Player Info" << std::endl;
 				
 				bRet = objMain.execStatement(call);				
 				if (!bRet)
@@ -1824,7 +1825,7 @@ void Application::UpdatePlayers()
 					std::cout << "ERROR!" << std::endl;
 				}
 				
-				std::cout << "Adding Games" << std::endl;
+				//std::cout << "Adding Games" << std::endl;
 				//add games to the database
 				for(int n = 0; n < m_playerGames.size(); n++)
 				{
@@ -1842,7 +1843,7 @@ void Application::UpdatePlayers()
 					}
 				}
 				
-				std::cout << "Adding Friends" << std::endl;
+				//std::cout << "Adding Friends" << std::endl;
 				//add friends to the database
 				for(int n = 0; n < m_friends.size(); n++)
 				{
@@ -2110,9 +2111,33 @@ void Application::AssociationRule(int appID, float confidenceThreshold)
 			}
 			
 		}		
-	}
+	}	
+}
+
+void Application::CountryCodes()
+{
+	std::map<std::string, std::string> countryCodes = TextReader::GetCountryCodes("countries.json");
 	
-	
-	
-	
+	std::map<std::string, std::string>::iterator it;
+	for ( it = countryCodes.begin(); it != countryCodes.end(); it++ )
+	{
+		//std::cout << it->first << ':' << it->second << std::endl;
+		
+		
+		m_countriesTable.lock()->SetStringColumn("SteamID", it->first);	
+		m_countriesTable.lock()->SetStringColumn("Name", it->second);	
+
+		call = m_countriesTable.lock()->UpdateValues("Countries", "Name", STRNG);
+		
+		call += m_countriesTable.lock()->UpdateValues("Countries", "SteamID", STRNG, 1);
+		
+		std::cout << call << std::endl;
+		
+		bRet = objMain.execStatement(call);				
+		if (!bRet)
+		{					
+			std::cout << "ERROR!" << std::endl;
+		}
+		
+	} 
 }

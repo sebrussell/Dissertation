@@ -44,6 +44,10 @@ int main()
 	{
 		//app.UpdateGame(5793);
 	}
+	else if(input == "7")
+	{
+		app.CountryCodes();
+	}
 	
 	
 	

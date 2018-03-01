@@ -26,6 +26,8 @@
 #include "Table.h"
 #include "MySQL.h"
 
+class TextReader;
+
 struct Replace
 {
 	Replace(std::string _find, std::string _replace)
@@ -81,6 +83,9 @@ class Application
 		
 		//ASSOCIATION RULE
 		void AssociationRule(int appID = -1, float confidenceThreshold = 0.5);
+		
+		//READ COUNTRY CODES IN
+		void CountryCodes();
 		
 		//EVALUATES MOST COMMON WORDS IN PC REQUIREMENTS
 		void EvaluatePCRequirements();

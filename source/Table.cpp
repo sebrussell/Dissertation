@@ -103,7 +103,7 @@ std::string Table::UpdateValues(std::string _columnToSet, std::string _columnToC
 		switch (_type)
 		{
 				case STRNG:
-					returnString += m_strings.find(_columnToChange)->second;
+					returnString += "'" + m_strings.find(_columnToChange)->second + "'";
 					break;
 				case INTEGER:
 					returnString += std::to_string(m_ints.find(_columnToChange)->second);
