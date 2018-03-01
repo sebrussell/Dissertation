@@ -1573,10 +1573,10 @@ void Application::UpdatePlayers()
 				
 				std::vector<Friends> m_friends;
 				std::vector<GamesPlayed> m_playerGames;
-				int mostPlayed = -1;
-				std::string mostPlayedID = "-1";
-				int mostPlayed2Weeks = -1;
-				std::string mostPlayed2WeeksID = "-1";
+				int mostPlayed = 0;
+				std::string mostPlayedID = "0";
+				int mostPlayed2Weeks = 0;
+				std::string mostPlayed2WeeksID = "0";
 				
 							
 				//get all their friends					
@@ -1606,6 +1606,10 @@ void Application::UpdatePlayers()
 					if(jsonData["response"]["games"][f].isMember("playtime_forever"))
 					{
 						temp.playtimeForever = jsonData["response"]["games"][f]["playtime_forever"].asInt();
+						if(temp.playtimeForever < 0)
+						{
+							temp.playtimeForever = 0;
+						}
 						if(temp.playtimeForever > mostPlayed)
 						{
 							mostPlayed = temp.playtimeForever;
@@ -1620,7 +1624,10 @@ void Application::UpdatePlayers()
 					if(jsonData["response"]["games"][f].isMember("playtime_2weeks"))
 					{
 						temp.playtime2Weeks = jsonData["response"]["games"][f]["playtime_2weeks"].asInt();
-
+						if(temp.playtime2Weeks < 0)
+						{
+							temp.playtime2Weeks = 0;
+						}
 						if(temp.playtime2Weeks > mostPlayed2Weeks)
 						{
 							mostPlayed2Weeks = temp.playtime2Weeks;
@@ -1638,19 +1645,26 @@ void Application::UpdatePlayers()
 				double averagePrice = 0;
 				double averageMetaCritic = 0;
 				double averageReleaseDate = 0;
-				int requirementsCount = 0;
-				int priceCount = 0;
-				int criticCount = 0;
-				int releaseCount = 0;
-				int totalTimePlaying = 0;
-				int twoWeekPlaytime = 0;
+				double requirementsCount = 0;
+				double priceCount = 0;
+				double criticCount = 0;
+				double releaseCount = 0;
+				double totalTimePlaying = 0;
+				double twoWeekPlaytime = 0;
 				
 				for(int n = 0; n < m_playerGames.size(); n++)
 				{	
-					totalTimePlaying += m_playerGames.at(n).playtimeForever;
-					twoWeekPlaytime += m_playerGames.at(n).playtime2Weeks;
+					if(m_playerGames.at(n).playtimeForever > 0)
+					{
+						totalTimePlaying += m_playerGames.at(n).playtimeForever;
+					}
+					if(m_playerGames.at(n).playtime2Weeks > 0)
+					{
+						twoWeekPlaytime += m_playerGames.at(n).playtime2Weeks;
+					}					
 				}
 				
+				std::cout << "Calculating GameTime" << std::endl;
 			
 				GamesDownload tempGame;
 				std::map<int, int> popularCategories;
@@ -1670,17 +1684,22 @@ void Application::UpdatePlayers()
 					  
 						//calculate the avaerage price they will pay
 						
-						if(totalTimePlaying > 0)
+						if(tempGame.price > 0)
 						{
-							priceCount += totalTimePlaying;
-							averagePrice += tempGame.price * totalTimePlaying;
+							if(totalTimePlaying > 0)
+							{
+								priceCount += totalTimePlaying;
+								averagePrice += tempGame.price * totalTimePlaying;
+							}
+							
+							if(twoWeekPlaytime > 0)
+							{
+								priceCount += twoWeekPlaytime;
+								averagePrice += tempGame.price * twoWeekPlaytime;
+							}
 						}
 						
-						if(twoWeekPlaytime > 0)
-						{
-							priceCount += twoWeekPlaytime;
-							averagePrice += tempGame.price * twoWeekPlaytime;
-						}
+						
 						
 					  
 						//calculate the metacritic
@@ -1712,40 +1731,51 @@ void Application::UpdatePlayers()
 							}						  
 						}
 					  
-						call = statement.GetData("GameToGenre");
-						call +=	statement.AddStringCondition("GameID", m_playerGames.at(n).appID);	
-						bRet = objMain.getDataStatement(call);
-						if (!bRet)
-						{					
-							std::cout << "ERROR!" << std::endl;
-						}
-						else
+					  
+						if(totalTimePlaying > 0 || twoWeekPlaytime > 0)
 						{
-							while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
-							{
-								popularGenres[std::stoi(objMain.row[1])] += totalTimePlaying + twoWeekPlaytime;
+							call = statement.GetData("GameToGenre");
+							call +=	statement.AddStringCondition("GameID", m_playerGames.at(n).appID);	
+							bRet = objMain.getDataStatement(call);
+							if (!bRet)
+							{					
+								std::cout << "ERROR!" << std::endl;
 							}
-							objMain.ClearData();
+							else
+							{
+								while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
+								{
+									popularGenres[std::stoi(objMain.row[1])] += totalTimePlaying + twoWeekPlaytime;
+								}
+								objMain.ClearData();
+							}
+							
+							call = statement.GetData("GameToCategory");
+							call +=	statement.AddStringCondition("GameID", m_playerGames.at(n).appID);	
+							bRet = objMain.getDataStatement(call);
+							if (!bRet)
+							{					
+								std::cout << "ERROR!" << std::endl;
+							}
+							else
+							{
+								while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
+								{
+									popularCategories[std::stoi(objMain.row[1])] += totalTimePlaying + twoWeekPlaytime;
+								}
+								objMain.ClearData();
+							}
 						}
 						
-						call = statement.GetData("GameToCategory");
-						call +=	statement.AddStringCondition("GameID", m_playerGames.at(n).appID);	
-						bRet = objMain.getDataStatement(call);
-						if (!bRet)
-						{					
-							std::cout << "ERROR!" << std::endl;
-						}
-						else
-						{
-							while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
-							{
-								popularCategories[std::stoi(objMain.row[1])] += totalTimePlaying + twoWeekPlaytime;
-							}
-							objMain.ClearData();
-						}					  
+											  
 					}
 				}			
 				//work out the average of each value
+				
+				std::cout << averagePCRequirements << " " << requirementsCount << std::endl;
+				std::cout << averageMetaCritic << " " << criticCount << std::endl;
+				std::cout << averagePrice << " " << priceCount << std::endl;
+				
 				averagePCRequirements = averagePCRequirements / requirementsCount;
 				averageMetaCritic = averageMetaCritic / criticCount;
 				averagePrice = averagePrice / priceCount;
@@ -1786,7 +1816,7 @@ void Application::UpdatePlayers()
 
 				call = m_playersMain.lock()->SetValues();
 				
-				//std::cout << "Adding Player Info" << std::endl;
+				std::cout << "Adding Player Info" << std::endl;
 				
 				bRet = objMain.execStatement(call);				
 				if (!bRet)
@@ -1794,7 +1824,7 @@ void Application::UpdatePlayers()
 					std::cout << "ERROR!" << std::endl;
 				}
 				
-				//std::cout << "Adding Games" << std::endl;
+				std::cout << "Adding Games" << std::endl;
 				//add games to the database
 				for(int n = 0; n < m_playerGames.size(); n++)
 				{
@@ -1812,7 +1842,7 @@ void Application::UpdatePlayers()
 					}
 				}
 				
-				//std::cout << "Adding Friends" << std::endl;
+				std::cout << "Adding Friends" << std::endl;
 				//add friends to the database
 				for(int n = 0; n < m_friends.size(); n++)
 				{
@@ -1828,6 +1858,7 @@ void Application::UpdatePlayers()
 						std::cout << "ERROR!" << std::endl;
 					}
 					
+					/*
 					m_playersToCheck.lock()->SetEncryptColumn("SteamID", m_friends.at(n).steamID);
 					m_playersToCheck.lock()->SetIntColumn("Evaluating", 0);
 					m_playersToCheck.lock()->SetIntColumn("Count", 0);
@@ -1835,6 +1866,7 @@ void Application::UpdatePlayers()
 					call = m_playersToCheck.lock()->SetValues();
 					//std::cout << call << std::endl;
 					objMain.execStatement(call, false);	
+					*/
 				}
 				
 				
