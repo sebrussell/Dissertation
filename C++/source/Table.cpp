@@ -12,6 +12,36 @@ Table::~Table()
 	
 }
 
+std::string Table::AlterTableAddColumn(std::string _columnName, Type _type)
+{
+	AddColumn(_columnName, _type);
+	
+	std::string returnString = "ALTER TABLE " + m_tableName + " ADD " + _columnName + " ";
+	
+	switch(_type)
+	{
+		case STRNG:
+			returnString += "VARCHAR(50)";
+			break;
+		case DBL:
+			returnString += "DOUBLE";
+			break;
+		case INTEGER:
+			returnString += "INT";
+			break;	
+		case FLT:
+			returnString += "FLOAT";
+			break;
+		case ENCRYPT:
+			returnString += "VARBINARY(50)";
+			break;			
+		default:
+			break;
+	}
+	
+	return returnString;
+}
+
 void Table::AddColumn(std::string _columnName, Type _type)
 {
 	switch(_type)

@@ -16,6 +16,7 @@ int main()
 	//std::cout << "Evaluate PC requirements = 3" << std::endl;
 	//std::cout << "Set PC requirements = 4" << std::endl;
 	std::cout << "Association Rule = 5" << std::endl;
+	std::cout << "Update Player Count = 8" << std::endl;
 	std::cin >> input;
 	
 	app.GetIDTables();
@@ -47,6 +48,10 @@ int main()
 	else if(input == "7")
 	{
 		app.CountryCodes();
+	}
+	else if(input == "8")
+	{
+		app.GetCurrentPlayers();
 	}
 	
 	

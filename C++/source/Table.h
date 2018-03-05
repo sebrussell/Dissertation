@@ -36,6 +36,8 @@ class Table
 		
 		void AddColumn(std::string _columnName, Type _type);
 		
+		std::string AlterTableAddColumn(std::string _columnName, Type _type);
+		
 		std::string GetKey() { return m_secretKey; }
 		
 		void SetStringColumn(std::string _columnName, std::string _value);

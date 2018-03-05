@@ -1,7 +1,15 @@
 const crypto = require('crypto')
-const knex = require('knex')(require('./knexfile'))
+const knexMain = require('knex')(require('./knexDatabase'))
+
+/*
+knexMain.on( 'query', function( queryData ) {
+    console.log( queryData );
+});
+*/
+
 
 module.exports = {
+	/*
   createUser ({ username, password }) {
     console.log(`Add user ${username}`)
 	
@@ -31,15 +39,40 @@ module.exports = {
         return { success: hash === user.encrypted_password }
       })
   },
+  */
   
   getGame ({ gameid }) {
 	console.log(`Getting Game Image ${gameid}`)
-    //return Promise.resolve()
-	return knex('user').where( 'id', gameid )
-      .then(([user]) => {
-        if (!user) return { success: false }
-		console.log(user.encrypted_password)        
-      })
+    //return Promise.resolve()	
+	
+	return new Promise(function (resolve, reject) {
+		knexMain.select('HeaderImage').from('Game').where( 'GameID', gameid ).orWhere( 'GameName', gameid)
+		.catch(function(error) {
+		  reject(error);
+		})
+		.then(function(Game){
+			if (Game && Game[0] && Game[0]['HeaderImage'])
+			{
+				var image = Game[0]['HeaderImage']
+				resolve(image)
+			}		  	  
+	  })		
+	})
+  },
+  
+  getPlayersGames ({ steamid }) {
+	
+	console.log(`Getting Games of ${steamid}`)
+	return new Promise(function (resolve, reject) {
+		var temp = "PlayerID=AES_ENCRYPT( " + steamid + ", " + "'6R*#cL&tP!b6'" + ")"
+		knexMain.select('HeaderImage').from('Game').innerJoin('GamesOwned', 'GamesOwned.GameID', 'Game.GameID').whereRaw(temp)
+		.catch(function(error) {
+		  return reject(error);
+		})
+		.then(function(Game){
+			resolve(Game)			
+	  })		
+	})
   }
 }
 

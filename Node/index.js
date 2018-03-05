@@ -29,13 +29,51 @@ app.post('/login', (req, res) => {
     })
 })
 
+/*
 app.post('/getGame', (req, res) => {
   store
     .getGame({
       gameid: req.body.gameid,
     })
-    .then(() => res.sendStatus(200))
+    .then(data => {		
+		console.log(data)
+		res.status(200).send(data)
+    })
 })
+
+
+app.get('/getGame', (req, res) => {
+  store
+    .getGame({
+      gameid: req.body.gameid,
+    })
+    .then(data => {		
+		console.log(data)
+		res.status(200).send(data)
+    })
+})
+*/
+app.get('/getGame', function(req, res) {
+    store
+    .getGame({
+      gameid: req.param('id'),
+    })
+    .then(data => {		
+		console.log(data)
+		res.send(data)
+    })
+});
+
+app.get('/getPlayersGames', function(req, res) {
+    store
+    .getPlayersGames({
+      steamid: req.param('id'),
+    })
+    .then(data => {		
+		//console.log(data)
+		res.send(JSON.stringify(data));
+    })
+});
 
 app.listen(7555, () => {
   console.log('Server running on http://localhost:7555')

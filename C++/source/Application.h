@@ -19,6 +19,9 @@
 #include <iterator>
 #include <locale>
 #include <math.h>
+#include <chrono>
+#include <ctime>
+
 
 
 #include "SteamApi.h"
@@ -87,6 +90,9 @@ class Application
 		//READ COUNTRY CODES IN
 		void CountryCodes();
 		
+		//GET CURRENT PLAYERS
+		void GetCurrentPlayers();
+		
 		//EVALUATES MOST COMMON WORDS IN PC REQUIREMENTS
 		void EvaluatePCRequirements();
 		void SetPCRequirements();
@@ -137,6 +143,9 @@ class Application
 		
 		std::weak_ptr<Table> m_gameToPublisherTable = statement.CreateTable("GameToPublisher");
 		std::weak_ptr<Table> m_gameToDeveloperTable = statement.CreateTable("GameToDeveloper");
+		std::weak_ptr<Table> m_gamePlayerCount = statement.CreateTable("GamePlayerCount");
+		
+		std::weak_ptr<Table> m_apiCounter = statement.CreateTable("APICallCounter");
 		
 		
 		std::weak_ptr<Table> m_playersMain = statement.CreateTable("Players");

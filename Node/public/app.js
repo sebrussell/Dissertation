@@ -1,4 +1,5 @@
 const CreateUser = document.querySelector('.CreateUser')
+/*
 CreateUser.addEventListener('submit', (e) => {
   e.preventDefault()
   const username = CreateUser.querySelector('.username').value
@@ -25,11 +26,51 @@ const GetGame = document.querySelector('.GetGameImage')
 GetGame.addEventListener('submit', (e) => {
   e.preventDefault()
   const gameid = GetGame.querySelector('.gameid').value
-  post('/getGame', { gameid })
-    .then(({ status }) => {
-      if (status === 200) alert('get image')
-      else alert('login failed')
-    })
+  get('/getGame?id=' + gameid)
+  .then(res => res.text())
+	.then(body => {
+		console.log(body)	
+	    document.querySelector('img').src = body
+	});
+
+	
+})
+*/
+const GetPlayerGames = document.querySelector('.GetPlayersGames')
+GetPlayerGames.addEventListener('submit', (e) => {
+  e.preventDefault()
+  const steamid = GetPlayerGames.querySelector('.steamid').value
+  get('/getPlayersGames?id=' + steamid)
+  .then(res => res.text())
+	.then(body => {
+		var json = JSON.parse(body)
+		
+		var container = document.getElementById('imageContainer');
+		var docFrag = document.createDocumentFragment();
+		
+		container.innerHTML = "";
+		
+		for(var exKey in json) {
+
+			var img = document.createElement('img');
+			img.src = json[exKey].HeaderImage;
+			docFrag.appendChild(img);
+			
+			/*
+			id="test" + exKey			
+			var image = document.getElementById(id)
+			if(image != null)
+			{
+				image.src = json[exKey].HeaderImage
+			} 
+			*/
+			
+		}
+		
+		container.appendChild(docFrag);
+	});
+
+	
 })
 
 function post (path, data) {
@@ -42,3 +83,9 @@ function post (path, data) {
     body: JSON.stringify(data)
   })
 }
+
+function get (path, data) {
+  return window.fetch(path)  
+} 
+
+
