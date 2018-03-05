@@ -1998,7 +1998,7 @@ void Application::AssociationRule(int appID, float confidenceThreshold)
 	int threshold = playerData.size() * 0.4; //40%
 	
 	//for every game owned
-	call = statement.GetData("GamesOwned");	
+	call = statement.GetData("GamesOwned", true, "PlayerID", true);	
 	bRet = objMain.getDataStatement(call);
 	if (!bRet)
 	{					
@@ -2009,7 +2009,7 @@ void Application::AssociationRule(int appID, float confidenceThreshold)
 		while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
 		{
 			//add the game to a list of games owned by each player
-			playerData[objMain.row[0]].push_back(std::stoi(objMain.row[1]));
+			playerData[objMain.row[5]].push_back(std::stoi(objMain.row[1]));
 		}
 		objMain.ClearData();
 	}
@@ -2111,20 +2111,20 @@ void Application::AssociationRule(int appID, float confidenceThreshold)
 	{
 		std::map<int, MinimumSupport>::iterator ruleIT;
 		for (std::map<std::string, std::vector<int>>::iterator it = playerData.begin(); it != playerData.end(); it++ )
-		{			
+		{		
 	
 			//for every person
 			//if they own appID
 			//then for every game add it to the map
 			if ( std::find(it->second.begin(), it->second.end(), appID) != it->second.end() )
-			{				
+			{	
 				//for all their games
 				for(int i = 0; i < it->second.size(); i++)
 				{	
 					ruleIT = supportSpecified.find(it->second.at(i));
 					if (ruleIT != supportSpecified.end())
 					{
-						ruleIT->second.count++;
+						ruleIT->second.count += 1;
 					}	
 					else
 					{
@@ -2136,6 +2136,7 @@ void Application::AssociationRule(int appID, float confidenceThreshold)
 						supportSpecified[it->second.at(i)] = temp;
 					}
 					
+					
 					supportIT = supportValue.find(it->second.at(i));
 					if (supportIT != supportValue.end())
 					{
@@ -2144,7 +2145,7 @@ void Application::AssociationRule(int appID, float confidenceThreshold)
 					else
 					{
 						supportValue[it->second.at(i)] = 1;
-					}
+					}					
 				}
 			}
 	
@@ -2162,7 +2163,18 @@ void Application::AssociationRule(int appID, float confidenceThreshold)
 	std::cout << "Output Rules" << std::endl;
 	
 	//system("PAUSE");
-	threshold = playerData.size() * 0.1;
+	if(appID > 0)
+	{
+		threshold = 0;
+		confidenceThreshold = 0.65;
+	}
+	else
+	{
+		threshold = playerData.size() * 0.1;
+	}
+	
+
+	
 	//for every rule
 	for(int i = 0; i < support.size(); i++)
 	{
@@ -2177,9 +2189,12 @@ void Application::AssociationRule(int appID, float confidenceThreshold)
 				//the confidence value is the amount of times the rule comes up divided by the amount of times the first value in the rule appears
 				support.at(i).confidence = (float)((float)support.at(i).count / (float)confidenceIT->second);
 			}
+			//
 			if(support.at(i).confidence > confidenceThreshold)
 			{
+				//std::cout << support.at(i).count << "  " << confidenceIT->second << std::endl;
 				std::cout << support.at(i).confidence * 100 << "% of users who buy " << support.at(i).gameID1 << " also buy " << support.at(i).gameID2 << std::endl;
+				
 			}
 			
 		}		

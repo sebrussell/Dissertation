@@ -10,13 +10,21 @@ std::string Statement::Call(std::string _tableName)
 	}
 }
 
-std::string Statement::GetData(std::string _tableName, bool decrypt, std::string _columnToDecrypt)
+std::string Statement::GetData(std::string _tableName, bool decrypt, std::string _columnToDecrypt, bool getRest)
 {
 	if(m_tables[_tableName])
 	{
 		if(decrypt)
 		{
-			return "SELECT AES_DECRYPT(" + _columnToDecrypt + ",'" + m_tables[_tableName]->GetKey() + "') FROM " + _tableName;
+			if(getRest)
+			{
+				return "SELECT *, AES_DECRYPT(" + _columnToDecrypt + ",'" + m_tables[_tableName]->GetKey() + "') FROM " + _tableName;
+			}
+			else
+			{
+				return "SELECT AES_DECRYPT(" + _columnToDecrypt + ",'" + m_tables[_tableName]->GetKey() + "') FROM " + _tableName;
+			}
+			
 		}
 		else
 		{

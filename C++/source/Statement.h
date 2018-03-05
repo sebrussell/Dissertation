@@ -14,7 +14,7 @@ class Statement
 		Statement() {};
 		~Statement() {};
 		std::string Call(std::string _tableName);
-		std::string GetData(std::string _tableName, bool decrypt = false, std::string _columnToDecrypt = "");
+		std::string GetData(std::string _tableName, bool decrypt = false, std::string _columnToDecrypt = "", bool getRest = false);
 		std::string GetSize(std::string _tableName);
 		std::string AddNumberCondition(std::string _columnName, int value, int count = 0, std::string operation = "=");
 		std::string AddStringCondition(std::string _columnName, std::string value, int count = 0, std::string operation = "=", bool decrypt = false, std::string _tableName = "", bool encrypt = false);
