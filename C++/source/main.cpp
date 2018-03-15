@@ -39,7 +39,7 @@ int main()
 	}
 	else if(input == "5")
 	{
-		app.AssociationRule(440);
+		app.AssociationRule(372000);
 	}
 	else if(input == "6")
 	{

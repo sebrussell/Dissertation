@@ -60,12 +60,24 @@ module.exports = {
 	})
   },
   
-  getPlayersGames ({ steamid }) {
-	
+  getPlayersGames ({ steamid }) {	
 	console.log(`Getting Games of ${steamid}`)
 	return new Promise(function (resolve, reject) {
 		var temp = "PlayerID=AES_ENCRYPT( " + steamid + ", " + "'6R*#cL&tP!b6'" + ")"
 		knexMain.select('HeaderImage').from('Game').innerJoin('GamesOwned', 'GamesOwned.GameID', 'Game.GameID').whereRaw(temp)
+		.catch(function(error) {
+		  return reject(error);
+		})
+		.then(function(Game){
+			resolve(Game)			
+	  })		
+	})
+  },
+  
+  getPlayerCountryAmount ({ gameid }) {	
+	console.log(`Getting Players Count of ${gameid}`)
+	return new Promise(function (resolve, reject) {
+		knexMain.raw("select 3LetterCode, Count(*) as count from Countries t1 join Players t2 on t1.CountryID = t2.Country	join GamesOwned t3 on t2.SteamID = t3.PlayerID where t3.GameID = ? Group by Name order by count desc;", [gameid] )
 		.catch(function(error) {
 		  return reject(error);
 		})

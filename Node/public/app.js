@@ -1,5 +1,5 @@
-const CreateUser = document.querySelector('.CreateUser')
 /*
+const CreateUser = document.querySelector('.CreateUser')
 CreateUser.addEventListener('submit', (e) => {
   e.preventDefault()
   const username = CreateUser.querySelector('.username').value
@@ -68,9 +68,7 @@ GetPlayerGames.addEventListener('submit', (e) => {
 		}
 		
 		container.appendChild(docFrag);
-	});
-
-	
+	});	
 })
 
 function post (path, data) {

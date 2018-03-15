@@ -62,6 +62,7 @@ Application::Application()
 	m_countriesTable.lock()->AddColumn("CountryID", INTEGER);
 	m_countriesTable.lock()->AddColumn("SteamID", STRNG);
 	m_countriesTable.lock()->AddColumn("Name", STRNG);
+	m_countriesTable.lock()->AddColumn("3LetterCode", STRNG);
 	
 	
 	m_playersFriends.lock()->AddColumn("SteamID1", ENCRYPT);
@@ -2453,23 +2454,23 @@ void Application::AssociationRule(int appID, float confidenceThreshold)
 
 void Application::CountryCodes()
 {	
-	std::map<std::string, std::string> countryCodes = TextReader::GetCountryCodes("countries.json");
+	std::map<std::string, std::string> countryCodes = TextReader::GetCountryCodes("all.json");
+	
 	
 	std::map<std::string, std::string>::iterator it;
 	for ( it = countryCodes.begin(); it != countryCodes.end(); it++ )
 	{
-		//std::cout << it->first << ':' << it->second << std::endl;
+		std::cout << it->first << ':' << it->second << std::endl;
 		
 		
 		m_countriesTable.lock()->SetStringColumn("SteamID", it->first);	
-		m_countriesTable.lock()->SetStringColumn("Name", it->second);	
-
-		call = m_countriesTable.lock()->UpdateValues("Countries", "Name", STRNG);
-		
+		m_countriesTable.lock()->SetStringColumn("3LetterCode", it->second);	
+		call = m_countriesTable.lock()->UpdateValues("Countries", "3LetterCode", STRNG);		
 		call += m_countriesTable.lock()->UpdateValues("Countries", "SteamID", STRNG, 1);
 		
-		std::cout << call << std::endl;
 		
+		std::cout << call << std::endl;	
+
 		bRet = objMain.execStatement(call);				
 		if (!bRet)
 		{					
@@ -2477,6 +2478,7 @@ void Application::CountryCodes()
 		}
 		
 	} 
+	
 }
 
 void Application::GetCurrentPlayers()

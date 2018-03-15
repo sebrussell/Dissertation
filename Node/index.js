@@ -75,6 +75,17 @@ app.get('/getPlayersGames', function(req, res) {
     })
 });
 
+app.get('/getPlayerCount', function(req, res) {
+    store
+    .getPlayerCountryAmount({
+      gameid: req.param('id'),
+    })
+    .then(data => {		
+		//console.log(data)
+		res.send(JSON.stringify(data));
+    })
+});
+
 app.listen(80, () => {
   console.log('Server running on http://localhost:80')
 })

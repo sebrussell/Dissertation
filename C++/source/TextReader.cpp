@@ -39,16 +39,12 @@ std::map<std::string, std::string> TextReader::GetCountryCodes(std::string _file
                << "\n";
     }
 
-    std::string encoding = root.get("encoding", "UTF-8" ).asString();
-    std::cout << encoding << "\n"; 
-	//std::cout << root["countries"][3]["code"].asString() << std::endl;
-	//std::cout << root["countries"][3]["name"].asString() << std::endl;
 	
-	
-	for(int i = 0; i < root["countries"].size(); i++)
+	for(int i = 0; i < root.size(); i++)
 	{
-		temp[root["countries"][i]["code"].asString()] = root["countries"][i]["name"].asString();		
+		temp[root[i]["alpha-2"].asString()] = root[i]["alpha-3"].asString();		
 	}
+	
 	
     alive = false;
     }
