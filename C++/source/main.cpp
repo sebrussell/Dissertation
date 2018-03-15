@@ -11,7 +11,7 @@ int main()
 	std::string input;
 	
 	std::cout << "Choose which application to run" << std::endl;
-	//std::cout << "Update Game Tables = 1" << std::endl;
+	std::cout << "Manage API = 1" << std::endl;
 	std::cout << "Update Player Tables = 2" << std::endl;
 	//std::cout << "Evaluate PC requirements = 3" << std::endl;
 	//std::cout << "Set PC requirements = 4" << std::endl;
@@ -23,7 +23,7 @@ int main()
 	
 	if(input == "1")
 	{
-		//app.AddGamesToTable();
+		app.APIResetter();
 	}
 	else if(input == "2")
 	{
@@ -39,7 +39,7 @@ int main()
 	}
 	else if(input == "5")
 	{
-		app.AssociationRule(21000);
+		app.AssociationRule(313690);
 	}
 	else if(input == "6")
 	{

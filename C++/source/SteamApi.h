@@ -49,4 +49,5 @@ class SteamApi
 		std::string api_key;
 		std::string id;
 		int length;
+		std::string networkToUse;
 };

@@ -25,7 +25,7 @@ SteamApi::SteamApi()
     // internally be passed as a void pointer.
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, httpData.get());
 
-	api_key = TextReader::ReadPassword("..//passwords/API.txt");
+	api_key = TextReader::ReadPassword("..//passwords/API1.txt");
 	//std::cout << "API Key Loaded" << std::endl;
 	
 	
@@ -56,7 +56,20 @@ Json::Value SteamApi::GetData(std::string _url)
 	//curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10);
 	//curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback);
-
+	
+	networkToUse = TextReader::ReadPassword("..//passwords/Network.txt");	
+	if(networkToUse == "net2")
+	{
+		curl_easy_setopt(curl, CURLOPT_INTERFACE, "ens3:0");
+	}
+	if(networkToUse == "net3")
+	{
+		curl_easy_setopt(curl, CURLOPT_INTERFACE, "ens3:1");
+	}
+	
+	
+	
+	
     // Run our HTTP GET command, capture the HTTP response code, and clean up.
 		
     curl_easy_perform(curl);

@@ -156,132 +156,145 @@ std::string Table::UpdateValues(std::string _columnToSet, std::string _columnToC
 	return returnString;
 }
 
-std::string Table::SetValues()
+std::string Table::SetValues(int iterator)
 {
 	
 	//return (std::string("INSERT INTO" MainTable (PlayerID, SteamID, Username) VALUES ( '") + std::to_string(_test._number)) + "', '" + _test._id + "', '" + _test._name + "')";
 	
-	std::string returnString = (std::string("INSERT INTO ") + m_tableName + " (");
+	std::string returnString;
 	
-	
-	for (std::map<std::string, std::string>::iterator it=m_strings.begin(); it!=m_strings.end(); ++it)
+	if(iterator == 0)
 	{
-		if(std::next(it) == m_strings.end())
-		{
-			returnString += it->first;
-		}
-		else
-		{
-			returnString += it->first + ", ";
-		}
-	}
-	
-	
-	if(m_encrypts.size() > 0)
-	{
-		if(m_strings.size() > 0)
-		{
-			returnString += ", ";
-		}		
-	}
-	
-	for (std::map<std::string, std::string>::iterator it=m_encrypts.begin(); it!=m_encrypts.end(); ++it)
-	{
-		if(std::next(it) == m_encrypts.end())
-		{
-			returnString += it->first;
-		}
-		else
-		{
-			returnString += it->first + ", ";
-		}
-	}
-	
-	if(m_doubles.size() > 0)
-	{
-		if(m_encrypts.size() > 0 || m_strings.size() > 0)
-		{
-			returnString += ", ";
-		}
-	}
-	
-	for (std::map<std::string, double>::iterator it=m_doubles.begin(); it!=m_doubles.end(); ++it)
-	{
-		if(std::next(it) == m_doubles.end())
-		{
-			returnString += it->first;
-		}
-		else
-		{
-			returnString += it->first + ", ";
-		}
-	}	
-	
-	if(m_ints.size() > 0)
-	{
-		if(m_doubles.size() > 0 || m_strings.size() > 0 || m_encrypts.size() > 0)
-		{
-			returnString += ", ";
-		}		
-	}
-	
-	for (std::map<std::string, int>::iterator it=m_ints.begin(); it!=m_ints.end(); ++it)
-	{
-		if(std::next(it) == m_ints.end())
-		{
-			returnString += it->first;
-		}
-		else
-		{
-			returnString += it->first + ", ";			
-		}
-	}	
-	
-	
-	
-	if(m_floats.size() > 0 )
-	{
-		if((m_doubles.size() > 0 || m_strings.size() > 0 || m_ints.size() > 0 || m_encrypts.size() > 0))
-		{
-			returnString += ", ";
-		}	
-	}	
-	for (std::map<std::string, float>::iterator it=m_floats.begin(); it!=m_floats.end(); ++it)
-	{
-		if(std::next(it) == m_floats.end())
-		{
-			returnString += it->first;
-		}
-		else
-		{
-			returnString += it->first + ", ";			
-		}
-	}
-	
-	
+		returnString = (std::string("INSERT INTO ") + m_tableName + " (");
 		
-	
-	
-	if(m_getValuesDouble.size() > 0)
-	{
-		returnString += ", ";
+		
+		for (std::map<std::string, std::string>::iterator it=m_strings.begin(); it!=m_strings.end(); ++it)
+		{
+			if(std::next(it) == m_strings.end())
+			{
+				returnString += it->first;
+			}
+			else
+			{
+				returnString += it->first + ", ";
+			}
+		}
+		
+		
+		if(m_encrypts.size() > 0)
+		{
+			if(m_strings.size() > 0)
+			{
+				returnString += ", ";
+			}		
+		}
+		
+		for (std::map<std::string, std::string>::iterator it=m_encrypts.begin(); it!=m_encrypts.end(); ++it)
+		{
+			if(std::next(it) == m_encrypts.end())
+			{
+				returnString += it->first;
+			}
+			else
+			{
+				returnString += it->first + ", ";
+			}
+		}
+		
+		if(m_doubles.size() > 0)
+		{
+			if(m_encrypts.size() > 0 || m_strings.size() > 0)
+			{
+				returnString += ", ";
+			}
+		}
+		
+		for (std::map<std::string, double>::iterator it=m_doubles.begin(); it!=m_doubles.end(); ++it)
+		{
+			if(std::next(it) == m_doubles.end())
+			{
+				returnString += it->first;
+			}
+			else
+			{
+				returnString += it->first + ", ";
+			}
+		}	
+		
+		if(m_ints.size() > 0)
+		{
+			if(m_doubles.size() > 0 || m_strings.size() > 0 || m_encrypts.size() > 0)
+			{
+				returnString += ", ";
+			}		
+		}
+		
+		for (std::map<std::string, int>::iterator it=m_ints.begin(); it!=m_ints.end(); ++it)
+		{
+			if(std::next(it) == m_ints.end())
+			{
+				returnString += it->first;
+			}
+			else
+			{
+				returnString += it->first + ", ";			
+			}
+		}	
+		
+		
+		
+		if(m_floats.size() > 0 )
+		{
+			if((m_doubles.size() > 0 || m_strings.size() > 0 || m_ints.size() > 0 || m_encrypts.size() > 0))
+			{
+				returnString += ", ";
+			}	
+		}	
+		for (std::map<std::string, float>::iterator it=m_floats.begin(); it!=m_floats.end(); ++it)
+		{
+			if(std::next(it) == m_floats.end())
+			{
+				returnString += it->first;
+			}
+			else
+			{
+				returnString += it->first + ", ";			
+			}
+		}
+		
+		
+			
+		
+		
+		if(m_getValuesDouble.size() > 0)
+		{
+			returnString += ", ";
+		}
+		
+		for (std::map<std::string, GetValue>::iterator it=m_getValuesDouble.begin(); it!=m_getValuesDouble.end(); ++it)
+		{
+			if(std::next(it) == m_getValuesDouble.end())
+			{
+				returnString += it->first;
+			}
+			else
+			{
+				returnString += it->first + ", ";
+			}
+		}
+		
+		
 	}
 	
-	for (std::map<std::string, GetValue>::iterator it=m_getValuesDouble.begin(); it!=m_getValuesDouble.end(); ++it)
+	if(iterator == 0)
 	{
-		if(std::next(it) == m_getValuesDouble.end())
-		{
-			returnString += it->first;
-		}
-		else
-		{
-			returnString += it->first + ", ";
-		}
+		returnString += ") VALUES (";
 	}
-	
-	
-	
-	returnString += ") VALUES (";
+	else
+	{
+		returnString += ",(";
+	}
+		
 	
 	if(m_strings.size() > 0)
 	{

@@ -21,7 +21,8 @@
 #include <math.h>
 #include <chrono>
 #include <ctime>
-
+#include <time.h>
+#include <fstream>
 
 
 #include "SteamApi.h"
@@ -63,6 +64,11 @@ struct GamesDownload
 	std::string releaseDate;
 };
 
+struct TimeStruct
+{
+	int hour, minute;
+};
+
 class Application
 {
 	public:
@@ -93,6 +99,11 @@ class Application
 		//GET CURRENT PLAYERS
 		void GetCurrentPlayers();
 		
+		//API Time Manager / Resetter
+		void APIResetter();
+		
+		TimeStruct GetTime();
+		
 		//EVALUATES MOST COMMON WORDS IN PC REQUIREMENTS
 		void EvaluatePCRequirements();
 		void SetPCRequirements();
@@ -112,7 +123,7 @@ class Application
 		SteamApi api;	//calls the steam api
 		Json::Value jsonData, jsonSpare; //used to store the returned json data
 		
-		std::string api_key = "256F7C304A4B0557D4E42DEF0AAB053A";	//needed to call the api
+		std::string api_key = "655AAEE26301017FC3593D19B27D2649";	//needed to call the api
 		
 		std::string steamid;	
 		std::string url;
@@ -175,7 +186,7 @@ class Application
 		
 		int c = 0;
 		int maxC = 250;
-		int time = 300;
+		
 		double timeToWait;
 		
 		std::string country, primaryClanID, timeCreated, lastLogOff, locCountryCode, locStateCode;
