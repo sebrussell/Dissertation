@@ -156,6 +156,11 @@ void Application::APIResetter()
 	
 	int counter = 0; //used to regulate the calling with different ips more often
 	
+	if(TextReader::ReadPassword("run.txt") == "0")
+	{
+		dayOver = true;
+	}
+	
 	while(true)
 	{
 		if(!dayOver)		
@@ -192,7 +197,7 @@ void Application::APIResetter()
 			
 			url =  "http://api.ipify.org/?format=json";			
 			jsonData = api.GetData(url);
-			std::cout << jsonData["ip"] << " " << queryAmount << " API Key Starts with:" << api_key[0] << api_key[1] << std::endl;	
+			std::cout << jsonData["ip"] << " " << queryAmount << " API Key Starts with:" << api_key[0] << api_key[1] << " API Iteration: " << counter << std::endl;	
 			
 			if(queryAmount > 2500)
 			{
@@ -2191,6 +2196,7 @@ void Application::AssociationRule(int appID, float confidenceThreshold)
 		int gameID1, gameID2, count;
 		float confidence;
 		float lift;
+		float conviction;
 	};
 	
 	std::map<std::string, std::vector<int>> playerData;
@@ -2359,9 +2365,14 @@ void Application::AssociationRule(int appID, float confidenceThreshold)
 		{
 			//std::cout << it->second.gameID1 << " " << it->second.gameID2 << " " << it->second.count << std::endl;
 			support.push_back(it->second);
-		}
-		
+		}		
 	}
+	
+	std::map<float, MinimumSupport> ruleScoring;
+	float confidenceWeighting = 0.4;
+	float liftWeighting = 0.4;
+	float convictionWeighting = 0.4;
+	float score = 0;
 	
 	std::cout << "Output Rules" << std::endl;
 	
@@ -2369,7 +2380,7 @@ void Application::AssociationRule(int appID, float confidenceThreshold)
 	if(appID > 0)
 	{
 		threshold = 0;
-		confidenceThreshold = 0.2;
+		confidenceThreshold = 0.1;
 	}
 	else
 	{
@@ -2382,7 +2393,7 @@ void Application::AssociationRule(int appID, float confidenceThreshold)
 	for(int i = 0; i < support.size(); i++)
 	{
 		//if the rule is also above the threshold
-		if(support.at(i).count > threshold)
+		if(support.at(i).count > threshold && support.at(i).gameID1 != support.at(i).gameID2)
 		{
 			//find the confidence value (the amount of times it comes up) of the first game in the rule
 			std::map<int,int>::iterator confidenceIT;
@@ -2402,19 +2413,42 @@ void Application::AssociationRule(int appID, float confidenceThreshold)
 				
 			}
 			
-			ruleSupport = ruleSupport / playerData.size() * 100;
-			supportX = supportX / playerData.size() * 100;
-			supportY = supportY / playerData.size() * 100;
+			ruleSupport = ruleSupport / playerData.size();
+			supportX = supportX / playerData.size();
+			supportY = supportY / playerData.size();
 			support.at(i).lift = ruleSupport / (supportX * supportY);
 			
-			if(support.at(i).confidence > confidenceThreshold && support.at(i).lift > 1)
+			support.at(i).conviction = (1 - supportY) / (1 - support.at(i).confidence);
+			
+			// 
+			if(support.at(i).confidence > confidenceThreshold && support.at(i).lift > 1 && support.at(i).conviction > 1)
 			{
-				std::cout << support.at(i).confidence * 100 << "% of users who buy " << support.at(i).gameID1 << " also buy " << support.at(i).gameID2 << " with a lift of: " << support.at(i).lift << std::endl;
+				//std::cout << supportY << " " << supportX << " " << ruleSupport << " " << (support.at(i).confidence) << std::endl;
+				//std::cout << support.at(i).confidence * 100 << "% of users who buy " << support.at(i).gameID1 << " also buy " << support.at(i).gameID2 << " with a lift of: " << support.at(i).lift << " with a conviction of: " << support.at(i).conviction << std::endl;
+				
+				//calculate score using weighting
+				score = 0;
+				score += support.at(i).confidence * confidenceWeighting;
+				score += support.at(i).lift * liftWeighting;
+				score += support.at(i).conviction * convictionWeighting;
+
+				ruleScoring[score] = support.at(i);
 				
 			}
 			
 		}		
 	}	
+	
+	int scoreCount = 0;
+	for (std::map<float, MinimumSupport>::reverse_iterator it = ruleScoring.rbegin(); it != ruleScoring.rend(); it++ )
+	{		
+		scoreCount++;
+		std::cout << it->second.confidence * 100 << "% of users who buy " << it->second.gameID1 << " also buy " << it->second.gameID2 << " with a lift of: " << it->second.lift << " with a conviction of: " << it->second.conviction << " with a score of " << it->first << std::endl;
+		if(scoreCount == 10)
+		{
+			break;
+		}		
+	}
 }
 
 void Application::CountryCodes()
