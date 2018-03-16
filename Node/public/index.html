@@ -27,33 +27,101 @@
   
   <img src="http://cdn.akamai.steamstatic.com/steam/apps/10/header.jpg?t=1512411844" id="test">
   -->
-  
-  
+<form class="GetGameInfo">
+    <h1>Get Game Info</h1>
+    <input type="text" class="gameid" placeholder="Game ID" id="gameid">
+    <input type="button" value="Get Info" id="gameidbutton" onclick="controller()">
+</form>
+
+<canvas id="myChart" width="400" height="40"></canvas>
+
 <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"></script>
-<script src="datamaps.world.js"></script>
+<script src="datamaps.world.min.js"></script>
 <div id="container" style="position: relative; width: 1000px; height: 600px;"></div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script type="text/javascript" ></script>
+<script src="/chart.js/dist/Chart.js"></script>
+
 <script>
 
-
-$(document).ready( function() {
-  $.ajax({
-  type: 'GET',
-  url: '/getPlayerCount',
-  data: 'id=578080',
-  success: function(result) {
-	a = JSON.parse(result);
-	temp(a);
-  },
-  });
-});
+function controller()
+{
+	var value = document.getElementById('gameid');
+	hi(value.value);
+	chart(value.value);
+}
 
 
+function hi(gameid)
+{	
+	  $.ajax({
+	  type: 'GET',
+	  url: '/getPlayerCountCountry',
+	  data: 'id=' + gameid,
+	  success: function(result) {
+		a = JSON.parse(result);
+		temp(a);
+	  },
+	  });
+};
+
+function chart(gameid)
+{
+	var data = [];
+	var label = [];
+	$.ajax({
+	type: 'GET',
+	url: '/getPlayerCountDay',
+	data: 'id=' + gameid,
+	success: function(result) {	
+		json = JSON.parse(result);
+		console.log(json);
+		for(var k in json) {		   
+		   data.push(json[k]["PlayerAmount"]);
+		   label.push(json[k]["Time"]);
+		}			
+		drawChart(data, label);
+	},
+	});
+};
+
+function drawChart(data, label)
+{
+	console.log(data)
+	
+	
+	var ctx = document.getElementById("myChart");
+	var myChart = new Chart(ctx, {
+		type: 'line',
+		data: {
+			labels: label,
+			datasets: [{
+				label: '# of Players',
+				data: data,
+				borderColor: [
+					'rgba(2,56,111,1)',
+				],
+				borderWidth: 1,
+				fill: false,
+			}]
+		},
+		options: {
+			scales: {
+				yAxes: [{
+					ticks: {
+						beginAtZero:false
+					}
+				}]
+			}
+		}
+	});
+
+};
+	
+	
 function temp(result)
 {
-	
 
 	var series = [];
 	
@@ -61,9 +129,7 @@ function temp(result)
 	   var a = [result[0][k]["3LetterCode"], result[0][k]["count"]];
 	   series.push(a);
 	}
-	
-	
-	
+
     // Datamaps expect data in format:
     // { "USA": { "fillColor": "#42a844", numberOfWhatever: 75},
     //   "FRA": { "fillColor": "#8dc386", numberOfWhatever: 43 } }

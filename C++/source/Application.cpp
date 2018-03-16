@@ -157,10 +157,8 @@ void Application::APIResetter()
 	
 	int counter = 0; //used to regulate the calling with different ips more often
 	
-	if(TextReader::ReadPassword("run.txt") == "0")
-	{
-		dayOver = true;
-	}
+	counter = std::stoi(TextReader::ReadPassword("callamount.txt"));
+	
 	
 	while(true)
 	{
@@ -250,6 +248,26 @@ void Application::APIResetter()
 				if(counter > 40)
 				{
 					dayOver = true;
+					
+					m_apiCounter.lock()->SetIntColumn("Value", 1);	
+					for(int z = 0; z < 100000; z++)
+					{		
+						if(z == 0)
+						{
+							call = m_apiCounter.lock()->SetValues();
+						}
+						else
+						{
+							call += m_apiCounter.lock()->SetValues(1);
+						}
+						
+					}
+					//std::cout << call << std::endl;
+					bRet = objMain.execStatement(call);				
+					if (!bRet)
+					{					
+						std::cout << "ERROR!" << std::endl;
+					}
 				}
 			}
 		}
