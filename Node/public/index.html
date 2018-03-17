@@ -31,6 +31,11 @@
     <h1>Get Game Info</h1>
     <input type="text" class="gameid" placeholder="Game ID" id="gameid">
     <input type="button" value="Get Info" id="gameidbutton" onclick="controller()">
+
+	<input type="radio" name="value" value="Percentage"> Percentage<br>
+	<input type="radio" name="value" value="Actual"> Actual<br>
+	<input type="radio" name="value" value="WeightedPercentage"> Weighted
+
 </form>
 
 <canvas id="myChart" width="400" height="40"></canvas>
@@ -38,12 +43,18 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"></script>
 <script src="datamaps.world.min.js"></script>
-<div id="container" style="position: relative; width: 1000px; height: 600px;"></div>
+<div id="container" style="position: relative; width: 1000px; height: 600px;">
+<img src="loading.gif" alt="Loading" id="loading">
+</div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script type="text/javascript" ></script>
 <script src="/chart.js/dist/Chart.js"></script>
 
 <script>
+
+var loadingImage = document.getElementById("loading");
+
+var radioButton = document.getElementById("radio");
 
 function controller()
 {
@@ -54,7 +65,7 @@ function controller()
 
 
 function hi(gameid)
-{	
+{		
 	  $.ajax({
 	  type: 'GET',
 	  url: '/getPlayerCountCountry',
@@ -62,6 +73,7 @@ function hi(gameid)
 	  success: function(result) {
 		a = JSON.parse(result);
 		temp(a);
+		loadingImage.style.display = "none";
 	  },
 	  });
 };

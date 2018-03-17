@@ -39,7 +39,13 @@ int main()
 	}
 	else if(input == "5")
 	{
-		app.AssociationRule(372000);
+		std::vector<int> games;
+		games.push_back(440);
+		games.push_back(372000);
+		games.push_back(570);
+		games.push_back(578310);
+		
+		app.AssociationRule(games);
 	}
 	else if(input == "6")
 	{

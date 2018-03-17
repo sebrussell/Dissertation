@@ -91,7 +91,7 @@ class Application
 		void UpdatePlayers();
 		
 		//ASSOCIATION RULE
-		void AssociationRule(int appID = -1, float confidenceThreshold = 0.5);
+		void AssociationRule(std::vector<int> games = std::vector<int>(), float confidenceThreshold = 0.5);
 		
 		//READ COUNTRY CODES IN
 		void CountryCodes();

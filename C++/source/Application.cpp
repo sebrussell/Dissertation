@@ -1611,6 +1611,7 @@ void Application::UpdatePlayers()
 	struct GamesPlayed
 	{
 		std::string appID;
+		int appNumber;
 		int playtimeForever, playtime2Weeks;
 	};
 	
@@ -1836,6 +1837,7 @@ void Application::UpdatePlayers()
 						{		
 							GamesPlayed temp;
 							temp.appID = jsonData["response"]["games"][f]["appid"].asString();
+							temp.appNumber = jsonData["response"]["games"][f]["appid"].asInt();
 							//check if playtime forever exists
 							if(jsonData["response"]["games"][f].isMember("playtime_forever"))
 							{
@@ -1906,7 +1908,7 @@ void Application::UpdatePlayers()
 						//for all the games
 						for(int n = 0; n < m_playerGames.size(); n++)
 						{										
-							if ( m_games.find(std::stoi(m_playerGames.at(n).appID)) == m_games.end() ) {
+							if ( m_games.find(m_playerGames.at(n).appNumber) == m_games.end() ) {
 								//if the game isnt in the games database - could be because the game is no longer on steam
 								//std::cout << "Game " << m_playerGames.at(n).appID << " not found!" << std::endl;
 								
@@ -1916,7 +1918,7 @@ void Application::UpdatePlayers()
 							  
 							} else {
 								//store the game info
-								tempGame = m_games.at(std::stoi(m_playerGames.at(n).appID));
+								tempGame = m_games.at(m_playerGames.at(n).appNumber);
 							  
 								//calculate the avaerage price they will pay
 								
@@ -2208,7 +2210,7 @@ void Application::UpdatePlayers()
 	
 }
 
-void Application::AssociationRule(int appID, float confidenceThreshold)
+void Application::AssociationRule(std::vector<int> games, float confidenceThreshold)
 {
 	struct MinimumSupport
 	{
@@ -2242,232 +2244,237 @@ void Application::AssociationRule(int appID, float confidenceThreshold)
 	
 	std::cout << "Players Counted For " << playerData.size() << std::endl;
 	
-	std::vector<MinimumSupport> support;
-	std::map<int, MinimumSupport> supportSpecified;
-	std::map<int,int>::iterator supportIT;
-	
-	if(appID == -1)
+	for(int g = 0; g < games.size(); g++)
 	{
-		//for every player
-		for (std::map<std::string, std::vector<int>>::iterator it = playerData.begin(); it != playerData.end(); it++ )
-		{			
-			//for all their games
-			for(int i = 0; i < it->second.size(); i++)
-			{
-				//add their game to a map of all the games
-				supportIT = supportValue.find(it->second.at(i));
-				if (supportIT != supportValue.end())
-				{
-					supportIT->second++;
-				}	
-				else
-				{
-					supportValue[it->second.at(i)] = 1;
-				}
-				
-			}
-		}
+		std::vector<MinimumSupport> support;
+		std::map<int, MinimumSupport> supportSpecified;
+		std::map<int,int>::iterator supportIT;
 		
-		std::cout << "Analysing Games" << std::endl;
-		
-		//go through the map of games and how many times they have been owned
-		std::vector<int> gamesAboveMinimumSupport;	
-		
-		float multiplier = 0.6;
-		threshold = playerData.size() * multiplier;
-		
-		//if they dont find at least 5 rules, then go back and reduce the threshold
-		while(gamesAboveMinimumSupport.size() < 5)
-		{
-			for (std::map<int, int>::iterator it = supportValue.begin(); it != supportValue.end(); it++ )
-			{
-				//if it has been owned by more than 50% of the population
-				if(it->second > threshold)
-				{
-					//add it to the above minimum threshold vector
-					gamesAboveMinimumSupport.push_back(it->first);
-				}		
-			}	
-			multiplier -= 0.1;
-			threshold = playerData.size() * multiplier;
-			if(gamesAboveMinimumSupport.size() < 5)
-			{
-				gamesAboveMinimumSupport.clear();
-			}			
-		}
-		
-		
-		std::cout << "Comparing Game Rules" << std::endl;
-		
-		//for all the games create a rule struct to later compare them against each other
-		for(int i = 0; i < gamesAboveMinimumSupport.size(); i++)
-		{
-			MinimumSupport temp;
-			temp.count = 0;
-			temp.confidence = 0;
-			temp.gameID1 = gamesAboveMinimumSupport.at(i);
-			//if game x and game y -- do that for every game
-			for(int l = 0; l < gamesAboveMinimumSupport.size(); l++)
-			{
-				temp.gameID2 = gamesAboveMinimumSupport.at(l);
-				if(temp.gameID1 != temp.gameID2)
-				{
-					support.push_back(temp);
-				}
-			}
-		}
-		//for all the rules game 1 ->2, 1->3, 2->1, 2->3 etc
-		for(int i = 0; i < support.size(); i++)
+		if(games.size() == 0)
 		{
 			//for every player
 			for (std::map<std::string, std::vector<int>>::iterator it = playerData.begin(); it != playerData.end(); it++ )
-			{
-				if ( std::find(it->second.begin(), it->second.end(), support.at(i).gameID1) != it->second.end() )
-				{				
-					if ( std::find(it->second.begin(), it->second.end(), support.at(i).gameID2) != it->second.end() )
+			{			
+				//for all their games
+				for(int i = 0; i < it->second.size(); i++)
+				{
+					//add their game to a map of all the games
+					supportIT = supportValue.find(it->second.at(i));
+					if (supportIT != supportValue.end())
 					{
-						//if you can find both games in a players library increase the support count
-						support.at(i).count += 1;				
-					}
-				}
-			}
-		}
-	}
-	else
-	{
-		std::map<int, MinimumSupport>::iterator ruleIT;
-		for (std::map<std::string, std::vector<int>>::iterator it = playerData.begin(); it != playerData.end(); it++ )
-		{		
-	
-			//for every person
-			//if they own appID
-			//then for every game add it to the map
-			
-			
-			//for all their games
-			for(int i = 0; i < it->second.size(); i++)
-			{	
-				if ( std::find(it->second.begin(), it->second.end(), appID) != it->second.end() )
-				{	
-					ruleIT = supportSpecified.find(it->second.at(i));
-					if (ruleIT != supportSpecified.end())
-					{
-						ruleIT->second.count += 1;
+						supportIT->second++;
 					}	
 					else
 					{
-						MinimumSupport temp;
-						temp.gameID1 = appID;
-						temp.gameID2 = it->second.at(i);
-						temp.confidence = 0;
-						temp.count = 1;
-						supportSpecified[it->second.at(i)] = temp;
+						supportValue[it->second.at(i)] = 1;
+					}
+					
+				}
+			}
+			
+			std::cout << "Analysing Games" << std::endl;
+			
+			//go through the map of games and how many times they have been owned
+			std::vector<int> gamesAboveMinimumSupport;	
+			
+			float multiplier = 0.6;
+			threshold = playerData.size() * multiplier;
+			
+			//if they dont find at least 5 rules, then go back and reduce the threshold
+			while(gamesAboveMinimumSupport.size() < 5)
+			{
+				for (std::map<int, int>::iterator it = supportValue.begin(); it != supportValue.end(); it++ )
+				{
+					//if it has been owned by more than 50% of the population
+					if(it->second > threshold)
+					{
+						//add it to the above minimum threshold vector
+						gamesAboveMinimumSupport.push_back(it->first);
+					}		
+				}	
+				multiplier -= 0.1;
+				threshold = playerData.size() * multiplier;
+				if(gamesAboveMinimumSupport.size() < 5)
+				{
+					gamesAboveMinimumSupport.clear();
+				}			
+			}
+			
+			
+			std::cout << "Comparing Game Rules" << std::endl;
+			
+			//for all the games create a rule struct to later compare them against each other
+			for(int i = 0; i < gamesAboveMinimumSupport.size(); i++)
+			{
+				MinimumSupport temp;
+				temp.count = 0;
+				temp.confidence = 0;
+				temp.gameID1 = gamesAboveMinimumSupport.at(i);
+				//if game x and game y -- do that for every game
+				for(int l = 0; l < gamesAboveMinimumSupport.size(); l++)
+				{
+					temp.gameID2 = gamesAboveMinimumSupport.at(l);
+					if(temp.gameID1 != temp.gameID2)
+					{
+						support.push_back(temp);
 					}
 				}
-		
-				supportIT = supportValue.find(it->second.at(i));
-				if (supportIT != supportValue.end())
-				{
-					supportIT->second++;
-				}	
-				else
-				{
-					supportValue[it->second.at(i)] = 1;
-				}
-								
 			}
-	
+			//for all the rules game 1 ->2, 1->3, 2->1, 2->3 etc
+			for(int i = 0; i < support.size(); i++)
+			{
+				//for every player
+				for (std::map<std::string, std::vector<int>>::iterator it = playerData.begin(); it != playerData.end(); it++ )
+				{
+					if ( std::find(it->second.begin(), it->second.end(), support.at(i).gameID1) != it->second.end() )
+					{				
+						if ( std::find(it->second.begin(), it->second.end(), support.at(i).gameID2) != it->second.end() )
+						{
+							//if you can find both games in a players library increase the support count
+							support.at(i).count += 1;				
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			std::map<int, MinimumSupport>::iterator ruleIT;
+			for (std::map<std::string, std::vector<int>>::iterator it = playerData.begin(); it != playerData.end(); it++ )
+			{		
+		
+				//for every person
+				//if they own appID
+				//then for every game add it to the map
 				
+				
+				//for all their games
+				for(int i = 0; i < it->second.size(); i++)
+				{	
+					if ( std::find(it->second.begin(), it->second.end(), games.at(g)) != it->second.end() )
+					{	
+						ruleIT = supportSpecified.find(it->second.at(i));
+						if (ruleIT != supportSpecified.end())
+						{
+							ruleIT->second.count += 1;
+						}	
+						else
+						{
+							MinimumSupport temp;
+							temp.gameID1 = games.at(g);
+							temp.gameID2 = it->second.at(i);
+							temp.confidence = 0;
+							temp.count = 1;
+							supportSpecified[it->second.at(i)] = temp;
+						}
+					}
+			
+					supportIT = supportValue.find(it->second.at(i));
+					if (supportIT != supportValue.end())
+					{
+						supportIT->second++;
+					}	
+					else
+					{
+						supportValue[it->second.at(i)] = 1;
+					}
+									
+				}
+		
+					
+			}
+			
+			for (std::map<int, MinimumSupport>::iterator it = supportSpecified.begin(); it != supportSpecified.end(); it++ )
+			{
+				//std::cout << it->second.gameID1 << " " << it->second.gameID2 << " " << it->second.count << std::endl;
+				support.push_back(it->second);
+			}		
 		}
 		
-		for (std::map<int, MinimumSupport>::iterator it = supportSpecified.begin(); it != supportSpecified.end(); it++ )
+		std::map<float, MinimumSupport> ruleScoring;
+		float confidenceWeighting = 0.4;
+		float liftWeighting = 0.4;
+		float convictionWeighting = 0.4;
+		float score = 0;
+		
+		std::cout << "Output Rules for " << games.at(g) << std::endl;
+		
+		//system("PAUSE");
+		if(games.size() > 0)
 		{
-			//std::cout << it->second.gameID1 << " " << it->second.gameID2 << " " << it->second.count << std::endl;
-			support.push_back(it->second);
-		}		
-	}
-	
-	std::map<float, MinimumSupport> ruleScoring;
-	float confidenceWeighting = 0.4;
-	float liftWeighting = 0.4;
-	float convictionWeighting = 0.4;
-	float score = 0;
-	
-	std::cout << "Output Rules" << std::endl;
-	
-	//system("PAUSE");
-	if(appID > 0)
-	{
-		threshold = 0;
-		confidenceThreshold = 0.1;
-	}
-	else
-	{
-		threshold = playerData.size() * 0.1;
-	}
-	
-	float ruleSupport, supportX, supportY;
-	
-	//for every rule
-	for(int i = 0; i < support.size(); i++)
-	{
-		//if the rule is also above the threshold
-		if(support.at(i).count > threshold && support.at(i).gameID1 != support.at(i).gameID2)
+			threshold = 0;
+			confidenceThreshold = 0.1;
+		}
+		else
 		{
-			//find the confidence value (the amount of times it comes up) of the first game in the rule
-			std::map<int,int>::iterator confidenceIT;
-			confidenceIT = supportValue.find(support.at(i).gameID1);						
-			if (confidenceIT != supportValue.end())
+			threshold = playerData.size() * 0.1;
+		}
+		
+		float ruleSupport, supportX, supportY;
+		
+		//for every rule
+		for(int i = 0; i < support.size(); i++)
+		{
+			//if the rule is also above the threshold
+			if(support.at(i).count > threshold && support.at(i).gameID1 != support.at(i).gameID2)
 			{
-				//the confidence value is the amount of times the rule comes up divided by the amount of times the first value in the rule appears
-				support.at(i).confidence = (float)((float)support.at(i).count / (float)confidenceIT->second);
-				ruleSupport = support.at(i).count;
-				supportX = confidenceIT->second;
-			}
-			
-			confidenceIT = supportValue.find(support.at(i).gameID2);
-			if (confidenceIT != supportValue.end())
-			{				
-				supportY = confidenceIT->second;
+				//find the confidence value (the amount of times it comes up) of the first game in the rule
+				std::map<int,int>::iterator confidenceIT;
+				confidenceIT = supportValue.find(support.at(i).gameID1);						
+				if (confidenceIT != supportValue.end())
+				{
+					//the confidence value is the amount of times the rule comes up divided by the amount of times the first value in the rule appears
+					support.at(i).confidence = (float)((float)support.at(i).count / (float)confidenceIT->second);
+					ruleSupport = support.at(i).count;
+					supportX = confidenceIT->second;
+				}
 				
-			}
-			
-			ruleSupport = ruleSupport / playerData.size();
-			supportX = supportX / playerData.size();
-			supportY = supportY / playerData.size();
-			support.at(i).lift = ruleSupport / (supportX * supportY);
-			
-			support.at(i).conviction = (1 - supportY) / (1 - support.at(i).confidence);
-			
-			// 
-			if(support.at(i).confidence > confidenceThreshold && support.at(i).lift > 1 && support.at(i).conviction > 1)
-			{
-				//std::cout << supportY << " " << supportX << " " << ruleSupport << " " << (support.at(i).confidence) << std::endl;
-				//std::cout << support.at(i).confidence * 100 << "% of users who buy " << support.at(i).gameID1 << " also buy " << support.at(i).gameID2 << " with a lift of: " << support.at(i).lift << " with a conviction of: " << support.at(i).conviction << std::endl;
+				confidenceIT = supportValue.find(support.at(i).gameID2);
+				if (confidenceIT != supportValue.end())
+				{				
+					supportY = confidenceIT->second;
+					
+				}
 				
-				//calculate score using weighting
-				score = 0;
-				score += support.at(i).confidence * confidenceWeighting;
-				score += support.at(i).lift * liftWeighting;
-				score += support.at(i).conviction * convictionWeighting;
+				ruleSupport = ruleSupport / playerData.size();
+				supportX = supportX / playerData.size();
+				supportY = supportY / playerData.size();
+				support.at(i).lift = ruleSupport / (supportX * supportY);
+				
+				support.at(i).conviction = (1 - supportY) / (1 - support.at(i).confidence);
+				
+				// 
+				if(support.at(i).confidence > confidenceThreshold && support.at(i).lift > 1 && support.at(i).conviction > 1)
+				{
+					//std::cout << supportY << " " << supportX << " " << ruleSupport << " " << (support.at(i).confidence) << std::endl;
+					//std::cout << support.at(i).confidence * 100 << "% of users who buy " << support.at(i).gameID1 << " also buy " << support.at(i).gameID2 << " with a lift of: " << support.at(i).lift << " with a conviction of: " << support.at(i).conviction << std::endl;
+					
+					//calculate score using weighting
+					score = 0;
+					score += support.at(i).confidence * confidenceWeighting;
+					score += support.at(i).lift * liftWeighting;
+					score += support.at(i).conviction * convictionWeighting;
 
-				ruleScoring[score] = support.at(i);
+					ruleScoring[score] = support.at(i);
+					
+				}
 				
-			}
-			
-		}		
-	}	
-	
-	int scoreCount = 0;
-	for (std::map<float, MinimumSupport>::reverse_iterator it = ruleScoring.rbegin(); it != ruleScoring.rend(); it++ )
-	{		
-		scoreCount++;
-		std::cout << it->second.confidence * 100 << "% of users who buy " << it->second.gameID1 << " also buy " << it->second.gameID2 << " with a lift of: " << it->second.lift << " with a conviction of: " << it->second.conviction << " with a score of " << it->first << std::endl;
-		if(scoreCount == 10)
-		{
-			break;
-		}		
+			}		
+		}	
+		
+		int scoreCount = 0;
+		for (std::map<float, MinimumSupport>::reverse_iterator it = ruleScoring.rbegin(); it != ruleScoring.rend(); it++ )
+		{		
+			scoreCount++;
+			std::cout << it->second.confidence * 100 << "% of users who buy " << it->second.gameID1 << " also buy " << it->second.gameID2 << " with a lift of: " << it->second.lift << " with a conviction of: " << it->second.conviction << " with a score of " << it->first << std::endl;
+			if(scoreCount == 10)
+			{
+				break;
+			}		
+		}
 	}
+	
+	
 }
 
 void Application::CountryCodes()
