@@ -41,9 +41,30 @@ int main()
 	{
 		std::vector<int> games;
 		games.push_back(440);
-		games.push_back(372000);
-		games.push_back(570);
-		games.push_back(578310);
+		games.push_back(70);
+		games.push_back(212070);
+		games.push_back(100);
+		games.push_back(1900);
+		games.push_back(8260);
+		games.push_back(9060);
+		games.push_back(334410);
+		
+		games.push_back(334710);
+		games.push_back(332570);
+		games.push_back(331920);
+		games.push_back(296930);
+		games.push_back(223100);
+		games.push_back(63600);
+		games.push_back(37270);
+		
+		games.push_back(34640);
+		games.push_back(339290);
+		games.push_back(339110);
+		games.push_back(303470);
+		games.push_back(303710);
+		games.push_back(303830);
+		games.push_back(71120);
+
 		
 		app.AssociationRule(games);
 	}
