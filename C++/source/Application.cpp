@@ -2224,6 +2224,49 @@ std::map<float, MinimumSupport> Application::AssociationRule(std::vector<int> ga
 	
 	int threshold = playerData.size() * 0.4; //40%
 	
+	std::vector<int> gameIDsDownloaded;
+	
+	std::map<int, std::map<int, MinimumSupport>> supportSpecified;
+	
+	call = statement.GetData("Game", false);	
+	call += statement.AddNumberCondition("AvailableOnStore", 1);
+	call += statement.AddStringCondition("GameType", "game", 1);
+	std::cout << call << std::endl;
+	
+	//call += statement.AddLimit("10000");
+	bRet = objMain.getDataStatement(call);
+	if (!bRet)
+	{					
+		std::cout << "ERROR!" << std::endl;
+	}
+	else
+	{
+		while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
+		{
+			gameIDsDownloaded.push_back(std::stoi(objMain.row[0]));	
+		}
+		objMain.ClearData();
+	}
+	
+	std::cout << "downloaded games " << gameIDsDownloaded.size() << std::endl;
+	
+	for(int i = 0; i < gameIDsDownloaded.size(); i++)
+	{
+		
+		for(int j = 0; j < gameIDsDownloaded.size(); j++)
+		{
+			
+			MinimumSupport temp;
+			temp.gameID1 = gameIDsDownloaded.at(i);
+			temp.gameID2 = gameIDsDownloaded.at(j);
+			temp.confidence = 0;
+			temp.count = 0;	
+			supportSpecified[gameIDsDownloaded.at(i)][gameIDsDownloaded.at(j)] = temp;
+		}
+		std::cout << i << std::endl;
+	}
+	
+	
 	//for every game owned
 	call = statement.GetData("GamesOwned", true, "PlayerID", false, "GameID");	
 	call += " INNER JOIN Game ON Game.GameID=GamesOwned.GameID WHERE Game.AvailableOnStore=1";
@@ -2251,7 +2294,7 @@ std::map<float, MinimumSupport> Application::AssociationRule(std::vector<int> ga
 	auto start = std::chrono::high_resolution_clock::now();
 
 	std::vector<MinimumSupport> support;
-	std::map<int, std::map<int, MinimumSupport>> supportSpecified;
+	
 	std::map<int,int>::iterator supportIT;
 	
 	if(games.size() == 0)
@@ -2349,7 +2392,23 @@ std::map<float, MinimumSupport> Application::AssociationRule(std::vector<int> ga
 		//for every player
 		for (std::map<std::string, std::vector<int>>::iterator it = playerData.begin(); it != playerData.end(); it++ )
 		{		
+			//for all their games
+			for(int i = 0; i < it->second.size(); i++)
+			{
+				for(int j = 0; j < it->second.size(); j++)
+				{
+					supportSpecified[games.at(i)][games.at(j)].count += 1;					
+				}
+			}
+			
+			
 				
+				
+				
+				
+				
+				
+			/*	------ OLD VERSION ---------------------
 			//for all the games being checked			
 			for(int g = 0; g < games.size(); g++)
 			{
@@ -2395,7 +2454,7 @@ std::map<float, MinimumSupport> Application::AssociationRule(std::vector<int> ga
 				}
 								
 			}
-	
+			*/
 				
 		}
 		
@@ -2439,6 +2498,17 @@ std::map<float, MinimumSupport> Application::AssociationRule(std::vector<int> ga
 		//if the rule is also above the threshold
 		if(support.at(i).count > threshold && support.at(i).gameID1 != support.at(i).gameID2)
 		{
+			
+			
+			supportX = supportSpecified[support.at(i).gameID1][support.at(i).gameID1].count;
+			support.at(i).confidence = (float)((float)support.at(i).count / supportX);
+			ruleSupport = support.at(i).count;
+			
+			supportY = supportSpecified[support.at(i).gameID2][support.at(i).gameID2].count;
+			
+			
+			// OLD METHOD
+			/*
 			//find the confidence value (the amount of times it comes up) of the first game in the rule
 			std::map<int,int>::iterator confidenceIT;
 			confidenceIT = supportValue.find(support.at(i).gameID1);						
@@ -2456,6 +2526,7 @@ std::map<float, MinimumSupport> Application::AssociationRule(std::vector<int> ga
 				supportY = confidenceIT->second;
 				
 			}
+			*/
 			
 			ruleSupport = ruleSupport / playerData.size();
 			supportX = supportX / playerData.size();
