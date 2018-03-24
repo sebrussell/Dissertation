@@ -64,6 +64,14 @@ struct GamesDownload
 	std::string releaseDate;
 };
 
+struct MinimumSupport
+{
+	int gameID1, gameID2, count;
+	float confidence;
+	float lift;
+	float conviction;
+};
+
 struct TimeStruct
 {
 	int hour, minute;
@@ -91,7 +99,9 @@ class Application
 		void UpdatePlayers();
 		
 		//ASSOCIATION RULE
-		void AssociationRule(std::vector<int> games = std::vector<int>(), float confidenceThreshold = 0.5);
+		std::map<float, MinimumSupport> AssociationRule(std::vector<int> games = std::vector<int>(), float confidenceThreshold = 0.5);
+		
+		void RecommendPlayersGames(std::string _id);
 		
 		//READ COUNTRY CODES IN
 		void CountryCodes();
@@ -101,6 +111,8 @@ class Application
 		
 		//API Time Manager / Resetter
 		void APIResetter();
+		
+		bool CheckSteamIDs(int _gameID);
 		
 		TimeStruct GetTime();
 		

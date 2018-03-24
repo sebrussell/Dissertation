@@ -28,8 +28,10 @@ public:
     bool getDataStatement(std::string statement);  // Main Process
 	void ClearData();
 	void PrepareString(std::string& _string);
-
+	void OpenConnection();
+	void CloseConnection();	
 	void GetPassword();
+	void ResetConnection();
 	MYSQL_RES *m_result;
     MYSQL_ROW row;
 };

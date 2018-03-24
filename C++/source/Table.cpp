@@ -110,12 +110,12 @@ std::string Table::FormatString(std::string _string)
 	return _string;
 }
 
-std::string Table::UpdateValues(std::string _columnToSet, std::string _columnToChange, Type _type, int _number, bool _duplicate)
+std::string Table::UpdateValues(std::string _tableToSet, std::string _columnToChange, Type _type, int _number, bool _duplicate)
 {
 	std::string returnString;
 	if(_number == 0)
 	{
-		returnString = "UPDATE " + _columnToSet + " SET ";
+		returnString = "UPDATE " + _tableToSet + " SET ";
 	}	
 	else if(_number == 1)
 	{

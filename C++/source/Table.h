@@ -48,7 +48,7 @@ class Table
 		void SetGetValueColumn(std::string _columnName, GetValue _value);
 		
 		std::string SetValues(int iterator = 0);
-		std::string UpdateValues(std::string _columnToSet, std::string _columnToChange, Type _type, int _number = 0, bool _duplicate = false);
+		std::string UpdateValues(std::string _tableToSet, std::string _columnToChange, Type _type, int _number = 0, bool _duplicate = false);
 		std::string FormatString(std::string _string);
 	private:
 		std::string m_tableName;

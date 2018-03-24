@@ -80,7 +80,14 @@ int main()
 	{
 		app.GetCurrentPlayers();
 	}
-	
+	else if(input == "9")
+	{
+		app.RecommendPlayersGames("76561197980753852");
+	}
+	else if(input == "11")
+	{
+		app.AddGamesToTable();
+	}
 	
 	
 	

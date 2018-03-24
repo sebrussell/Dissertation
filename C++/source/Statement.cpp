@@ -10,7 +10,7 @@ std::string Statement::Call(std::string _tableName)
 	}
 }
 
-std::string Statement::GetData(std::string _tableName, bool decrypt, std::string _columnToDecrypt, bool getRest)
+std::string Statement::GetData(std::string _tableName, bool decrypt, std::string _columnToDecrypt, bool getRest, std::string getSpecificColumn)
 {
 	if(m_tables[_tableName])
 	{
@@ -22,13 +22,29 @@ std::string Statement::GetData(std::string _tableName, bool decrypt, std::string
 			}
 			else
 			{
-				return "SELECT AES_DECRYPT(" + _columnToDecrypt + ",'" + m_tables[_tableName]->GetKey() + "') FROM " + _tableName;
+				if(getSpecificColumn == "")
+				{
+					return "SELECT AES_DECRYPT(" + _columnToDecrypt + ",'" + m_tables[_tableName]->GetKey() + "') FROM " + _tableName;
+				}
+				else
+				{
+					return "SELECT " + _tableName + "." + getSpecificColumn + ", AES_DECRYPT(" + _columnToDecrypt + ",'" + m_tables[_tableName]->GetKey() + "') FROM " + _tableName;
+				}
+				
 			}
 			
 		}
 		else
 		{
-			return "SELECT * FROM " + _tableName;
+			if(getSpecificColumn == "")
+			{
+				return "SELECT * FROM " + _tableName;
+			}
+			else
+			{
+				return "SELECT " + _tableName + "." + getSpecificColumn + " FROM " + _tableName;
+			}
+			
 		}		
 	}
 	else

@@ -160,6 +160,7 @@ void Application::APIResetter()
 	counter = std::stoi(TextReader::ReadPassword("callamount.txt"));
 	
 	
+	
 	while(true)
 	{
 		if(!dayOver)		
@@ -241,7 +242,9 @@ void Application::APIResetter()
 							counter++;
 							usedEth1 = false;
 							usedEth2 = false;
-							usedEth3 = false;
+							usedEth3 = false;	
+							objMain.CloseConnection();
+							objMain.OpenConnection();
 						}
 					}
 				}
@@ -273,10 +276,12 @@ void Application::APIResetter()
 		}
 		else
 		{
+			objMain.CloseConnection();
 			sleep(55);
 			time = GetTime();		
 			if(time.hour == 14 && time.minute == 0)
 			{
+				objMain.OpenConnection();
 				//RESET API CALL AMOUNT every 24hr
 				call = "TRUNCATE `main`.`APICallCounter`";
 				bRet = objMain.execStatement(call);
@@ -565,6 +570,7 @@ void Application::AddGamesToTable()
 		for(int i = 0; i < m_gameIDs.size(); i++)
 		{
 			//if update succeeds 
+			/*
 			if(UpdateGame(m_gameIDs.at(i)))
 			{
 				//change added to 1
@@ -578,6 +584,22 @@ void Application::AddGamesToTable()
 					std::cout << "ERROR!" << std::endl;
 				}
 			}
+			*/
+			
+			if(CheckSteamIDs(m_gameIDs.at(i)))
+			{
+				//change added to 1
+				m_gameToCheck.lock()->SetIntColumn("GameID", m_gameIDs.at(i));				
+				m_gameToCheck.lock()->SetIntColumn("Added", 1);	
+				call = m_gameToCheck.lock()->UpdateValues("GamesToCheck", "Added", INTEGER);
+				call += m_gameToCheck.lock()->UpdateValues("GamesToCheck", "GameID", INTEGER, 1);
+				bRet = objMain.execStatement(call);				
+				if (!bRet)
+				{					
+					std::cout << "ERROR!" << std::endl;
+				}
+			}
+			
 			//change evaluating to 0
 			m_gameToCheck.lock()->SetIntColumn("GameID", m_gameIDs.at(i));				
 			m_gameToCheck.lock()->SetIntColumn("Evaluating", 0);	
@@ -1615,19 +1637,10 @@ void Application::UpdatePlayers()
 		int playtimeForever, playtime2Weeks;
 	};
 	
-	#ifdef __linux__ 
-		if(clock_gettime(CLOCK_MONOTONIC, &startLinux))
-		{ /* handle error */ }
-	#elif _WIN32
-		start = clock();
-	#else
-		start = clock();
-	#endif
-	
-	deltaTime = 0;	
-	int amount = 0;
-	
+	int amount = 0;	
 	bool run = true;
+	
+	int resetMYSQLConnectionCounter = 0;
 	
 	//check time hasn't reached 1 day and query = >= 100,000k
 	while(run)
@@ -1646,12 +1659,7 @@ void Application::UpdatePlayers()
 			}	
 			objMain.ClearData();
 		}
-
 		
-		
-
-	
-	
 	
 		while(queryAmount < 100000)
 		{
@@ -1703,6 +1711,15 @@ void Application::UpdatePlayers()
 				break;
 			}
 			
+			resetMYSQLConnectionCounter++;			
+			if(resetMYSQLConnectionCounter > 50)
+			{
+				objMain.CloseConnection();
+				objMain.OpenConnection();
+				resetMYSQLConnectionCounter = 0;
+			}
+			
+			
 			int count = 0;
 			call = statement.GetData("PlayersToCheck", true, "SteamID");
 			call += statement.AddNumberCondition("Added", 0);	
@@ -1731,7 +1748,8 @@ void Application::UpdatePlayers()
 			{
 				url += m_playersToAdd.at(i) + ",";
 			}
-			
+			std::cout << resetMYSQLConnectionCounter << std::endl;
+			std::cout << "Set Players To Evaluating" << std::endl;
 			//SET THE PLAYERS YOU ARE CHECKING TO EVALUATING
 			call = "";	
 			if(m_playersToAdd.size() > 2)
@@ -1765,7 +1783,7 @@ void Application::UpdatePlayers()
 
 			
 			
-			
+			std::cout << "Set Players To Data" << std::endl;
 			//get their data
 			jsonSpare = api.GetData(url);
 			queryAmount++;
@@ -1791,7 +1809,7 @@ void Application::UpdatePlayers()
 						locCountryCode = "Unknown";
 					}	
 
-					std::cout << "SteamID: " << steamid << std::endl;
+					std::cout << "SteamID: " << steamid << " Connection Counter: " << resetMYSQLConnectionCounter << std::endl;
 
 					std::map<std::string, int>::iterator it = m_countries.find(locCountryCode);
 					if(it != m_countries.end())
@@ -1822,7 +1840,7 @@ void Application::UpdatePlayers()
 					int mostPlayed2Weeks = 0;
 					std::string mostPlayed2WeeksID = "0";
 						
-								
+					std::cout << "Getting Players Games" << std::endl;			
 					//get all their games			
 					url = "http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=" + api_key + "&steamid=" + steamid + "&include_played_free_games=1&include_appinfo=1&format=json";			
 					jsonData = api.GetData(url);					
@@ -2039,7 +2057,7 @@ void Application::UpdatePlayers()
 								mostPopularCategory = it->first;
 							}
 						}
-						
+						std::cout << "Getting Players Friends" << std::endl;
 						//get all their friends					
 						url = "http://api.steampowered.com/ISteamUser/GetFriendList/v0001/?key=" + api_key + "&steamid=" + steamid + "&relationship=all&format=json";
 						jsonData = api.GetData(url);	
@@ -2079,15 +2097,15 @@ void Application::UpdatePlayers()
 
 						call = m_playersMain.lock()->SetValues();
 						
-						//std::cout << "Adding Player Info" << std::endl;
-						
+						std::cout << "Adding Player Info" << std::endl;
+
 						bRet = objMain.execStatement(call);				
 						if (!bRet)
 						{					
 							std::cout << "ERROR!" << std::endl;
 						}
 						
-						//std::cout << "Adding Games " << m_playerGames.size() << std::endl;
+						std::cout << "Adding Games " << m_playerGames.size() << std::endl;
 						//add games to the database
 						for(int n = 0; n < m_playerGames.size(); n++)
 						{
@@ -2112,7 +2130,7 @@ void Application::UpdatePlayers()
 							std::cout << "ERROR!" << std::endl;
 						}
 						
-						//std::cout << "Adding Friends" << std::endl;
+						std::cout << "Adding Friends" << std::endl;
 						//add friends to the database
 						for(int n = 0; n < m_friends.size(); n++)
 						{
@@ -2164,18 +2182,6 @@ void Application::UpdatePlayers()
 			//remove the players already checked		
 			m_playersToAdd.clear();
 			
-			#ifdef __linux__ 
-			if(clock_gettime(CLOCK_MONOTONIC, &stopLinux))
-				{ /* handle error */ }
-				deltaTime += TimeSpecToSeconds(&stopLinux) - TimeSpecToSeconds(&startLinux);
-			#elif _WIN32
-				stop = clock();
-				deltaTime += ((float)(clock() - start) / CLOCKS_PER_SEC);
-			#else
-				stop = clock();
-				deltaTime += ((float)(clock() - start) / CLOCKS_PER_SEC);
-			#endif
-			
 			m_apiCounter.lock()->SetIntColumn("Value", 1);	
 			for(int z = 0; z < queryAmount; z++)
 			{		
@@ -2196,7 +2202,7 @@ void Application::UpdatePlayers()
 				std::cout << "ERROR!" << std::endl;
 			}	
 			
-			std::cout << "Query Amount: " << queryAmount << " Time Left: " << 86400 - deltaTime << std::endl;
+			std::cout << "Query Amount: " << queryAmount << std::endl;
 		}
 		if(run)
 		{
@@ -2210,15 +2216,8 @@ void Application::UpdatePlayers()
 	
 }
 
-void Application::AssociationRule(std::vector<int> games, float confidenceThreshold)
+std::map<float, MinimumSupport> Application::AssociationRule(std::vector<int> games, float confidenceThreshold)
 {
-	struct MinimumSupport
-	{
-		int gameID1, gameID2, count;
-		float confidence;
-		float lift;
-		float conviction;
-	};
 	
 	std::map<std::string, std::vector<int>> playerData;
 	std::map<int, int> supportValue;
@@ -2226,7 +2225,11 @@ void Application::AssociationRule(std::vector<int> games, float confidenceThresh
 	int threshold = playerData.size() * 0.4; //40%
 	
 	//for every game owned
-	call = statement.GetData("GamesOwned", true, "PlayerID", true);	
+	call = statement.GetData("GamesOwned", true, "PlayerID", false, "GameID");	
+	call += " INNER JOIN Game ON Game.GameID=GamesOwned.GameID WHERE Game.AvailableOnStore=1";
+	call += statement.AddLimit("10000");
+	std::cout << call << std::endl;
+	
 	//call += statement.AddLimit("10000");
 	bRet = objMain.getDataStatement(call);
 	if (!bRet)
@@ -2238,7 +2241,7 @@ void Application::AssociationRule(std::vector<int> games, float confidenceThresh
 		while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
 		{
 			//add the game to a list of games owned by each player
-			playerData[objMain.row[5]].push_back(std::stoi(objMain.row[1]));
+			playerData[objMain.row[1]].push_back(std::stoi(objMain.row[0]));
 		}
 		objMain.ClearData();
 	}
@@ -2343,26 +2346,29 @@ void Application::AssociationRule(std::vector<int> games, float confidenceThresh
 		std::map<int, MinimumSupport>::iterator ruleIT;
 		//td::map<int, std::map<int, MinimumSupport>>::iterator gameIT;
 		
+		//for every player
 		for (std::map<std::string, std::vector<int>>::iterator it = playerData.begin(); it != playerData.end(); it++ )
 		{		
 				
-			//for every person
-			//if they own appID
-			//then for every game add it to the map
-			
+			//for all the games being checked			
 			for(int g = 0; g < games.size(); g++)
 			{
+				//if they own any of the games being checked
 				if ( std::find(it->second.begin(), it->second.end(), games.at(g)) != it->second.end() )
 				{	
+					//they means every game the person owns can be counted towards a rule with the game being checked
 					for(int i = 0; i < it->second.size(); i++)
 					{
+						//if the rule for those 2 games exists
 						ruleIT = supportSpecified[games.at(g)].find(it->second.at(i));
 						if (ruleIT != supportSpecified[games.at(g)].end())
 						{
+							//increase the count of that rule
 							ruleIT->second.count += 1;
 						}	
 						else
 						{
+							//otherwise make a new rule
 							MinimumSupport temp;
 							temp.gameID1 = games.at(g);
 							temp.gameID2 = it->second.at(i);
@@ -2375,7 +2381,7 @@ void Application::AssociationRule(std::vector<int> games, float confidenceThresh
 			}
 			
 			
-			//for all their games
+			//for all their games increase the individual count
 			for(int i = 0; i < it->second.size(); i++)
 			{			
 				supportIT = supportValue.find(it->second.at(i));
@@ -2480,15 +2486,18 @@ void Application::AssociationRule(std::vector<int> games, float confidenceThresh
 	auto finish = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> elapsed = finish - start;
 	
+	std::map<float, MinimumSupport> results;
+	
 	for (std::map<int, std::map<float, MinimumSupport>>::iterator it = ruleScoring.begin(); it != ruleScoring.end(); it++ )
 	{
-		std::cout << "Scoring for " << it->first << std::endl;
+		//std::cout << "Scoring for " << it->first << std::endl;
 		int scoreCount = 0;
 		
 		for (std::map<float, MinimumSupport>::reverse_iterator ruleIT = it->second.rbegin(); ruleIT != it->second.rend(); ruleIT++ )
 		{		
 			scoreCount++;
-			std::cout << ruleIT->second.confidence * 100 << "% of users who buy " << ruleIT->second.gameID1 << " also buy " << ruleIT->second.gameID2 << " with a lift of: " << ruleIT->second.lift << " with a conviction of: " << ruleIT->second.conviction << " with a score of " << ruleIT->first << std::endl;
+			//std::cout << ruleIT->second.confidence * 100 << "% of users who buy " << ruleIT->second.gameID1 << " also buy " << ruleIT->second.gameID2 << " with a lift of: " << ruleIT->second.lift << " with a conviction of: " << ruleIT->second.conviction << " with a score of " << ruleIT->first << std::endl;
+			results[ruleIT->first] = ruleIT->second;	
 			if(scoreCount == 10)
 			{
 				break;
@@ -2501,9 +2510,111 @@ void Application::AssociationRule(std::vector<int> games, float confidenceThresh
 	std::cout << "Time per game: " << elapsed.count() / games.size() << std::endl;
 	
 	
+	return results;
+	
+	
+}
 
+void Application::RecommendPlayersGames(std::string _id)
+{
+	std::vector<int> playersGames;	
+	
+	call = statement.GetData("GamesOwned", false, "GameID", false, "GameID");
+	call += " INNER JOIN Game ON Game.GameID=GamesOwned.GameID WHERE Game.AvailableOnStore=1";
+	call += statement.AddStringCondition("PlayerID", _id, 1, "=", false, "GamesOwned", true);
 	
 	
+	std::cout << call << std::endl;
+	bRet = objMain.getDataStatement(call);
+	if (!bRet)
+	{					
+		std::cout << "ERROR!" << std::endl;
+	}
+	else
+	{
+		while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
+		{
+			//add the game to a list of games owned by each player
+			playersGames.push_back(std::stoi(objMain.row[0]));
+		}
+		objMain.ClearData();
+	}
+	
+	std::map<float, MinimumSupport> results = AssociationRule(playersGames);
+	int scoreCount = 0;
+	for (std::map<float, MinimumSupport>::reverse_iterator ruleIT = results.rbegin(); ruleIT != results.rend(); ruleIT++ )
+	{		
+		scoreCount++;
+		std::cout << ruleIT->second.confidence * 100 << "% of users who buy " << ruleIT->second.gameID1 << " also buy " << ruleIT->second.gameID2 << " with a lift of: " << ruleIT->second.lift << " with a conviction of: " << ruleIT->second.conviction << " with a score of " << ruleIT->first << std::endl;
+		if(scoreCount == 10)
+		{
+			break;
+		}		
+	}
+	
+}
+
+bool Application::CheckSteamIDs(int _gameID)
+{
+	std::string stringGame = std::to_string(_gameID);
+	url =  "http://store.steampowered.com/api/appdetails?appids=" + stringGame;			
+	jsonData = api.GetData(url);
+	std::cout << "Steam Game ID: " << _gameID << std::endl;
+	
+	if(!api.gotData)
+	{
+		return false;
+	}		
+	if(jsonData[stringGame]["success"].asBool() == true)
+	{			
+		m_gameTable.lock()->SetIntColumn("SteamAppID", jsonData[stringGame]["data"]["steam_appid"].asInt());
+		m_gameTable.lock()->SetIntColumn("GameID", _gameID);
+		
+		//if it is not free
+		if(!jsonData[stringGame]["data"]["is_free"].asInt())
+		{
+			//if it has a price
+			if(jsonData[stringGame]["data"].isMember("price_overview"))
+			{
+				if(jsonData[stringGame]["data"]["steam_appid"].asInt() != _gameID)
+				{
+					m_gameTable.lock()->SetIntColumn("AvailableOnStore", 0);
+				}		
+				else
+				{
+					m_gameTable.lock()->SetIntColumn("AvailableOnStore", 1);
+				}
+			}
+			//if it doesnt have a price
+			else
+			{
+				m_gameTable.lock()->SetIntColumn("AvailableOnStore", 0);
+			}			
+		}
+		
+		
+		
+		call = m_gameTable.lock()->UpdateValues("Game", "SteamAppID", INTEGER);
+		call += m_gameTable.lock()->UpdateValues("Game", "GameID", INTEGER, 1);
+		bRet = objMain.execStatement(call);				
+		if (!bRet)
+		{					
+			std::cout << "ERROR!" << std::endl;
+			return false;
+		}
+		
+		call = m_gameTable.lock()->UpdateValues("Game", "AvailableOnStore", INTEGER);
+		call += m_gameTable.lock()->UpdateValues("Game", "GameID", INTEGER, 1);
+		bRet = objMain.execStatement(call);				
+		if (!bRet)
+		{					
+			std::cout << "ERROR!" << std::endl;
+			return false;
+		}
+		
+		return true;
+	}
+
 }
 
 void Application::CountryCodes()
@@ -2576,6 +2687,7 @@ void Application::GetCurrentPlayers()
 		
 		if(getCount)
 		{
+			objMain.OpenConnection();
 			std::cout << "Starting Loading" << std::endl;
 			for(int i = 0; i < gameIDs.size(); i++)
 			{
@@ -2628,6 +2740,7 @@ void Application::GetCurrentPlayers()
 					}
 				}		
 			}
+			objMain.CloseConnection();
 			getCount = false;
 		}		
 	}

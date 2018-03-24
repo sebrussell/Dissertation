@@ -16,18 +16,38 @@ SqlConnector::SqlConnector()
 	//std::cout << "MySQL Password Loaded" << std::endl;
 	
 	//SETUP MYSQL
+	OpenConnection();
 	
-	m_connection = mysql_init(NULL);
+	
 
+}
+
+SqlConnector::~SqlConnector()
+{	
+	CloseConnection();
+	mysql_library_end();
+}
+
+void SqlConnector::OpenConnection()
+{
+	m_connection = mysql_init(NULL);
+	std::string mySqlPassword = TextReader::ReadPassword("..//passwords/MySQL.txt");
+	MY_PASSWORD = mySqlPassword.c_str();
 	if (!mysql_real_connect(m_connection, MY_HOSTNAME, MY_USERNAME, MY_PASSWORD, MY_DATABASE, MY_PORT_NO, MY_SOCKET, MY_OPT)) {
 		std::cout << mysql_error(m_connection) << std::endl;
     }
 }
 
-SqlConnector::~SqlConnector()
+void SqlConnector::CloseConnection()
 {
 	mysql_close(m_connection);
-	mysql_library_end();
+}
+
+void SqlConnector::ResetConnection()
+{
+	std::cout << "Resetting MYSQL Connection" << std::endl;
+	CloseConnection();
+	OpenConnection();
 }
 
 bool SqlConnector::execStatement(std::string statement, bool outputError)
@@ -37,6 +57,7 @@ bool SqlConnector::execStatement(std::string statement, bool outputError)
 			if(outputError)
 			{
 				std::cout << mysql_error(m_connection) << std::endl;
+				ResetConnection();
 			}            
             return false;
         }        
@@ -49,6 +70,7 @@ bool SqlConnector::getDataStatement(std::string statement)
 		
         if (mysql_query(m_connection, statement.c_str())) {
             std::cout << mysql_error(m_connection) << std::endl;
+			ResetConnection();
             return false;
         }
 
