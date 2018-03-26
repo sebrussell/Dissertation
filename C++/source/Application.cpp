@@ -46,6 +46,9 @@ Application::Application()
 	
 	m_apiCounter.lock()->AddColumn("Value", INTEGER);
 	
+	m_gameCountryCount.lock()->AddColumn("GameID", INTEGER);
+	m_gameCountryCount.lock()->AddColumn("CountryID", INTEGER);
+	m_gameCountryCount.lock()->AddColumn("Count", DUPLICATE_ADD);
 	
 	m_playersMain.lock()->AddColumn("SteamID", ENCRYPT);
 	m_playersMain.lock()->AddColumn("PrimaryClan", STRNG);
@@ -95,6 +98,10 @@ Application::Application()
 	
 	m_gamePlayerCount.lock()->AddColumn("GameID", INTEGER);
 	m_gamePlayerCount.lock()->AddColumn("PlayerAmount", INTEGER);
+	
+	m_gameRules.lock()->AddColumn("GameID1", INTEGER);
+	m_gameRules.lock()->AddColumn("GameID2", INTEGER);
+	m_gameRules.lock()->AddColumn("Count", DUPLICATE_ADD);
 		
 	m_alphabet.push_back("Q");
 	m_alphabet.push_back("W");
@@ -177,6 +184,12 @@ void Application::APIResetter()
 			if(networkToUse == "net1")
 			{
 				api_key = TextReader::ReadPassword("..//passwords/API1.txt");
+			}
+			
+			time = GetTime();
+			if(time.hour == 14 && time.minute == 0)
+			{
+				counter = 0;
 			}
 			
 			sleep(15);
@@ -276,6 +289,7 @@ void Application::APIResetter()
 		}
 		else
 		{
+			std::cout << "Day over if statement" << std::endl;
 			objMain.CloseConnection();
 			sleep(55);
 			time = GetTime();		
@@ -2585,6 +2599,145 @@ std::map<float, MinimumSupport> Application::AssociationRule(std::vector<int> ga
 	
 	
 }
+
+void Application::AddingPlayerCount()
+{
+	struct GameIDandCountry
+	{
+		int gameID, country;
+	};
+	
+	std::map<std::string, std::vector<GameIDandCountry>> playerData;
+	
+	int amountOfGamesOwned = 0;
+	
+	call = "Select Count(*) from main.GamesOwned";
+	bRet = objMain.getDataStatement(call);
+	if (!bRet)
+	{					
+		std::cout << "ERROR!" << std::endl;
+	}
+	else
+	{
+		while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
+		{
+			amountOfGamesOwned = std::stoi(objMain.row[0]);
+		}
+		objMain.ClearData();
+	}
+	
+	
+	std::cout << "Amount of Games Owned " << amountOfGamesOwned << std::endl;
+	
+	for(int i = 0; i < amountOfGamesOwned / 500000; i++)
+	{
+		call = "SELECT go.GameID, AES_DECRYPT(go.PlayerID, '" + m_mainTable.lock()->GetKey() + "'), pl.Country FROM main.GamesOwned go INNER JOIN main.Players pl on go.PlayerID = pl.SteamID LEFT JOIN Game gm on gm.GameID = go.GameID WHERE gm.AvailableOnStore = 1 and gm.GameType = 'game'";
+		call += statement.AddLimit("500000");
+		call += " OFFSET " + std::to_string(i * 500000);
+		bRet = objMain.getDataStatement(call);
+		if (!bRet)
+		{					
+			std::cout << "ERROR!" << std::endl;
+		}
+		else
+		{
+			while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
+			{
+				//add the game to a list of games owned by each player
+				GameIDandCountry temp;
+				temp.gameID = std::stoi(objMain.row[0]);
+				temp.country = std::stoi(objMain.row[2]);
+				
+				playerData[objMain.row[1]].push_back(temp);
+			}
+			objMain.ClearData();
+		}
+		
+		std::cout << "Players Counted For " << playerData.size() << std::endl;
+		
+		std::string secondCall = "";
+		
+		auto start = std::chrono::high_resolution_clock::now();
+		
+		for (std::map<std::string, std::vector<GameIDandCountry>>::iterator it=playerData.begin(); it!=playerData.end(); ++it)
+		{		
+			std::cout << it->first << std::endl;
+			
+			
+			call = "INSERT INTO GameCountryCount (GameID, CountryID) VALUES ";
+			
+			for(int i = 0; i < it->second.size(); i++)
+			{
+				call += "(" + std::to_string(it->second.at(i).gameID) + ", " + std::to_string(it->second.at(i).country) + ")";
+				
+				if(i < it->second.size() - 1)
+				{
+					call += ",";
+				}
+				if(i == it->second.size() - 1)
+				{
+					call += " ON DUPLICATE KEY UPDATE Count = Count + 1";
+					bRet = objMain.execStatement(call);
+					if (!bRet)
+					{					
+						std::cout << "ERROR!" << std::endl;
+					}			
+				}
+				
+				
+				
+				
+				for(int j = 0; j < it->second.size(); j++)
+				{					
+					if(j != i)
+					{
+						secondCall += "(" + std::to_string(it->second.at(i).gameID) + ", " + std::to_string(it->second.at(j).gameID) + ", " + std::to_string(it->second.at(i).country) + "),";		
+					}								
+				}	
+				if(secondCall.size() > 100000 && it->second.size() > 1)
+				{
+					SendString(secondCall);
+				}
+			}
+					
+		}
+		
+		
+		auto finish = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double> elapsed = finish - start;
+		
+		std::cout << "Time Taken: " << elapsed.count() << std::endl;
+		std::cout << "Time Taken per Player: " << elapsed.count() / playerData.size() << std::endl;
+		
+		playerData.clear();
+	}
+	
+	
+	
+	
+}
+
+void Application::SendString(std::string& _string)
+{
+	_string = "INSERT INTO GameRules (GameID1, GameID2, CountryID) VALUES " + _string;
+	if(_string[_string.size() - 1] == ',')
+	{
+		_string.erase (_string.end() - 1, _string.end());
+	}
+	_string += " ON DUPLICATE KEY UPDATE Count = Count + 1;";
+	
+	bRet = objMain.execStatement(_string);
+	if (!bRet)
+	{		
+		
+		std::cout << _string << std::endl;
+		std::cout << _string.size() << std::endl;
+		std::cout << "ERROR!" << std::endl;
+	}
+	_string = "";
+}
+
+
 
 void Application::RecommendPlayersGames(std::string _id)
 {

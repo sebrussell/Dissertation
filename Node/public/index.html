@@ -68,7 +68,7 @@ function hi(gameid)
 {		
 	  $.ajax({
 	  type: 'GET',
-	  url: '/getPlayerCountCountry',
+	  url: '/getPlayerCountryPercentDifference',
 	  data: 'id=' + gameid,
 	  success: function(result) {
 		a = JSON.parse(result);
@@ -134,11 +134,12 @@ function drawChart(data, label)
 	
 function temp(result)
 {
-
+	
 	var series = [];
 	
 	for(var k in result[0]) {
-	   var a = [result[0][k]["3LetterCode"], result[0][k]["count"]];
+	   var a = [result[0][k]["3LetterCode"], result[0][k]["Count"]];
+	   //console.log(a);
 	   series.push(a);
 	}
 

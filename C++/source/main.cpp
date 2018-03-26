@@ -4,8 +4,9 @@
 
 
 
-int main()
+int main(int argc, char *argv[])
 {
+	
 	Application app;
 	
 	std::string input;
@@ -17,6 +18,7 @@ int main()
 	//std::cout << "Set PC requirements = 4" << std::endl;
 	std::cout << "Association Rule = 5" << std::endl;
 	std::cout << "Update Player Count = 8" << std::endl;
+	std::cout << "Update Player Country Count = 12" << std::endl;
 	std::cin >> input;
 	
 	app.GetIDTables();
@@ -87,6 +89,10 @@ int main()
 	else if(input == "11")
 	{
 		app.AddGamesToTable();
+	}
+	else if(input == "12")
+	{
+		app.AddingPlayerCount();
 	}
 	
 	

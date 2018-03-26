@@ -87,6 +87,28 @@ app.get('/getPlayerCountCountry', function(req, res) {
     })
 });
 
+app.get('/getPlayerCountryPercent', function(req, res) {
+    store
+    .getPlayerCountryPercent({
+      gameid: req.param('id'),
+    })
+    .then(data => {		
+		//console.log(data)
+		res.send(JSON.stringify(data));
+    })
+});
+
+app.get('/getPlayerCountryPercentDifference', function(req, res) {
+    store
+    .getPlayerPercentageDifference({
+      gameid: req.param('id'),
+    })
+    .then(data => {		
+		//console.log(data)
+		res.send(JSON.stringify(data));
+    })
+});
+
 app.get('/getPlayerCountDay', function(req, res) {
     store
     .getPlayerAmountDay({

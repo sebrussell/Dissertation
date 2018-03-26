@@ -103,6 +103,11 @@ class Application
 		
 		void RecommendPlayersGames(std::string _id);
 		
+		void AddingPlayerCount();
+		void SendString(std::string& _string);
+		
+		void AssociationRuleForAllGames();
+		
 		//READ COUNTRY CODES IN
 		void CountryCodes();
 		
@@ -169,6 +174,10 @@ class Application
 		std::weak_ptr<Table> m_gamePlayerCount = statement.CreateTable("GamePlayerCount");
 		
 		std::weak_ptr<Table> m_apiCounter = statement.CreateTable("APICallCounter");
+		
+		
+		std::weak_ptr<Table> m_gameCountryCount = statement.CreateTable("GameCountryCount");
+		std::weak_ptr<Table> m_gameRules = statement.CreateTable("GameRules");
 		
 		
 		std::weak_ptr<Table> m_playersMain = statement.CreateTable("Players");
