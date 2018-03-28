@@ -23,6 +23,7 @@
 #include <ctime>
 #include <time.h>
 #include <fstream>
+#include <stdio.h>
 
 
 #include "SteamApi.h"

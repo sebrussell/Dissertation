@@ -4,7 +4,7 @@
 
 SqlConnector::SqlConnector()
 {	
-	MY_HOSTNAME = "54.37.19.153";
+	MY_HOSTNAME = "54.37.0.151";
 	//MY_HOSTNAME = "localhost";
     MY_DATABASE = "main";
     MY_USERNAME = "seb";
@@ -31,8 +31,13 @@ SqlConnector::~SqlConnector()
 void SqlConnector::OpenConnection()
 {
 	m_connection = mysql_init(NULL);
+	
+	
 	std::string mySqlPassword = TextReader::ReadPassword("..//passwords/MySQL.txt");
 	MY_PASSWORD = mySqlPassword.c_str();
+	
+	mysql_options( m_connection, MYSQL_OPT_LOCAL_INFILE, 0 );
+	
 	if (!mysql_real_connect(m_connection, MY_HOSTNAME, MY_USERNAME, MY_PASSWORD, MY_DATABASE, MY_PORT_NO, MY_SOCKET, MY_OPT)) {
 		std::cout << mysql_error(m_connection) << std::endl;
     }

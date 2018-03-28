@@ -89,20 +89,18 @@ function chart(gameid)
 	success: function(result) {	
 		json = JSON.parse(result);
 		console.log(json);
-		for(var k in json) {		   
-		   data.push(json[k]["PlayerAmount"]);
-		   label.push(json[k]["Time"]);
-		}			
+		for(var k in json[0]) {		   
+		   data.push(json[0][k]["PlayerAmount"]);
+		   label.push(json[0][k]["Date"].substring(0, 10));
+		}	
 		drawChart(data, label);
 	},
 	});
+	
 };
 
 function drawChart(data, label)
 {
-	console.log(data)
-	
-	
 	var ctx = document.getElementById("myChart");
 	var myChart = new Chart(ctx, {
 		type: 'line',
@@ -153,11 +151,20 @@ function temp(result)
     var onlyValues = series.map(function(obj){ return obj[1]; });
     var minValue = Math.min.apply(null, onlyValues),
             maxValue = Math.max.apply(null, onlyValues);
+
     // create color palette function
     // color can be whatever you wish
-    var paletteScale = d3.scale.linear()
-            .domain([minValue,maxValue])
-            .range(["#EFEFFF","#02386F"]); // blue color
+    //var paletteScale = d3.scale.linear()
+    //        .domain([minValue,maxValue])
+    //        .range(["#ff0000","#00ff00"]); // blue color
+			
+			
+	var paletteScale = d3.scale.threshold()
+			.domain([0,1])
+			.range(["#ff0000","#00ff00"]);
+			
+			
+			//.range(["#EFEFFF","#02386F"]); // blue color
     // fill dataset in appropriate format
     series.forEach(function(item){ //
         // item example value ["USA", 70]
