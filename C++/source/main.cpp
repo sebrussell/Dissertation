@@ -19,6 +19,8 @@ int main(int argc, char *argv[])
 	std::cout << "Association Rule = 5" << std::endl;
 	std::cout << "Update Player Count = 8" << std::endl;
 	std::cout << "Update Player Country Count = 12" << std::endl;
+	std::cout << "Update Players with Large Amounts of Games = 13" << std::endl;
+	std::cout << "Calculate player percent for games = 14" << std::endl;
 	std::cin >> input;
 	
 	app.GetIDTables();
@@ -94,7 +96,14 @@ int main(int argc, char *argv[])
 	{
 		app.AddingPlayerCount();
 	}
-	
+	else if(input == "13")
+	{
+		app.AddHighPlayerCount();
+	}
+	else if(input == "14")
+	{
+		app.CalculatePercentagesForGames();
+	}
 	
 	
 	//app.UpdateGameCheckerTable();

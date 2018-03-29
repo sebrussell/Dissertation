@@ -2617,8 +2617,24 @@ void Application::AddingPlayerCount()
 	std::cin >> iteration;
 	
 	
+	
+	
 	std::string itNumber = iteration;
-	std::string fileName = "data" + iteration + ".csv";
+	std::string fileName = "/tmp/data" + iteration + ".csv";
+	
+	if( std::remove( fileName.c_str() ) != 0 )
+	{
+		std::cout << "Error deleting file" << std::endl;
+	}
+	
+	if(iteration == "1")
+	{
+		iteration = "< 11";
+	}	
+	if(iteration == "2")
+	{
+		iteration = "> 10";
+	}
 	
 	std::ofstream myfile;
     
@@ -2627,8 +2643,9 @@ void Application::AddingPlayerCount()
 	bool runProgram = true;
 	
 	int programCounter = 0;
+
+	programCounter = std::stoi(TextReader::ReadPassword("programCounter.txt"));
 	
-	//252000
 	while(runProgram)
 	{		
 		if(TextReader::ReadPassword("run.txt") == "0")
@@ -2638,9 +2655,9 @@ void Application::AddingPlayerCount()
 		}
 
 
-		call = "SELECT go.GameID, AES_DECRYPT(go.PlayerID, '" + m_mainTable.lock()->GetKey() + "'), pl.Country FROM main.GamesOwned go INNER JOIN main.Players pl on go.PlayerID = pl.SteamID LEFT JOIN Game gm on gm.GameID = go.GameID WHERE gm.AvailableOnStore = 1 and gm.GameType = 'game' and pl.UpdatingGroup=" + iteration;
-		call += statement.AddLimit("5000");
-		call += " OFFSET " + std::to_string((programCounter * 5000) - offSetOfLastPlayer);
+		call = "SELECT go.GameID, AES_DECRYPT(go.PlayerID, '" + m_mainTable.lock()->GetKey() + "'), pl.Country FROM main.GamesOwned go INNER JOIN main.Players pl on go.PlayerID = pl.SteamID LEFT JOIN Game gm on gm.GameID = go.GameID WHERE gm.AvailableOnStore = 1 and gm.GameType = 'game'"; // and pl.UpdatingGroup" + iteration;
+		call += statement.AddLimit("25000");
+		call += " OFFSET " + std::to_string((programCounter * 25000) - offSetOfLastPlayer);
 		bRet = objMain.getDataStatement(call);
 		if (!bRet)
 		{					
@@ -2677,7 +2694,9 @@ void Application::AddingPlayerCount()
 
 		std::cout << "Offset of last player (inorder so all rules are accounted for): " << offSetOfLastPlayer << std::endl;
 		
-		std::cout << "Players Counted For " << playerData.size() << std::endl;		
+		std::cout << "Players Counted For " << playerData.size() << std::endl;	
+		
+		std::cout << "Program Counter " << programCounter << std::endl;		
 		
 		std::string secondCall = "";
 		
@@ -2689,83 +2708,147 @@ void Application::AddingPlayerCount()
 		
 		for (std::map<std::string, std::vector<GameIDandCountry>>::iterator it=playerData.begin(); it!=std::prev(playerData.end()); ++it)
 		{		
-			counter++;
-			std::cout << counter << " " << it->first << std::endl;
-			
-			
-			start = std::chrono::high_resolution_clock::now();
-			
-			call = "INSERT INTO GameCountryCount (GameID, CountryID) VALUES ";
-			
-			for(int i = 0; i < it->second.size(); i++)
-			{				
-				call += "(" + std::to_string(it->second.at(i).gameID) + ", " + std::to_string(it->second.at(i).country) + ")";
-				
-				if(i < it->second.size() - 1)
-				{
-					call += ",";
-				}
-				if(i == it->second.size() - 1)
-				{
-					call += " ON DUPLICATE KEY UPDATE Count = Count + 1";
-					bRet = objMain.execStatement(call);
-					if (!bRet)
-					{					
-						std::cout << "ERROR!" << std::endl;
-					}			
-				}
+			if(it->second.size() < 300)
+			{
+				counter++;
+				//std::cout << counter << " " << it->first << std::endl;
 				
 				
+				start = std::chrono::high_resolution_clock::now();
 				
+				call = "INSERT INTO GameCountryCount (GameID, CountryID) VALUES ";
 				
-				for(int j = 0; j < it->second.size(); j++)
-				{					
-					if(j != i)
+				for(int i = 0; i < it->second.size(); i++)
+				{				
+					call += "(" + std::to_string(it->second.at(i).gameID) + ", " + std::to_string(it->second.at(i).country) + ")";
+					
+					if(i < it->second.size() - 1)
 					{
-						//secondCall += "(" + std::to_string(it->second.at(i).gameID) + ", " + std::to_string(it->second.at(j).gameID) + ", " + std::to_string(it->second.at(i).country) + "),";	
-						myfile << std::to_string(it->second.at(i).gameID) + ", " + std::to_string(it->second.at(j).gameID) + ", " + std::to_string(it->second.at(i).country) << std::endl;
-					}								
+						call += ",";
+					}
+					if(i == it->second.size() - 1)
+					{
+						call += " ON DUPLICATE KEY UPDATE Count = Count + 1";
+						bRet = objMain.execStatement(call);
+						if (!bRet)
+						{					
+							std::cout << "ERROR!" << std::endl;
+						}			
+					}
+					
+					
+					
+					
+					for(int j = 0; j < it->second.size(); j++)
+					{					
+						if(j != i)
+						{
+							//secondCall += "(" + std::to_string(it->second.at(i).gameID) + ", " + std::to_string(it->second.at(j).gameID) + ", " + std::to_string(it->second.at(i).country) + "),";	
+							myfile << std::to_string(it->second.at(i).gameID) + ", " + std::to_string(it->second.at(j).gameID) + ", " + std::to_string(it->second.at(i).country) << std::endl;
+						}								
+					}
 				}
-			}					
+			}
+			else
+			{
+				call = "Insert into main.PlayersNotAdded (SteamID) VALUES (AES_ENCRYPT('" + it->first + "','" + m_mainTable.lock()->GetKey() + "'));";
+				//std::cout << call << std::endl;
+				bRet = objMain.execStatement(call);
+				if (!bRet)
+				{					
+					std::cout << "ERROR!" << std::endl;
+				}
+			}
+					
 		}
 		
 		myfile.close();
 		
+		bool completed = false;
 		
-		call = "LOAD DATA INFILE '/mnt/device2/Dissertation/build/" + fileName + "' INTO TABLE HoldingTable" + itNumber + " FIELDS TERMINATED BY ',';"; // OPTIONALLY ENCLOSED BY '"' (GameID1, GameID2, CountryID);
-		std::cout << call << std::endl;
+		
+		call = "set unique_checks = 0, foreign_key_checks = 0, sql_log_bin=0;";
 		bRet = objMain.execStatement(call);
 		if (!bRet)
 		{					
 			std::cout << "ERROR!" << std::endl;
 		}
 		
-		call = "INSERT INTO GameRules (GameID1, GameID2, CountryID) SELECT GameID1, GameID2, CountryID FROM main.HoldingTable1 ON DUPLICATE KEY UPDATE GameID1 = VALUES(GameID1), GameID2 = VALUES(GameID2), CountryID = VALUES(CountryID), Count = Count + 1;";
-		std::cout << call << std::endl;
-		bRet = objMain.execStatement(call);
-		if (!bRet)
-		{					
-			std::cout << "ERROR!" << std::endl;
+		
+		while(completed == false)
+		{
+			
+			call = "LOAD DATA INFILE '" + fileName + "' INTO TABLE HoldingTable" + itNumber + " FIELDS TERMINATED BY ',';"; // OPTIONALLY ENCLOSED BY '"' (GameID1, GameID2, CountryID);
+			std::cout << call << std::endl;
+			bRet = objMain.execStatement(call);
+			if (!bRet)
+			{					
+				std::cout << "ERROR!" << std::endl;
+			}
+			else
+			{
+				completed = true;
+			}
 		}
 		
-		auto finish = std::chrono::high_resolution_clock::now();
-		std::chrono::duration<double> elapsed = finish - start;
-		
-		std::cout << "Time Taken: " << elapsed.count() << std::endl;
-		std::cout << "Time Taken per Player: " << elapsed.count() / playerData.size() << std::endl;
-		
-		call = "TRUNCATE HoldingTable" + itNumber;
-		bRet = objMain.execStatement(call);
-		if (!bRet)
-		{					
-			std::cout << "ERROR!" << std::endl;
+		while(completed == false)
+		{		
+			call = "set unique_checks = 1, foreign_key_checks = 1, sql_log_bin=1;";
+			bRet = objMain.execStatement(call);
+			if (!bRet)
+			{					
+				std::cout << "ERROR!" << std::endl;
+			}
+			else
+			{
+				completed = true;
+			}
 		}
+		
+		completed = false;
+		while(completed == false)
+		{
+			call = "INSERT INTO GameRules (GameID1, GameID2, CountryID) SELECT GameID1, GameID2, CountryID FROM main.HoldingTable1 ON DUPLICATE KEY UPDATE GameID1 = VALUES(GameID1), GameID2 = VALUES(GameID2), CountryID = VALUES(CountryID), Count = Count + 1;";
+			std::cout << call << std::endl;
+			bRet = objMain.execStatement(call);
+			if (!bRet)
+			{					
+				std::cout << "ERROR!" << std::endl;
+			}
+			else
+			{
+				completed = true;
+			}
+		}
+		
+		completed = false;
+		while(completed == false)
+		{
+			call = "TRUNCATE HoldingTable" + itNumber;
+			bRet = objMain.execStatement(call);
+			if (!bRet)
+			{					
+				std::cout << "ERROR!" << std::endl;
+			}
+			else
+			{
+				completed = true;
+			}
+		}		
+		
 		
 		
 		if( std::remove( fileName.c_str() ) != 0 )
 		{
 			std::cout << "Error deleting file" << std::endl;
 		}
+		
+		
+		auto finish = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double> elapsed = finish - start;
+		
+		std::cout << "Time Taken: " << elapsed.count() << std::endl;
+		std::cout << "Time Taken per Player: " << elapsed.count() / playerData.size() << std::endl;
 		
 		//delete file
 		
@@ -2798,7 +2881,201 @@ void Application::SendString(std::string& _string)
 	_string = "";
 }
 
-
+void Application::AddHighPlayerCount()
+{
+	bool processed = false;
+	std::ofstream myfile;
+	
+	struct PlayerInfo
+	{
+		std::string SteamID, CountryID;
+	};
+	
+	std::vector<PlayerInfo> m_players;
+	
+	std::string fileName = "/tmp/bigData.csv";
+	
+	while(processed == false)
+	{
+		call = "Select AES_DECRYPT(na.SteamID,'" + m_mainTable.lock()->GetKey() + "'), pl.Country FROM main.PlayersNotAdded na JOIN main.Players pl on na.SteamID = pl.SteamID where Added = 0 LIMIT 10;";
+		bRet = objMain.getDataStatement(call);
+		if (!bRet)
+		{					
+			std::cout << "ERROR!" << std::endl;
+		}
+		else
+		{
+			while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
+			{
+				PlayerInfo temp;
+				temp.SteamID = objMain.row[0];
+				temp.CountryID = objMain.row[1];
+				m_players.push_back(temp);
+			}
+			objMain.ClearData();
+		}
+		
+		if(m_players.size() == 0)
+		{
+			processed = true;
+			break;
+		}
+		
+		std::cout << m_players.size() << std::endl;
+		
+		std::vector<std::string> playerGames;
+		
+		for(int i = 0; i < m_players.size(); i++)
+		{
+			myfile.open (fileName);
+			
+			call = "Select go.GameID from main.GamesOwned go JOIN main.Game g on go.GameID = g.GameID where AvailableOnStore = 1 and go.PlayerID=AES_ENCRYPT(" + m_players.at(i).SteamID + ",'" + m_mainTable.lock()->GetKey() + "');";
+			bRet = objMain.getDataStatement(call);
+			if (!bRet)
+			{					
+				std::cout << "ERROR!" << std::endl;
+			}
+			else
+			{
+				while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
+				{
+					playerGames.push_back(objMain.row[0]);
+				}
+				objMain.ClearData();
+			}
+			
+			call = "INSERT INTO GameCountryCount (GameID, CountryID) VALUES ";
+			
+			for(int g = 0; g < playerGames.size(); g++)
+			{			
+	
+				call += "(" + playerGames.at(g) + ", " + m_players.at(i).CountryID + ")";
+				
+				if(g < playerGames.size() - 1)
+				{
+					call += ",";
+				}
+				if(g == playerGames.size() - 1)
+				{
+					call += " ON DUPLICATE KEY UPDATE Count = Count + 1";
+					bRet = objMain.execStatement(call);
+					if (!bRet)
+					{					
+						std::cout << "ERROR!" << std::endl;
+					}			
+				}
+				
+				for(int j = 0; j < playerGames.size(); j++)
+				{					
+					if(j != i)
+					{						
+						myfile << playerGames.at(g) + ", " + playerGames.at(j) + ", " + m_players.at(i).CountryID << std::endl;
+					}								
+				}
+			
+			}
+			
+			myfile.close();
+			
+			call = "set unique_checks = 0, foreign_key_checks = 0, sql_log_bin=0;";
+			bRet = objMain.execStatement(call);
+			if (!bRet)
+			{					
+				std::cout << "ERROR!" << std::endl;
+			}
+			
+			bool completed = false;
+			while(completed == false)
+			{
+				
+				call = "LOAD DATA INFILE '" + fileName + "' INTO TABLE HoldingTableBigPlayers FIELDS TERMINATED BY ',';"; // OPTIONALLY ENCLOSED BY '"' (GameID1, GameID2, CountryID);
+				std::cout << call << std::endl;
+				bRet = objMain.execStatement(call);
+				if (!bRet)
+				{					
+					std::cout << "ERROR!" << std::endl;
+				}
+				else
+				{
+					completed = true;
+				}
+			}
+			
+			while(completed == false)
+			{		
+				call = "set unique_checks = 1, foreign_key_checks = 1, sql_log_bin=1;";
+				bRet = objMain.execStatement(call);
+				if (!bRet)
+				{					
+					std::cout << "ERROR!" << std::endl;
+				}
+				else
+				{
+					completed = true;
+				}
+			}
+			
+			completed = false;
+			while(completed == false)
+			{
+				call = "INSERT INTO GameRules (GameID1, GameID2, CountryID) SELECT GameID1, GameID2, CountryID FROM main.HoldingTableBigPlayers ON DUPLICATE KEY UPDATE GameID1 = VALUES(GameID1), GameID2 = VALUES(GameID2), CountryID = VALUES(CountryID), Count = Count + 1;";
+				std::cout << call << std::endl;
+				bRet = objMain.execStatement(call);
+				if (!bRet)
+				{					
+					std::cout << "ERROR!" << std::endl;
+				}
+				else
+				{
+					completed = true;
+				}
+			}
+			
+			completed = false;
+			while(completed == false)
+			{
+				call = "TRUNCATE HoldingTableBigPlayers";
+				bRet = objMain.execStatement(call);
+				if (!bRet)
+				{					
+					std::cout << "ERROR!" << std::endl;
+				}
+				else
+				{
+					completed = true;
+				}
+			}		
+			
+			
+			completed = false;
+			while(completed == false)
+			{
+				call = "UPDATE main.PlayersNotAdded SET Added = 1 WHERE SteamID = AES_ENCRYPT(" + m_players.at(i).SteamID + ",'" + m_mainTable.lock()->GetKey() + "');";
+				bRet = objMain.execStatement(call);
+				if (!bRet)
+				{					
+					std::cout << "ERROR!" << std::endl;
+				}
+				else
+				{
+					completed = true;
+				}
+			}
+			
+			if( std::remove( fileName.c_str() ) != 0 )
+			{
+				std::cout << "Error deleting file" << std::endl;
+			}
+			
+			
+			playerGames.clear();
+		}
+		m_players.clear();
+	}
+	
+	
+	
+}
 
 void Application::RecommendPlayersGames(std::string _id)
 {
@@ -2838,6 +3115,132 @@ void Application::RecommendPlayersGames(std::string _id)
 	}
 	
 }
+
+
+void Application::CalculatePercentagesForGames()
+{	
+	std::map<int, double> countryPercent;
+	std::vector<int> availableGames;
+	
+	call = "SELECT Country,COUNT(*) as count FROM Players GROUP BY Country";
+	bRet = objMain.getDataStatement(call);
+	if (!bRet)
+	{					
+		std::cout << "ERROR!" << std::endl;
+	}
+	else
+	{
+		while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
+		{
+			countryPercent[std::stoi(objMain.row[0])] = std::stoi(objMain.row[1]);
+		}
+		objMain.ClearData();
+	}
+	
+	int totalPlayerAmount = 0;
+	
+	for (std::map<int, double>::iterator it = countryPercent.begin(); it != countryPercent.end(); it++)
+	{
+		totalPlayerAmount += it->second;
+	}
+	
+	std::cout << "Total Players: " << totalPlayerAmount << std::endl;
+	
+	for (std::map<int, double>::iterator it = countryPercent.begin(); it != countryPercent.end(); it++)
+	{		
+		it->second = it->second / totalPlayerAmount * 100;
+	}
+	
+	call = "SELECT GameID FROM main.Game where AvailableOnStore = 1 and GameType = 'game'";
+	bRet = objMain.getDataStatement(call);
+	if (!bRet)
+	{					
+		std::cout << "ERROR!" << std::endl;
+	}
+	else
+	{
+		while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
+		{			
+			availableGames.push_back(std::stoi(objMain.row[0]));
+		}
+		objMain.ClearData();
+	}
+	
+	std::cout << "Total Games: " << availableGames.size() << std::endl;
+
+	int totalAmountOfPlayersForGame = 0;
+	//availableGames.size()
+	for(int i = 0; i < availableGames.size(); i++)
+	{
+		
+		std::cout << availableGames.at(i) << std::endl;
+		bool valid = true;
+		
+		call = "SELECT Sum(Count) FROM main.GameCountryCount WHERE GameID = " + std::to_string(availableGames.at(i)) + ";";
+		
+		bRet = objMain.getDataStatement(call);
+		if (!bRet)
+		{					
+			std::cout << "ERROR!" << std::endl;
+		}
+		else
+		{
+			while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
+			{
+				if(objMain.row[0] == NULL)
+				{
+					valid = false;
+				}
+				else
+				{
+					totalAmountOfPlayersForGame = std::stoi(objMain.row[0]);
+				}				
+			}
+			objMain.ClearData();
+		}
+		
+		if(valid)
+		{
+			std::string updateString = "INSERT INTO GameCountryCount (GameID,CountryID,Percentage,RelativePercentage) VALUES ";
+			double percentage, relative;
+			
+			
+			call = "SELECT * FROM main.GameCountryCount WHERE GameID = " + std::to_string(availableGames.at(i)) + ";";
+			bRet = objMain.getDataStatement(call);
+			if (!bRet)
+			{					
+				std::cout << "ERROR!" << std::endl;
+			}
+			else
+			{
+				while ((objMain.row = mysql_fetch_row(objMain.m_result)) != NULL)
+				{
+					percentage = ((double)std::stoi(objMain.row[2]) / totalAmountOfPlayersForGame) * 100;
+					relative = percentage - countryPercent[std::stoi(objMain.row[1])];
+					updateString += "(" + std::to_string(availableGames.at(i)) + "," + objMain.row[1] + "," + std::to_string(percentage) + "," + std::to_string(relative) + "),";
+				}
+				objMain.ClearData();
+			}
+			
+			if(updateString[updateString.size() - 1] == ',')
+			{
+				updateString.erase (updateString.end() - 1, updateString.end());
+			}
+			updateString += " ON DUPLICATE KEY UPDATE GameID=VALUES(GameID),CountryID=VALUES(CountryID),Percentage=VALUES(Percentage),RelativePercentage=VALUES(RelativePercentage);";
+			//std::cout << updateString << std::endl;
+			bRet = objMain.execStatement(updateString);
+			if (!bRet)
+			{					
+				std::cout << updateString << std::endl;
+				std::cout << updateString.size() << std::endl;
+				std::cout << "ERROR!" << std::endl;
+			}
+		}
+	}
+	
+}
+
+
 
 bool Application::CheckSteamIDs(int _gameID)
 {
@@ -2962,6 +3365,18 @@ void Application::GetCurrentPlayers()
 		sleep(50);
 		TimeStruct time = GetTime();		
 		if(time.hour == 17 && time.minute == 30)
+		{
+			getCount = true;
+		}
+		if(time.hour == 23 && time.minute == 30)
+		{
+			getCount = true;
+		}
+		if(time.hour == 5 && time.minute == 30)
+		{
+			getCount = true;
+		}
+		if(time.hour == 11 && time.minute == 30)
 		{
 			getCount = true;
 		}

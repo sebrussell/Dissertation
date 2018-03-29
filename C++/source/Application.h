@@ -106,6 +106,9 @@ class Application
 		
 		void AddingPlayerCount();
 		void SendString(std::string& _string);
+		void AddHighPlayerCount();
+		
+		void CalculatePercentagesForGames();
 		
 		void AssociationRuleForAllGames();
 		
