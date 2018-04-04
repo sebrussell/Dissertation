@@ -65,6 +65,24 @@ app.get('/getGame', function(req, res) {
     })
 });
 
+app.get('/getGames', function(req, res) {
+    store
+    .getGames()
+    .then(data => {		
+		res.send(JSON.stringify(data));
+    })
+});
+
+app.get('/getAssocationRules', function(req, res) {
+    store
+    .getAssocationRules({
+      gameid: req.param('id'),
+    })
+    .then(data => {		
+		res.send(JSON.stringify(data));
+    })
+});
+
 app.get('/getPlayersGames', function(req, res) {
     store
     .getPlayersGames({
@@ -119,6 +137,50 @@ app.get('/getPlayerCountDay', function(req, res) {
 		res.send(JSON.stringify(data));
     })
 });
+
+app.get('/getRulePercentage', function(req, res) {
+    store
+    .getRulePercentage()
+    .then(data => {		
+		//console.log(data)
+		res.send(JSON.stringify(data));
+    })
+});
+
+app.get('/getbigplayerstatus', function(req, res) {
+    store
+    .getBigPlayersStatus()
+    .then(data => {		
+		//console.log(data)
+		res.send(JSON.stringify(data));
+    })
+});
+
+app.post('/startbigplayers', (req, res) => {
+  store
+    .startBigPlayers()
+    .then(data => {	
+		res.status(200).send(data)
+    })
+})
+
+app.post('/stopbigplayers', (req, res) => {
+  store
+    .stopBigPlayers()
+    .then(data => {	
+		res.status(200).send(data)
+    })
+})
+
+app.get('/test', function(req, res) {
+  store
+    .recommendGames({
+		steamid: req.param('id'),
+	})
+    .then(data => {	
+		res.send(JSON.stringify(data));
+    })
+})
 
 app.listen(80, () => {
   console.log('Server running on http://localhost:80')

@@ -21,6 +21,7 @@ int main(int argc, char *argv[])
 	std::cout << "Update Player Country Count = 12" << std::endl;
 	std::cout << "Update Players with Large Amounts of Games = 13" << std::endl;
 	std::cout << "Calculate player percent for games = 14" << std::endl;
+	std::cout << "Rule scoring = 15" << std::endl;
 	std::cin >> input;
 	
 	app.GetIDTables();
@@ -103,6 +104,14 @@ int main(int argc, char *argv[])
 	else if(input == "14")
 	{
 		app.CalculatePercentagesForGames();
+	}
+	else if(input == "15")
+	{
+		app.RuleScoringOnDatabase();
+	}
+	else if(input == "16")
+	{
+		app.SizeTest();
 	}
 	
 	

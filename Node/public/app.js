@@ -35,7 +35,7 @@ GetGame.addEventListener('submit', (e) => {
 
 	
 })
-*/
+
 const GetPlayerGames = document.querySelector('.GetPlayersGames')
 GetPlayerGames.addEventListener('submit', (e) => {
   e.preventDefault()
@@ -63,14 +63,14 @@ GetPlayerGames.addEventListener('submit', (e) => {
 			{
 				image.src = json[exKey].HeaderImage
 			} 
-			*/
+			
 			
 		}
 		
 		container.appendChild(docFrag);
 	});	
 })
-
+*/
 function post (path, data) {
   return window.fetch(path, {
     method: 'POST',

@@ -112,6 +112,8 @@ class Application
 		
 		void AssociationRuleForAllGames();
 		
+		void RuleScoringOnDatabase();
+		
 		//READ COUNTRY CODES IN
 		void CountryCodes();
 		
@@ -124,6 +126,8 @@ class Application
 		bool CheckSteamIDs(int _gameID);
 		
 		TimeStruct GetTime();
+		
+		void SizeTest();
 		
 		//EVALUATES MOST COMMON WORDS IN PC REQUIREMENTS
 		void EvaluatePCRequirements();

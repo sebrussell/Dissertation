@@ -25,36 +25,141 @@
     <input type="submit" value="Get Game">
   </form>
   
-  <img src="http://cdn.akamai.steamstatic.com/steam/apps/10/header.jpg?t=1512411844" id="test">
+  
   -->
+  
 <form class="GetGameInfo">
     <h1>Get Game Info</h1>
-    <input type="text" class="gameid" placeholder="Game ID" id="gameid">
-    <input type="button" value="Get Info" id="gameidbutton" onclick="controller()">
-
-	<input type="radio" name="value" value="Percentage"> Percentage<br>
-	<input type="radio" name="value" value="Actual"> Actual<br>
-	<input type="radio" name="value" value="WeightedPercentage"> Weighted
-
+	<body onload="autoComplete()"></body>
+	<input id="basics" />
+	<img src="" id="gameImage">
 </form>
 
+
+<div id="playerCountStorage">
 <canvas id="myChart" width="400" height="40"></canvas>
+</div>
 
 <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"></script>
-<script src="datamaps.world.min.js"></script>
-<div id="container" style="position: relative; width: 1000px; height: 600px;">
+<script src="/datamaps/dist/datamaps.world.min.js"></script>
+
+
+<div id="datamapStorage" style="position: relative; width: 1000px; height: 600px;">
 <img src="loading.gif" alt="Loading" id="loading">
 </div>
+
+<div id="assocationRules"></div>
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script type="text/javascript" ></script>
 <script src="/chart.js/dist/Chart.js"></script>
+
+<script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+<script src="/easy-autocomplete/dist/jquery.easy-autocomplete.min.js"></script> 
+<link rel="stylesheet" href="/easy-autocomplete/dist/easy-autocomplete.min.css"> 
+<link rel="stylesheet" href="/easy-autocomplete/dist/easy-autocomplete.themes.min.css"> 
 
 <script>
 
 var loadingImage = document.getElementById("loading");
 
 var radioButton = document.getElementById("radio");
+
+function autoComplete()
+{
+	$.ajax({
+	  type: 'GET',
+	  url: '/getGames',
+	  success: function(result) {
+		a = JSON.parse(result);
+		addDataToAutoComplete(a);	
+	  },
+	});
+}
+
+function addDataToAutoComplete(_data)
+{	
+	var options = {
+		data:  _data[0],		
+		
+		getValue: "GameName",
+		
+		list: {
+			match: {
+				enabled: true
+			},
+			showAnimation: {
+				type: "fade", //normal|slide|fade
+				time: 400,
+				callback: function() {}
+			},
+
+			hideAnimation: {
+				type: "slide", //normal|slide|fade
+				time: 400,
+				callback: function() {}
+			},
+			onClickEvent: function() {
+				var id = $("#basics").getSelectedItemData();
+				outputGameID(id.GameID, id.HeaderImage);
+			},
+			onKeyEnterEvent: function() {
+				var id = $("#basics").getSelectedItemData();
+				outputGameID(id.GameID, id.HeaderImage);
+			}
+		},
+		
+		template: {
+			type: "custom",
+			method: function(value, item) {
+				//return "<img src='" + item.icon + "' /> | " + item.type + " | " + value;
+				return value;
+			}
+		}
+	};
+
+	$("#basics").easyAutocomplete(options);
+}
+
+
+function outputGameID(id, imageUrl)
+{
+	hi(id);
+	chart(id);
+	showGameImage(imageUrl);
+	getAssocationRules(id);
+}
+
+function getAssocationRules(id)
+{
+	$.ajax({
+	  type: 'GET',
+	  url: '/getAssocationRules',
+	  data: 'id=' + id,
+	  success: function(result) {
+		a = JSON.parse(result);
+		appendAssocationRulesToDocument(a);
+	  },
+	  });
+}
+
+function appendAssocationRulesToDocument(json)
+{
+	var div = document.getElementById("assocationRules");
+
+	for(var k in json[0]) {
+		var elem = document.createElement("img");
+		elem.src = json[0][k]["HeaderImage"];
+		div.appendChild(elem);
+	}
+}
+
+function showGameImage(url)
+{
+	var image = document.getElementById('gameImage');
+	image.src = url;
+}
 
 function controller()
 {
@@ -63,6 +168,33 @@ function controller()
 	chart(value.value);
 }
 
+function rulePercent()
+{
+	$.ajax({
+	  type: 'GET',
+	  url: '/getRulePercentage',
+	  success: function(result) {
+		a = JSON.parse(result);
+		displayRulePercent(a);	
+	  },
+	  });
+	  getBigPlayerStatus();
+}
+
+function test()
+{
+	var value = document.getElementById('steamidinput');
+	
+	console.log(value.value);
+	$.ajax({
+	  type: 'GET',
+	  url: '/test',
+	  data: 'id=' + value.value,
+	  success: function(result) {
+			console.log(result);
+	  },	  
+	  });
+}
 
 function hi(gameid)
 {		
@@ -88,7 +220,7 @@ function chart(gameid)
 	data: 'id=' + gameid,
 	success: function(result) {	
 		json = JSON.parse(result);
-		console.log(json);
+		//console.log(json);
 		for(var k in json[0]) {		   
 		   data.push(json[0][k]["PlayerAmount"]);
 		   label.push(json[0][k]["Date"].substring(0, 10));
@@ -101,7 +233,9 @@ function chart(gameid)
 
 function drawChart(data, label)
 {
+	//$('#playerCountStorage').empty();
 	var ctx = document.getElementById("myChart");
+	
 	var myChart = new Chart(ctx, {
 		type: 'line',
 		data: {
@@ -137,7 +271,7 @@ function temp(result)
 	
 	for(var k in result[0]) {
 	   var a = [result[0][k]["3LetterCode"], result[0][k]["Value"]];
-	   console.log(a);
+	   //console.log(a);
 	   series.push(a);
 	}
 
@@ -159,9 +293,9 @@ function temp(result)
     //        .range(["#ff0000","#00ff00"]); // blue color
 			
 			
-	var paletteScale = d3.scale.threshold()
-			.domain([0,1])
-			.range(["#ff0000","#00ff00"]);
+	var paletteScale = d3.scale.linear()
+			.domain([-1, 0, 1])
+			.range(["#ff0000","#ffffff","#00ff00"]);
 			
 			
 			//.range(["#EFEFFF","#02386F"]); // blue color
@@ -172,9 +306,12 @@ function temp(result)
                 value = item[1];
         dataset[iso] = { numberOfThings: value, fillColor: paletteScale(value) };
     });
+	
+	$('#datamapStorage').empty();
+	
     // render map
     var map = new Datamap({
-        element: document.getElementById('container'),
+        element: document.getElementById('datamapStorage'),
         projection: 'mercator', // big world map
         // countries don't listed in dataset will be painted with this color
         fills: { defaultFill: '#F5F5F5' },
@@ -208,8 +345,8 @@ function temp(result)
   
   <form class="GetPlayersGames">
     <h1>GetPlayers Games</h1>
-    <input type="text" class="steamid" placeholder="Steam ID">
-    <input type="submit" value="Get Games">
+    <input type="text" class="steamid" id="steamidinput" placeholder="Steam ID">
+    <input type="submit" value="Get Games" onclick="test();return false;">
   </form>
   
 
